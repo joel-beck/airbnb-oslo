@@ -1,3 +1,5 @@
+# Will clean up file, i.e. remove code cells and print statements when cleaning process is final
+
 # %%
 import os
 
@@ -39,7 +41,9 @@ neighbourhoods_df = pd.merge(
 
 # %%
 # reviews.csv redundant => keep only reviews.csv.gz
-reviews_df = pd.read_csv("./data-raw/reviews.csv.gz", parse_dates=["date"], index_col="listing_id")
+reviews_df = pd.read_csv(
+    "./data-raw/reviews.csv.gz", parse_dates=["date"], index_col="listing_id"
+)
 
 # %%
 list_1 = pd.read_csv("data-raw/listings.csv", index_col="id")
@@ -56,7 +60,9 @@ additional_cols = list_2[list_2.columns[~list_2.columns.isin(list_1.columns)]]
 listings_df = list_1.join(additional_cols)
 
 # %%
-calendar_df = pd.read_csv("data-raw/calendar.csv.gz", parse_dates=["date"], index_col="listing_id")
+calendar_df = pd.read_csv(
+    "data-raw/calendar.csv.gz", parse_dates=["date"], index_col="listing_id"
+)
 
 # %% [markdown]
 # Keep only 4 out of 7 Data Frames:
