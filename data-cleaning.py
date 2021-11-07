@@ -39,25 +39,24 @@ neighbourhoods_df = pd.merge(
 
 # %%
 # reviews.csv redundant => keep only reviews.csv.gz
-reviews_df = pd.read_csv("./data-raw/reviews.csv.gz", parse_dates=["date"])
+reviews_df = pd.read_csv("./data-raw/reviews.csv.gz", parse_dates=["date"], index_col="listing_id")
 
 # %%
-list_1 = pd.read_csv("data-raw/listings.csv")
-list_2 = pd.read_csv("data-raw/listings.csv.gz")
+list_1 = pd.read_csv("data-raw/listings.csv", index_col="id")
+list_2 = pd.read_csv("data-raw/listings.csv.gz", index_col="id")
 
-list_1.shape, list_2.shape
-
-# only neighbourhood_group column (which only contains NA's) in listings.csv but not in listings.csv.gz
+# only neighbourhood_group column (which only contains NA's) in listings.csv but not in listings.csv.gz, however contents of common columns are different
 print(list_1.columns[~list_1.columns.isin(list_2.columns)])
 print(list_1["neighbourhood_group"].isna().all())
 
-# contain same row information => keep only larger dataframe
-print((list_1["id"] == list_2["id"]).all())
+# all columns that are not contained in smaller dataframe
+additional_cols = list_2[list_2.columns[~list_2.columns.isin(list_1.columns)]]
 
-listings_df = list_2
+# keep all information from listings.csv and join additional information from listings.csv.gz
+listings_df = list_1.join(additional_cols)
 
 # %%
-calendar_df = pd.read_csv("data-raw/calendar.csv.gz", parse_dates=["date"])
+calendar_df = pd.read_csv("data-raw/calendar.csv.gz", parse_dates=["date"], index_col="listing_id")
 
 # %% [markdown]
 # Keep only 4 out of 7 Data Frames:
@@ -68,17 +67,17 @@ calendar_df = pd.read_csv("data-raw/calendar.csv.gz", parse_dates=["date"])
 
 # %%
 # all three dataframes are connected by id columns
-print(listings_df["id"].nunique())
-print(calendar_df["listing_id"].nunique())
-print(reviews_df["listing_id"].nunique())
+print(listings_df.index.nunique())
+print(calendar_df.index.nunique())
+print(reviews_df.index.nunique())
 
 # %%
 # listings_df strict superset of unique observations
-print(calendar_df["listing_id"].isin(listings_df["id"]).all())
-print(reviews_df["listing_id"].isin(listings_df["id"]).all())
+print(calendar_df.index.isin(listings_df.index).all())
+print(reviews_df.index.isin(listings_df.index).all())
 
 # calendar_df not a superset of reviews_df observations
-print(reviews_df["listing_id"].isin(calendar_df["listing_id"]).all())
+print(reviews_df.index.isin(calendar_df.index).all())
 
 # %% [markdown]
 # ## Convert Data Types
@@ -115,13 +114,10 @@ print(calendar_df.dtypes)
 for col in listings_df.convert_dtypes():
     print(col, "\t", listings_df[col].dtype)
 
-listings_df = listings_df.assign(
+listings_df = listings_df.convert_dtypes().assign(
     first_review=pd.to_datetime(listings_df["first_review"]),
     last_review=pd.to_datetime(listings_df["last_review"]),
-    price=listings_df["price"]
-    .str.replace("$", "", regex=False)
-    .str.replace(",", "", regex=False)
-    .astype("float"),
+    price=listings_df["price"].astype("float"),
 )
 
 listings_df[["price", "first_review", "last_review"]].dtypes
@@ -132,3 +128,5 @@ listings_df.to_pickle(path="data-clean/listings.pkl")
 reviews_df.to_pickle(path="data-clean/reviews.pkl")
 calendar_df.to_pickle(path="data-clean/calendar.pkl")
 neighbourhoods_df.to_pickle(path="data-clean/neighbourhoods.pkl")
+
+# %%

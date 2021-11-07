@@ -1,3 +1,6 @@
+# %% [markdown]
+#  # Exploratory Data Analysis of listings Data Frame
+
 # %%
 import pandas as pd
 import seaborn as sns
@@ -5,9 +8,6 @@ import seaborn as sns
 # %%
 # import clean dataset
 listings_df = pd.read_pickle("data-clean/listings.pkl")
-
-# %% [markdown]
-# # Exploratory Data Analysis of listings Data Frame
 
 # %%
 # SECTION: Exploratory Data Analysis
@@ -20,8 +20,12 @@ cols = [
     "reviews_per_month",
     "availability_365",
 ]
-listings_red = listings_df[cols]
 
+# exclude observations where price = 0
+listings_red = listings_df[cols].loc[listings_df["price"] > 0]
+
+# %% [markdown]
+#  ## Most expensive neighbourhoods
 
 # %%
 price_by_nbhood = (
@@ -31,6 +35,7 @@ price_by_nbhood = (
     .sort_values(by="mean", ascending=False)
 )
 price_by_nbhood
+
 
 # %%
 g = sns.displot(
@@ -52,6 +57,7 @@ fig = g.figure
 fig.subplots_adjust(top=0.9)
 fig.suptitle("Log-Price Distribution")
 
+
 # %%
 (
     sns.catplot(
@@ -61,13 +67,19 @@ fig.suptitle("Log-Price Distribution")
     .set(title="Mean Price by Neighbourhood")
 )
 
+
+# %% [markdown]
+#  ## Most expensive room types
+
 # %%
+# exclude prices of 0
 price_by_roomtype = (
     listings_red.groupby("room_type")
     .agg({"price": ["min", "mean", "max"]})
     .droplevel(level=0, axis="columns")
     .sort_values(by="mean", ascending=False)
 )
+price_by_roomtype
 
 # %%
 (
@@ -78,20 +90,14 @@ price_by_roomtype = (
     .set(title="Mean Price by Room Type")
 )
 
+
+# %% [markdown]
+#  ## Are rooms with more reviews more or less expensive?
+
 # %%
 sns.relplot(
     kind="scatter",
-    data=listings_red.loc[listings_red["price"] > 0],
+    data=listings_red,
     x="number_of_reviews",
     y="price",
 ).set(yscale="log", title="Price vs. # Reviews")
-
-# %%
-# english review plus german translation
-longest_review = (
-    reviews_df["comments"].loc[lambda x: x.str.len() == x.str.len().max()].iloc[0]
-)
-
-longest_review
-
-# %%
