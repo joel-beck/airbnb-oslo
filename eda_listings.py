@@ -1,5 +1,5 @@
 #%% [markdown]
-#  # Exploratory Data Analysis of listings Data Frame
+# # Exploratory Data Analysis of listings Data Frame
 
 #%%
 import pandas as pd
@@ -22,14 +22,14 @@ cols = [
 ]
 
 # exclude observations where price = 0
-listings_red = listings_df[cols].loc[listings_df["price"] > 0]
+listings_subset = listings_df[cols].loc[listings_df["price"] > 0]
 
 #%% [markdown]
 #  ## Most expensive neighbourhoods
 
 #%%
 price_by_nbhood = (
-    listings_red.groupby("neighbourhood")
+    listings_subset.groupby("neighbourhood")
     .agg({"price": ["min", "mean", "max"]})
     .droplevel(level=0, axis="columns")
     .sort_values(by="mean", ascending=False)
@@ -39,7 +39,7 @@ price_by_nbhood
 
 #%%
 g = sns.displot(
-    data=listings_red.loc[listings_red["price"] > 0],
+    data=listings_subset.loc[listings_subset["price"] > 0],
     kind="hist",
     x="price",
     hue="neighbourhood",
@@ -74,7 +74,7 @@ fig.suptitle("Log-Price Distribution")
 #%%
 # exclude prices of 0
 price_by_roomtype = (
-    listings_red.groupby("room_type")
+    listings_subset.groupby("room_type")
     .agg({"price": ["min", "mean", "max"]})
     .droplevel(level=0, axis="columns")
     .sort_values(by="mean", ascending=False)
@@ -97,7 +97,7 @@ price_by_roomtype
 #%%
 sns.relplot(
     kind="scatter",
-    data=listings_red,
+    data=listings_subset,
     x="number_of_reviews",
     y="price",
 ).set(yscale="log", title="Price vs. # Reviews")
