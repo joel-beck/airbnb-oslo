@@ -8,9 +8,14 @@ import seaborn as sns
 #%%
 # import clean dataset
 listings_df = pd.read_pickle("data-clean/listings.pkl")
+listings_df = pd.DataFrame(listings_df)
+
+listings_df.columns
 
 #%%
 # SECTION: Exploratory Data Analysis
+
+# most important columns to build model
 cols = [
     "price",
     "neighbourhood",
@@ -19,10 +24,17 @@ cols = [
     "number_of_reviews",
     "reviews_per_month",
     "availability_365",
+    "host_acceptance_rate",
+    "host_is_superhost",
+    "number_bathrooms",
+    "shared_bathrooms",
+    "bedrooms",
+    "review_scores_rating",
 ]
 
 # exclude observations where price = 0
 listings_subset = listings_df[cols].loc[listings_df["price"] > 0]
+listings_subset.head()
 
 #%% [markdown]
 #  ## Most expensive neighbourhoods
@@ -101,3 +113,5 @@ sns.relplot(
     x="number_of_reviews",
     y="price",
 ).set(yscale="log", title="Price vs. # Reviews")
+
+#%%

@@ -114,17 +114,29 @@ calendar_df = calendar_df.convert_dtypes().assign(
 print(calendar_df.dtypes)
 
 #%%
-# change first_review and last_review to date and price to float
 for col in listings_df.convert_dtypes():
     print(col, "\t", listings_df[col].dtype)
 
-listings_df = listings_df.convert_dtypes().assign(
+listings_df = listings_df.assign(
     first_review=pd.to_datetime(listings_df["first_review"]),
     last_review=pd.to_datetime(listings_df["last_review"]),
     price=listings_df["price"].astype("float"),
-)
-
-listings_df[["price", "first_review", "last_review"]].dtypes
+    host_is_superhost=listings_df["host_is_superhost"].astype("category"),
+    bathrooms_text=listings_df["bathrooms_text"].replace(
+        {"Half-bath": "0.5 baths", "Shared half-bath": "0.5 shared"}
+    ),
+    number_bathrooms=lambda x: x["bathrooms_text"]
+    .str.split(expand=True)
+    .iloc[:, 0]
+    .apply(pd.to_numeric),
+    shared_bathrooms=lambda x: x["bathrooms_text"].str.contains(
+        "shared", case=False, regex=False
+    ),
+    host_acceptance_rate=listings_df["host_acceptance_rate"]
+    .str.replace("%", "")
+    .astype("float")
+    / 100,
+).convert_dtypes()
 
 #%%
 # Write clean Datasets to file
