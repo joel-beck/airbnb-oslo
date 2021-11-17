@@ -2,13 +2,10 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from pytorch_utils import (
-    plot_results,
-    print_data_shapes,
-    print_param_shapes,
-    run_training,
-)
 from torch.utils.data import DataLoader, Subset
+
+from pytorch_utils import (plot_results, print_data_shapes, print_param_shapes,
+                           run_training)
 
 #%%
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -19,8 +16,8 @@ valset = torch.load("../data-clean/listings_val.pt")
 # hyperparameters
 batch_size = 64
 in_features = len(trainset[0][0])
-num_hidden_layers = 2
-hidden_features = 64
+hidden_features_list = [32, 64, 128, 64, 32]
+dropout_prob = 0.5
 loss_function = nn.MSELoss()
 
 #%%
@@ -39,17 +36,24 @@ valloader = DataLoader(valset, batch_size=batch_size, shuffle=True)
 
 #%%
 class LinearRegression(nn.Module):
-    def __init__(self, in_features, hidden_features, num_hidden_layers):
+    def __init__(self, in_features, hidden_features_list, dropout_prob):
         super(LinearRegression, self).__init__()
-        self.input_layer = nn.Linear(
-            in_features=in_features, out_features=hidden_features
-        )
-        hidden_block = [
-            nn.Linear(in_features=hidden_features, out_features=hidden_features),
+
+        self.input_layer = nn.Sequential(
+            nn.Linear(in_features=in_features, out_features=hidden_features_list[0]),
             nn.ReLU(),
-        ]
-        self.hidden_layers = nn.Sequential(*(num_hidden_layers * hidden_block))
-        self.output_layer = nn.Linear(in_features=hidden_features, out_features=1)
+            nn.Dropout(p=dropout_prob),
+        )
+
+        self.hidden_layers = self.hidden_block(
+            in_features=hidden_features_list[0],
+            out_features_list=hidden_features_list[1:],
+            dropout_prob=dropout_prob,
+        )
+
+        self.output_layer = nn.Linear(
+            in_features=hidden_features_list[-1], out_features=1
+        )
 
     def forward(self, x):
         x = self.input_layer(x)
@@ -57,8 +61,18 @@ class LinearRegression(nn.Module):
         x = self.output_layer(x)
         return x
 
+    def hidden_block(self, in_features, out_features_list, dropout_prob):
+        layers = []
+        for out_features in out_features_list:
+            layers.append(nn.Linear(in_features, out_features))
+            layers.append(nn.ReLU())
+            layers.append(nn.Dropout(p=dropout_prob))
+            in_features = out_features
 
-model = LinearRegression(in_features, hidden_features, num_hidden_layers)
+        return nn.Sequential(*layers)
+
+
+model = LinearRegression(in_features, hidden_features_list, dropout_prob).to(device)
 model
 
 #%%
@@ -68,7 +82,7 @@ print_param_shapes(model)
 print_data_shapes(model, device, input_shape=(1, in_features))
 
 #%%
-model = LinearRegression(in_features, hidden_features, num_hidden_layers)
+model = LinearRegression(in_features, hidden_features_list, dropout_prob).to(device)
 
 num_epochs = 50
 lr = 0.001
