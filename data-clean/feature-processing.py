@@ -2,8 +2,7 @@
 import numpy as np
 import pandas as pd
 import torch
-from torch.utils.data import TensorDataset, random_split
-from torchvision import transforms
+from torch.utils.data import TensorDataset
 
 #%%
 listings_df = pd.read_pickle("listings.pkl")
