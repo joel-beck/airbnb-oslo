@@ -6,7 +6,7 @@ import pandas as pd
 
 #%%
 # Overview over all Datasets
-dir = "data-raw"
+dir = "../data-raw"
 files = os.listdir(dir)
 
 for file in files:
@@ -28,8 +28,8 @@ for file in files:
 # SECTION: Data Cleaning
 # SUBSECTION: Merge / Select DataFrames
 # combine two neighbourhood dataframes
-nbhood_1 = pd.read_csv("data-raw/neighbourhoods.csv")
-nbhood_2 = gpd.read_file("data-raw/neighbourhoods.geojson")
+nbhood_1 = pd.read_csv("../data-raw/neighbourhoods.csv")
+nbhood_2 = gpd.read_file("../data-raw/neighbourhoods.geojson")
 
 neighbourhoods_df = pd.merge(
     nbhood_1.drop(columns=["neighbourhood_group"]),
@@ -40,12 +40,12 @@ neighbourhoods_df = pd.merge(
 #%%
 # reviews.csv redundant => keep only reviews.csv.gz
 reviews_df = pd.read_csv(
-    "./data-raw/reviews.csv.gz", parse_dates=["date"], index_col="listing_id"
+    "../data-raw/reviews.csv.gz", parse_dates=["date"], index_col="listing_id"
 )
 
 #%%
-list_1 = pd.read_csv("data-raw/listings.csv", index_col="id")
-list_2 = pd.read_csv("data-raw/listings.csv.gz", index_col="id")
+list_1 = pd.read_csv("../data-raw/listings.csv", index_col="id")
+list_2 = pd.read_csv("../data-raw/listings.csv.gz", index_col="id")
 
 # only neighbourhood_group column (which only contains NA's) in listings.csv but not in listings.csv.gz, however contents of common columns are different
 print(list_1.columns[~list_1.columns.isin(list_2.columns)])
@@ -59,7 +59,7 @@ listings_df = list_1.join(additional_cols)
 
 #%%
 calendar_df = pd.read_csv(
-    "data-raw/calendar.csv.gz", parse_dates=["date"], index_col="listing_id"
+    "../data-raw/calendar.csv.gz", parse_dates=["date"], index_col="listing_id"
 )
 
 #%% [markdown]
@@ -140,9 +140,9 @@ listings_df = listings_df.assign(
 
 #%%
 # Write clean Datasets to file
-listings_df.to_pickle(path="data-clean/listings.pkl")
-reviews_df.to_pickle(path="data-clean/reviews.pkl")
-calendar_df.to_pickle(path="data-clean/calendar.pkl")
-neighbourhoods_df.to_pickle(path="data-clean/neighbourhoods.pkl")
+listings_df.to_pickle(path="listings.pkl")
+reviews_df.to_pickle(path="reviews.pkl")
+calendar_df.to_pickle(path="calendar.pkl")
+neighbourhoods_df.to_pickle(path="neighbourhoods.pkl")
 
 #%%
