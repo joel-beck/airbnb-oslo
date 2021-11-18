@@ -4,8 +4,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, Subset
 
-from pytorch_utils import (plot_results, print_data_shapes, print_param_shapes,
-                           run_training)
+from pytorch_helpers import (plot_results, print_data_shapes, print_param_shapes,
+                             run_training)
 
 #%%
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
