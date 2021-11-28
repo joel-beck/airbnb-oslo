@@ -177,8 +177,8 @@ def plot_regression(train_losses, val_losses):
 
     epochs = range(1, len(train_losses) + 1)
 
-    ax.plot(epochs, train_losses, label="Training")
-    ax.plot(epochs, val_losses, label="Validation")
+    ax.plot(epochs, train_losses, label="Training", marker="o")
+    ax.plot(epochs, val_losses, label="Validation", marker="o")
     ax.set(
         title="Loss",
         xlabel="Epoch",
