@@ -2,10 +2,14 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader
 
-from pytorch_helpers import (plot_results, print_data_shapes, print_param_shapes,
-                             run_training)
+from pytorch_helpers import (
+    plot_regression,
+    print_data_shapes,
+    print_param_shapes,
+    run_regression,
+)
 
 #%%
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -84,11 +88,11 @@ print_data_shapes(model, device, input_shape=(1, in_features))
 #%%
 model = LinearRegression(in_features, hidden_features_list, dropout_prob).to(device)
 
-num_epochs = 50
+num_epochs = 200
 lr = 0.001
 optimizer = optim.Adam(params=model.parameters(), lr=lr)
 
-train_losses, val_losses = run_training(
+train_losses, val_losses = run_regression(
     model,
     optimizer,
     loss_function,
@@ -99,6 +103,6 @@ train_losses, val_losses = run_training(
     verbose=True,
 )
 
-plot_results(train_losses, val_losses)
+plot_regression(train_losses, val_losses)
 
 #%%
