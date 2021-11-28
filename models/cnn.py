@@ -25,8 +25,6 @@ image_transforms = transforms.Compose(
     [transforms.ToTensor(), transforms.Resize(size=IMAGE_SIZE)]
 )
 
-
-#%%
 #%%
 positive_prices = listings_df["price"].loc[listings_df["price"] > 0]
 price_bins = positive_prices.quantile(np.linspace(0, 1, 11))
@@ -164,3 +162,5 @@ train_losses, val_losses, train_accs, val_accs = run_classification(
 )
 
 plot_classification(train_losses, val_losses, train_accs, val_accs)
+
+#%%
