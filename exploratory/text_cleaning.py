@@ -2,9 +2,11 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import TensorDataset
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 import torchtext
 #from torchtext.data import Field, TabularDataset, BucketIterator
+from torchtext.data.utils import get_tokenizer
+from torchtext.vocab import build_vocab_from_iterator
 
 #%%
 listings_df = pd.read_pickle("data-clean/listings.pkl")
@@ -85,8 +87,20 @@ class Reviews_Text(Dataset):
 
 #%%
 
-dataset = Reviews_Text(reviews_cat_prices)
+dataset = Reviews_Text(reviews_cat_prices[0:9])
+dataloader = DataLoader(dataset)
 
 
+#%%
+
+tokenizer = get_tokenizer('basic_english')
+train_iter = dataloader
+
+def yield_tokens(data_iter):
+    for _, text in data_iter:
+        yield tokenizer(text)
+
+vocab = build_vocab_from_iterator(yield_tokens(train_iter), specials=["<unk>"])
+vocab.set_default_index(vocab["<unk>"])
 #%%
 
