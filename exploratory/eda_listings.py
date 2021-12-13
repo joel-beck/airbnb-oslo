@@ -4,6 +4,7 @@
 #%%
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
 
 #%%
 # import clean dataset
@@ -58,6 +59,7 @@ fig.suptitle("Log-Price Distribution")
 #%% [markdown]
 #  ## Most expensive room types
 
+
 #%%
 # exclude prices of 0
 price_by_roomtype = (
@@ -90,3 +92,7 @@ sns.relplot(
 ).set(yscale="log", title="Price vs. # Reviews")
 
 #%%
+plt.show()
+
+#%%
+
