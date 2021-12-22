@@ -2,30 +2,105 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import TensorDataset
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 import torchtext
 #from torchtext.data import Field, TabularDataset, BucketIterator
+from torchtext.data.utils import get_tokenizer
+from torchtext.vocab import build_vocab_from_iterator
 
 #%%
-listings = pd.read_pickle("listings.pkl")
+listings_df = pd.read_pickle("data-clean/listings.pkl")
 
-reviews = pd.read_pickle("reviews.pkl")
+reviews_df = pd.read_pickle("data-clean/reviews.pkl")
 
-reviews_subset = reviews[0:99]
-reviews_subset = reviews_subset.join(listings['price'], reviews_subset.index)
+reviews = reviews_df.join(listings_df['price'], reviews_df.index)
 
-reviews_df = reviews_subset.loc[:, ['comments', 'price']]
-x_train = reviews_subset.loc[:, 'comments']
-y_train = reviews_subset.loc[:, 'price']
+reviews = reviews.loc[:, ['comments', 'price']]
+x_train = reviews.loc[:, 'comments']
+y_train = reviews.loc[:, 'price']
 
 
 #%%
 
-tokenize = lambda x: x.split()
+# transform to PyTorch Dataset
+#x_train = torch.tensor(np.array(x_train))
+#y_train = torch.tensor(y_train)
+#trainset = TensorDataset(x_train, y_train)
 
-comment = Field(sequential=True, use_vocab=True, tokenize=tokenize, lower=True)
-price = Field(sequential=False, use_vocab=False)
+#torch.save(trainset, "text_train.pt")
 
-fields = {'comment': ('c', comment), 'price': ('p', price)}
+ #%%
+#tokenize = lambda x: x.split()
 
+#text = Field(sequential=True, use_vocab=True, tokenize=tokenize, lower=True)
+#price = LabelField(sequential=False, use_vocab=False)
+
+#fields = {'text': ('c', text), 'price': ('p', price)}
+
+
+
+#%%
+
+# create price categories
+
+positive_prices = reviews["price"].loc[reviews["price"] > 0]
+price_bins = positive_prices.quantile(np.linspace(0, 1, 11))
+
+reviews_cat_prices = (
+    reviews.dropna()
+    .loc[lambda x: x["price"] > 0]
+    .assign(
+        price_cat=lambda x: pd.cut(x["price"], bins=price_bins, include_lowest=True)
+    )
+)
+
+# map categories to values 0 - 9 to transform into Tensor
+bins_mapping = {
+    key: value
+    for value, key in dict(
+        enumerate(reviews_cat_prices["price_cat"].unique().sort_values())
+    ).items()
+}
+
+reviews_cat_prices = reviews_cat_prices.assign(
+    price_level=lambda x: x["price_cat"].map(bins_mapping).astype("int")
+)
+
+#%%
+
+# create DataSet class
+
+class Reviews_Text(Dataset):
+    def __init__(self, df, transform=None):
+        self.x = df["comments"]
+        self.y = torch.tensor(df["price_level"].values, dtype=torch.long)
+        self.transform = transform
+
+    def __getitem__(self, idx):
+        comment = self.x[idx]
+        label = self.y[idx]
+
+        return comment, label
+
+    def __len__(self):
+        return len(self.y)
+
+#%%
+
+dataset = Reviews_Text(reviews_cat_prices[0:9])
+dataloader = DataLoader(dataset)
+
+
+#%%
+
+tokenizer = get_tokenizer('basic_english')
+train_iter = dataloader
+
+def yield_tokens(data_iter):
+    for _, text in data_iter:
+        yield tokenizer(text)
+
+vocab = build_vocab_from_iterator(yield_tokens(train_iter), specials=["<unk>"])
+vocab.set_default_index(vocab["<unk>"])
+#%%
 
