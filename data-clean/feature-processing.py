@@ -1,4 +1,9 @@
 #%%
+# from standard library, to convert quoted lists in amenities column to python list
+import ast
+
+# pip install gender-guesser, to add predicted gender of hosts based on their name
+import gender_guesser.detector as gender
 import numpy as np
 import pandas as pd
 import torch
@@ -10,30 +15,53 @@ reviews_features = pd.read_pickle("reviews_features.pkl")
 
 #%%
 # SECTION: Column Selection & Preprocessing
+# SUBSECTION: Add Predicted Host Gender and Number of listed Amenities
+d = gender.Detector()
+
+listings_df = listings_df.assign(
+    host_gender=listings_df["host_name"]
+    .apply(d.get_gender)
+    .replace({"mostly_male": "male", "mostly_female": "female", "andy": "unknown"}),
+    number_amenities=listings_df["amenities"].apply(lambda x: len(ast.literal_eval(x))),
+)
+
+#%%
+# NOTE: Criteria to INCLUDE variables
+# - makes theoretical / intuitive sense
+# - indicates correlation with price in marginal barplot/scatterplot
+# - contains few missing values
+
+
+# NOTE: Reasons for EXCLUDING specific variables
+# host_acceptance_rate: 743 missing values
+# host_has_profile_pic: almost no variation (3293 true and 31 false values) and still no marginal correlation with price in barplot
+# host_response_rate: 934 missing values
+
+#%%
 # SUBSECTION: Choose Subset with most important columns
 
-# not including host_acceptance_rate increases rows without missing values in
-# listings_processed from 1978 to 2481
 listings_cols = [
-    "price",
-    "neighbourhood",
-    "room_type",
-    "minimum_nights",
-    "number_of_reviews",
-    "reviews_per_month",
     "availability_365",
-    # "host_acceptance_rate",
-    "host_is_superhost",
-    "number_bathrooms",
-    "shared_bathrooms",
     "bedrooms",
+    "host_gender",
+    "host_identity_verified",
+    "host_is_superhost",
+    "minimum_nights",
+    "neighbourhood",
+    "number_amenities",
+    "number_bathrooms",
+    "number_of_reviews",
+    "price",
     "review_scores_rating",
+    "reviews_per_month",
+    "room_type",
+    "shared_bathrooms",
 ]
 
 reviews_cols = [
+    "frac_norwegian",
     "median_review_length",
     "number_languages",
-    "frac_norwegian",
 ]
 
 # add numeric features from reviews dataframe to listings_subset,
@@ -44,9 +72,10 @@ listings_subset.to_pickle("listings_subset.pkl")
 #%%
 # SUBSECTION: Transform Categorical Columns to Dummies
 categorical_cols = [
+    "host_identity_verified",
+    "host_is_superhost",
     "neighbourhood",
     "room_type",
-    "host_is_superhost",
     "shared_bathrooms",
 ]
 

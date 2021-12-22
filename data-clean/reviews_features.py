@@ -1,6 +1,8 @@
 #%%
 import numpy as np
 import pandas as pd
+
+# pip install langdetect
 from langdetect import detect
 from tqdm import tqdm
 
