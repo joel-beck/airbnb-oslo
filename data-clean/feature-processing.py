@@ -9,8 +9,11 @@ listings_df = pd.read_pickle("listings.pkl")
 reviews_features = pd.read_pickle("reviews_features.pkl")
 
 #%%
-# SECTION: Reduce Full Data Frame to Subset with most important columns
+# SECTION: Column Selection & Preprocessing
+# SUBSECTION: Choose Subset with most important columns
 
+# not including host_acceptance_rate increases rows without missing values in
+# listings_processed from 1978 to 2481
 listings_cols = [
     "price",
     "neighbourhood",
@@ -19,7 +22,7 @@ listings_cols = [
     "number_of_reviews",
     "reviews_per_month",
     "availability_365",
-    "host_acceptance_rate",
+    # "host_acceptance_rate",
     "host_is_superhost",
     "number_bathrooms",
     "shared_bathrooms",
@@ -30,18 +33,16 @@ listings_cols = [
 reviews_cols = [
     "median_review_length",
     "number_languages",
-    "frac_english",
     "frac_norwegian",
 ]
 
 # add numeric features from reviews dataframe to listings_subset,
 # join() merges by index
 listings_subset = listings_df[listings_cols].join(reviews_features[reviews_cols])
-
 listings_subset.to_pickle("listings_subset.pkl")
 
 #%%
-# SECTION: Process Data Frame Subset to valid model input
+# SUBSECTION: Transform Categorical Columns to Dummies
 categorical_cols = [
     "neighbourhood",
     "room_type",
@@ -50,19 +51,17 @@ categorical_cols = [
 ]
 
 # exclude observations with price of 0
-# dropna() drops ca. 1000 of 3000 rows => maybe find better solution
-# only few columns have missing values
 listings_processed = (
     pd.get_dummies(listings_subset, columns=categorical_cols, drop_first=True)
     .loc[listings_df["price"] > 0]
     .dropna()
 )
 
-#%%
 listings_processed.to_pickle("listings_processed.pkl")
 
 #%%
-# SECTION: Transform processed Data Frame to PyTorch Dataset
+# SECTION: Split in Training and Test Set
+# SUBSECTION: Standardize Numeric Columns based on Training Set
 def standardize(df, numeric_cols, train_indices):
     df = df.copy()
     mean_vec = df[numeric_cols].iloc[train_indices].mean()
@@ -86,12 +85,15 @@ numeric_cols = [col for col in listings_subset.columns if col not in categorical
 listings_standardized = standardize(listings_processed, numeric_cols, train_indices)
 
 #%%
-# split in training and validation set
+# SUBSECTION: Pandas Training Test
 listings_train = listings_standardized.iloc[train_indices]
 listings_val = listings_standardized.iloc[val_indices]
 
+listings_train.to_pickle("listings_train_pandas.pkl")
+listings_val.to_pickle("listings_val_pandas.pkl")
+
 #%%
-# transform to PyTorch Dataset
+# SUBSECTION: PyTorch Training Test
 y_train = torch.tensor(listings_train["price"].values.astype(np.float32))
 X_train = torch.tensor(listings_train.drop(columns=["price"]).values.astype(np.float32))
 trainset = TensorDataset(X_train, y_train)
@@ -100,7 +102,7 @@ y_val = torch.tensor(listings_val["price"].values.astype(np.float32))
 X_val = torch.tensor(listings_val.drop(columns=["price"]).values.astype(np.float32))
 valset = TensorDataset(X_val, y_val)
 
-torch.save(trainset, "listings_train.pt")
-torch.save(valset, "listings_val.pt")
+torch.save(trainset, "listings_train_pytorch.pt")
+torch.save(valset, "listings_val_pytorch.pt")
 
 #%%

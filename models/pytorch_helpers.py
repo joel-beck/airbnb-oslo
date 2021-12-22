@@ -76,14 +76,15 @@ def train_regression(dataloader, optimizer, model, loss_function, device):
         batch_size = len(y)
         epoch_total += batch_size
 
-        # Mean Loss per sample
+        # total loss per sample in minibatch (sum of squared deviations)
+        # when using MSELoss(reduction="sum")
         loss = loss_function(y_pred, y)
-        # Loss per minibatch
-        epoch_loss += loss * batch_size
+        epoch_loss += loss
 
         loss.backward()
         optimizer.step()
 
+    # return mean loss per sample in whole dataset
     return epoch_loss.detach().to(device="cpu").numpy() / epoch_total
 
 
@@ -101,10 +102,8 @@ def validate_regression(dataloader, model, loss_function, device):
             batch_size = len(y)
             epoch_total += batch_size
 
-            # Mean Loss per sample
             loss = loss_function(y_pred, y)
-            # Loss per minibatch
-            epoch_loss += loss * batch_size
+            epoch_loss += loss
 
     return epoch_loss.detach().to(device="cpu").numpy() / epoch_total
 
@@ -121,11 +120,12 @@ def run_regression(
     save_path=None,
     verbose=False,
 ):
-    start_time = time.time()
+    start_time = time.perf_counter()
     train_losses, val_losses = [], []
 
     if save_best:
-        best_loss = np.inf
+        best_loss_train = np.inf
+        best_loss_val = np.inf
 
     for epoch in range(1, num_epochs + 1):
 
@@ -147,10 +147,15 @@ def run_regression(
         val_losses.append(epoch_val_loss)
 
         if save_best:
-            if epoch_val_loss < best_loss:
-                best_loss_epoch = epoch
-                best_loss = epoch_val_loss
+            if epoch_train_loss < best_loss_train:
+                best_loss_train_epoch = epoch
+                best_loss_train = epoch_train_loss
 
+            if epoch_val_loss < best_loss_val:
+                best_loss_val_epoch = epoch
+                best_loss_val = epoch_val_loss
+
+                # save weights for lowest validation loss
                 if save_path is not None:
                     torch.save(model.state_dict(), save_path)
 
@@ -161,11 +166,16 @@ def run_regression(
                     f"Mean Loss Training: {epoch_train_loss:.5f} | Mean Loss Validation: {epoch_val_loss:.5f}\n"
                 )
 
-    time_elapsed = np.round(time.time() - start_time, 0).astype(int)
+    time_elapsed = np.round(time.perf_counter() - start_time, 0).astype(int)
     print(f"Finished training after {time_elapsed} seconds.")
 
     if save_best:
-        print(f"\nBest Mean Loss Validation: {best_loss:.3f} (Epoch {best_loss_epoch})")
+        print(
+            f"\nBest Mean Loss Training: {best_loss_train:.3f} (Epoch {best_loss_train_epoch})"
+        )
+        print(
+            f"Best Mean Loss Validation: {best_loss_val:.3f} (Epoch {best_loss_val_epoch})"
+        )
 
     return train_losses, val_losses
 
