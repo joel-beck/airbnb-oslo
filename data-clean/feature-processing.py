@@ -34,7 +34,8 @@ reviews_cols = [
     "frac_norwegian",
 ]
 
-# add numeric features from reviews dataframe to listings_subset, join() merges by index
+# add numeric features from reviews dataframe to listings_subset,
+# join() merges by index
 listings_subset = listings_df[listings_cols].join(reviews_features[reviews_cols])
 
 listings_subset.to_pickle("listings_subset.pkl")
@@ -80,7 +81,7 @@ train_indices = rng.choice(
 val_indices = [
     index for index in range(0, len(listings_processed)) if index not in train_indices
 ]
-numeric_cols = [col for col in cols if col not in categorical_cols]
+numeric_cols = [col for col in listings_subset.columns if col not in categorical_cols]
 
 listings_standardized = standardize(listings_processed, numeric_cols, train_indices)
 
@@ -101,3 +102,5 @@ valset = TensorDataset(X_val, y_val)
 
 torch.save(trainset, "listings_train.pt")
 torch.save(valset, "listings_val.pt")
+
+#%%
