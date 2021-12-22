@@ -6,12 +6,12 @@ from torch.utils.data import TensorDataset
 
 #%%
 listings_df = pd.read_pickle("listings.pkl")
+reviews_features = pd.read_pickle("reviews_features.pkl")
 
 #%%
 # SECTION: Reduce Full Data Frame to Subset with most important columns
-listings_df = pd.DataFrame(listings_df)
 
-cols = [
+listings_cols = [
     "price",
     "neighbourhood",
     "room_type",
@@ -27,7 +27,16 @@ cols = [
     "review_scores_rating",
 ]
 
-listings_subset = listings_df[cols]
+reviews_cols = [
+    "median_review_length",
+    "number_languages",
+    "frac_english",
+    "frac_norwegian",
+]
+
+# add numeric features from reviews dataframe to listings_subset, join() merges by index
+listings_subset = listings_df[listings_cols].join(reviews_features[reviews_cols])
+
 listings_subset.to_pickle("listings_subset.pkl")
 
 #%%
