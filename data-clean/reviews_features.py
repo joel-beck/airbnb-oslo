@@ -22,7 +22,7 @@ def detect_language(review):
 
 
 #%%
-# takes about 20 minutes on cpu
+# takes about 20 minutes on my cpu
 language = reviews["comments"].progress_apply(detect_language)
 
 #%%
