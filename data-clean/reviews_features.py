@@ -2,8 +2,10 @@
 import numpy as np
 import pandas as pd
 
-# pip install langdetect
+# conda/mamba install langdetect
 from langdetect import detect
+
+# conda/mamba install tqdm
 from tqdm import tqdm
 
 # to use progress bar / progress_apply() instead of apply()

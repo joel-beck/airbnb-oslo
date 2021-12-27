@@ -1,6 +1,7 @@
 #%%
 import os
 
+# conda/mamba install geopandas
 import geopandas as gpd
 import pandas as pd
 

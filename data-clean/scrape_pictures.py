@@ -1,7 +1,13 @@
 #%%
 import pandas as pd
+
+# conda/mamba install requests
 import requests
+
+# conda/mamba install bs4
 from bs4 import BeautifulSoup
+
+# conda/mamba install tqdm
 from tqdm import tqdm
 
 tqdm.pandas()
