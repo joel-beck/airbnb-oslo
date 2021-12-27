@@ -12,10 +12,11 @@ from torch.utils.data import TensorDataset
 #%%
 listings_df = pd.read_pickle("listings.pkl")
 reviews_features = pd.read_pickle("reviews_features.pkl")
+front_page_pictures = pd.read_pickle("front_page_pictures.pkl")
 
 #%%
 # SECTION: Column Selection & Preprocessing
-# SUBSECTION: Add Predicted Host Gender and Number of listed Amenities
+# SUBSECTION: Add Predicted Host Gender, Number of listed Amenities and Number of Front Page Pictures
 d = gender.Detector()
 
 listings_df = listings_df.assign(
@@ -23,6 +24,9 @@ listings_df = listings_df.assign(
     .apply(d.get_gender)
     .replace({"mostly_male": "male", "mostly_female": "female", "andy": "unknown"}),
     number_amenities=listings_df["amenities"].apply(lambda x: len(ast.literal_eval(x))),
+    number_front_page_pictures=front_page_pictures.groupby(
+        front_page_pictures.index
+    ).count(),
 )
 
 #%%
@@ -56,6 +60,7 @@ listings_cols = [
     "neighbourhood",
     "number_amenities",
     "number_bathrooms",
+    "number_front_page_pictures",
     "number_of_reviews",
     "price",
     "review_scores_rating",

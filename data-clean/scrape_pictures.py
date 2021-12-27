@@ -56,7 +56,7 @@ if GET_FRONT_PICTURES:
 #%%
 # most apartments have 5 pictures on front page
 front_page_pictures = pd.read_pickle("front_page_pictures.pkl")
-front_page_pictures.reset_index().groupby("id").count().value_counts()
+front_page_pictures.groupby(front_page_pictures.index).count().value_counts()
 
 
 #%%
