@@ -34,7 +34,13 @@ listings_df = listings_df.assign(
 
 # NOTE: Reasons for EXCLUDING specific variables
 # host_acceptance_rate: 743 missing values
+
 # host_has_profile_pic: almost no variation (3293 true and 31 false values) and still no marginal correlation with price in barplot
+# sns.barplot(data=listings_df, x = "host_has_profile_pic", y = "price")
+# listings_df.groupby("host_has_profile_pic").agg(
+#     count=("price", "count"), mean_price=("price", "mean")
+# )
+
 # host_response_rate: 934 missing values
 
 #%%

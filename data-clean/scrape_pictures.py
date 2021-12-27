@@ -55,6 +55,7 @@ if GET_FRONT_PICTURES:
 
 #%%
 # most apartments have 5 pictures on front page
+front_page_pictures = pd.read_pickle("front_page_pictures.pkl")
 front_page_pictures.reset_index().groupby("id").count().value_counts()
 
 
@@ -69,11 +70,29 @@ def add_photos(url: str) -> str:
 all_picture_pages = picture_pages.apply(add_photos)
 
 #%%
-get_url_list(all_picture_pages.iloc[0])
+# NOTE: Extended Page is likely rendered by JavaScript => BeautifulSoup does not work
+# https://stackoverflow.com/questions/50014456/beautiful-soup-can-not-find-all-image-tags-in-html-stops-exactly-at-5
+
+# Possible Solutions:
+# - Selenium: quite complicated
+# - requests-html: simpler but does not work right now, https://docs.python-requests.org/projects/requests-html/en/latest/
 
 #%%
-response = requests.get(all_picture_pages.iloc[0])
-soup = BeautifulSoup(response.text, "html.parser")
+# BOOKMARK: Experimental
+# conda/mamba install requests-html
+from requests_html import AsyncHTMLSession
 
-# TODO: Does not find all pictures on page but only the first 5
-pictures = soup.find_all("picture")
+asession = AsyncHTMLSession()
+
+r = await asession.get(
+    "https://www.airbnb.de/rooms/42932/photos?_set_bev_on_new_domain=1638088059_YzdiYWU0ZmVmNjBk&source_impression_id=p3_1640558986_v9VqTe%2B8Ep%2FDNpjX"
+)
+
+await r.html.arender()
+
+pictures = r.html.find("img")
+
+# still only finds first 5 images
+for picture in pictures:
+    print(picture.attrs["src"])
+    print()
