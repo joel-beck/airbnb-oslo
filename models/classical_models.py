@@ -49,24 +49,45 @@ model_list = [
 
 # SUBSECTION: Save R^2 and MSE for all Models in DataFrame
 model_names = []
-r2_list = []
-mse_list = []
+r2_train_list = []
+r2_test_list = []
+mse_train_list = []
+mse_test_list = []
 
 for model in model_list:
     model_names.append(model.__class__.__name__)
-
     model.fit(X_train, y_train)
-    y_hat = model.predict(X_test)
 
-    r2 = r2_score(y_true=y_test, y_pred=y_hat)
-    r2_list.append(r2)
+    # performance on training set
+    y_hat_train = model.predict(X_train)
 
-    mse = mean_squared_error(y_true=y_test, y_pred=y_hat)
-    mse_list.append(mse)
+    r2_train = r2_score(y_true=y_train, y_pred=y_hat_train)
+    r2_train_list.append(r2_train)
+
+    mse_train = mean_squared_error(y_true=y_train, y_pred=y_hat_train)
+    mse_train_list.append(mse_train)
+
+    # performance on test set
+    y_hat_test = model.predict(X_test)
+
+    r2_test = r2_score(y_true=y_test, y_pred=y_hat_test)
+    r2_test_list.append(r2_test)
+
+    mse_test = mean_squared_error(y_true=y_test, y_pred=y_hat_test)
+    mse_test_list.append(mse_test)
 
 #%%
 # TODO: Results are Nonsense right now, find Mistake in Preprocessing Pipeline
-metrics_df = pd.DataFrame({"r2": r2_list, "mse": mse_list}, index=model_names)
-metrics_df.sort_values("mse")
+metrics_df = pd.DataFrame(
+    {
+        "r2_train": r2_train_list,
+        "r2_test": r2_test_list,
+        "mse_train": mse_train_list,
+        "mse_test": mse_test_list,
+    },
+    index=model_names,
+)
+
+metrics_df.sort_values("mse_test")
 
 #%%
