@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 import torch
-from sklearn.compose import ColumnTransformer
+from sklearn.compose import make_column_transformer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from torch.utils.data import TensorDataset
@@ -30,11 +30,9 @@ numeric_cols = [
 numeric_transformer = StandardScaler()
 categorical_transformer = OneHotEncoder(handle_unknown="ignore")
 
-preprocessor = ColumnTransformer(
-    transformers=[
-        ("numeric", numeric_transformer, numeric_cols),
-        ("categorical", categorical_transformer, categorical_cols),
-    ]
+preprocessor = make_column_transformer(
+    (numeric_transformer, numeric_cols),
+    (categorical_transformer, categorical_cols),
 )
 
 #%%
@@ -47,13 +45,6 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 X_train = preprocessor.fit_transform(X_train)
 X_test = preprocessor.transform(X_test)
-
-#%%
-# SUBSECTION: Scikit-Learn Training Test
-np.save(arr=X_train, file="X_train_sklearn.npy", allow_pickle=True)
-np.save(arr=X_test, file="X_test_sklearn.npy", allow_pickle=True)
-np.save(arr=y_train, file="y_train_sklearn.npy", allow_pickle=True)
-np.save(arr=y_test, file="y_test_sklearn.npy", allow_pickle=True)
 
 #%%
 # SUBSECTION: PyTorch Training Test
