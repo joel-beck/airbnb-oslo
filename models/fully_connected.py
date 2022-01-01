@@ -13,8 +13,8 @@ from pytorch_helpers import (
 
 #%%
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-trainset = torch.load("../data-clean/listings_train_pytorch.pt")
-valset = torch.load("../data-clean/listings_val_pytorch.pt")
+trainset = torch.load("../data-clean/trainset_pytorch.pt")
+testset = torch.load("../data-clean/testset_pytorch.pt")
 
 #%%
 # SUBSECTION: Hyperparameters
@@ -31,13 +31,13 @@ loss_function = nn.MSELoss(reduction="sum")
 # train_indices = torch.randint(0, len(trainset) + 1, size=(subset_size,))
 # trainset = Subset(dataset=trainset, indices=train_indices)
 
-# val_indices = torch.randint(0, len(valset) + 1, size=(subset_size,))
-# valset = Subset(dataset=valset, indices=val_indices)
+# val_indices = torch.randint(0, len(testset) + 1, size=(subset_size,))
+# testset = Subset(dataset=testset, indices=val_indices)
 
 #%%
 # SUBSECTION: DataLoaders
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
-valloader = DataLoader(valset, batch_size=batch_size, shuffle=True)
+testloader = DataLoader(testset, batch_size=batch_size, shuffle=True)
 
 #%%
 # SECTION: Model Construction
@@ -104,7 +104,7 @@ train_losses, val_losses = run_regression(
     device,
     num_epochs,
     trainloader,
-    valloader,
+    testloader,
     verbose=True,
     save_best=True,
 )
@@ -112,6 +112,7 @@ train_losses, val_losses = run_regression(
 plot_regression(train_losses, val_losses)
 
 #%%
+# NOTE
 # Right now, the model does not overfit for 50 Epochs.
 # However, the validation loss per epoch decreases very slowly.
 # Also the Validation Loss per Epoch is much lower than the Training Loss per Epoch, even though both are computed per sample
