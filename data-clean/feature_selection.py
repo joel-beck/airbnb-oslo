@@ -12,7 +12,6 @@ reviews_features = pd.read_pickle("reviews_features.pkl")
 front_page_pictures = pd.read_pickle("front_page_pictures.pkl")
 
 #%%
-# SECTION: Column Selection & Preprocessing
 # SUBSECTION: Add Predicted Host Gender, Number of listed Amenities and Number of Front Page Pictures
 d = gender.Detector()
 
@@ -45,7 +44,7 @@ listings_df = listings_df.assign(
 # host_response_rate: 934 missing values
 
 #%%
-# SUBSECTION: Choose Subset with most important columns
+# SUBSECTION: Choose Subset with most important columns and drop invalid/missing values
 
 listings_cols = [
     "availability_365",

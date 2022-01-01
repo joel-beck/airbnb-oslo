@@ -24,6 +24,7 @@ def detect_language(review):
 
 
 #%%
+# SUBSECTION: Detect Languages of all Reviews
 # takes about 20 minutes on my cpu
 language = reviews["comments"].progress_apply(detect_language)
 
@@ -35,8 +36,7 @@ reviews_features = pd.DataFrame(
     data={"language": language, "review_length": reviews["comments"].str.len()}
 ).reset_index()
 
-# drop reviews with unrecognized languages (e.g. only one character long) and save to
-# file
+# SUBSECTION: Drop reviews with unrecognized languages (e.g. only one character long) and save Summary Statistics
 reviews_features = (
     reviews_features.dropna(subset=["language"])
     .groupby("listing_id")
