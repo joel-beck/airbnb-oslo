@@ -179,3 +179,5 @@ metrics_df = pd.DataFrame(
 metrics_df.sort_values("r2_test", ascending=False)
 
 #%%
+# save results
+metrics_df.to_pickle("classical_models_results.pkl")
