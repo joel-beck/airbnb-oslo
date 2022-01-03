@@ -33,12 +33,15 @@ listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
 X = listings_subset.drop(columns="price")
 y = listings_subset["price"]
 
+# BOOKMARK: Hyperparameters
+random_state = 42
+n_folds = 10
+n_iter = 10
+
 column_transformer = get_column_transformer()
 
 #%%
 # SUBSECTION: Define Models & Hyperparameters
-random_state = 123
-
 # Baseline Model - Mean Price
 # calculated here for all observations, not evaluated on separate test set
 mean_price = y.mean()
@@ -125,7 +128,7 @@ result_container = ResultContainer(
 
 #%%
 # SECTION: Fit Models & Analyze Results
-result = fit_models(X, y, models, result_container, n_folds=5, n_iter=10)
+result = fit_models(X, y, models, result_container, n_folds=n_folds, n_iter=n_iter)
 metrics_df = result.display_results()
 
 # save results
@@ -133,6 +136,7 @@ metrics_df.to_pickle("full_features_results.pkl")
 
 #%%
 # SUBSECTION: Compare Results with Reduced Feature Sets
+# import pandas as pd
 pd.read_pickle("full_features_results.pkl")
 
 #%%
