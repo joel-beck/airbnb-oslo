@@ -1,11 +1,12 @@
 #%%
+from typing import Union
 from warnings import simplefilter
 
 import numpy as np
 import pandas as pd
+from sklearn.decomposition import PCA
+from sklearn.feature_selection import SelectKBest
 from sklearn.linear_model import Lasso, LinearRegression, Ridge
-
-simplefilter(action="ignore", category=FutureWarning)
 
 from sklearn_helpers import (
     ModelContainer,
@@ -16,13 +17,9 @@ from sklearn_helpers import (
     get_preprocessor,
 )
 
+simplefilter(action="ignore", category=FutureWarning)
+
 #%%
-listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
-
-# 18 columns in X
-X = listings_subset.drop(columns="price")
-y = listings_subset["price"]
-
 # BOOKMARK: Hyperparameters
 random_state = 42
 n_folds = 10
@@ -30,11 +27,17 @@ k = 20
 pca_components = 20
 
 #%%
-# SECTION: Part 1: SelectKBest
-# SUBSECTION: Get Selected Features during Model Fitting
+listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
+
+# 18 columns in X
+X = listings_subset.drop(columns="price")
+y = listings_subset["price"]
+
+#%%
+# SUBSECTION: Explore Selected Features during Model Fitting
 column_transformer = get_column_transformer()
-feature_selector = get_feature_selector("k_best", k=k)
-preprocessor = get_preprocessor(column_transformer, feature_selector)
+k_best = get_feature_selector("k_best", k=k)
+preprocessor = get_preprocessor(column_transformer, k_best)
 
 preprocessor.fit_transform(X, y)
 
@@ -54,60 +57,40 @@ for feature in selected_features:
     print(feature.split("__")[1])
 
 #%%
-# SUBSECTION: Define Models
-linear = ModelContainer(LinearRegression(), preprocessor)
+# SECTION: Fit Models
+# helper function for this file only, depends on global variables
+def try_feature_selectors(feature_selector: Union[PCA, SelectKBest]) -> pd.DataFrame:
+    column_transformer = get_column_transformer()
+    preprocessor = get_preprocessor(column_transformer, feature_selector)
 
-lasso = ModelContainer(
-    Lasso(random_state=random_state),
-    preprocessor,
-    {"model__alpha": np.arange(1, 10)},
-)
+    linear = ModelContainer(LinearRegression(), preprocessor)
 
-ridge = ModelContainer(
-    Ridge(random_state=random_state),
-    preprocessor,
-    {"model__alpha": np.arange(50, 500, 50)},
-)
+    lasso = ModelContainer(
+        Lasso(random_state=random_state),
+        preprocessor,
+        {"model__alpha": np.arange(1, 10)},
+    )
 
-models = [linear, lasso, ridge]
+    ridge = ModelContainer(
+        Ridge(random_state=random_state),
+        preprocessor,
+        {"model__alpha": np.arange(50, 500, 50)},
+    )
 
-# Initialize Results
-result_container = ResultContainer()
+    models = [linear, lasso, ridge]
+    result_container = ResultContainer()
+
+    result = fit_models(X, y, models, result_container, n_folds=n_folds)
+    return result.display_results()
+
 
 #%%
-# SUBSECTION: Fit Models & Analyze Results
-result = fit_models(X, y, models, result_container, n_folds=n_folds)
-metrics_df = result.display_results()
+k_best_results = try_feature_selectors(k_best)
+k_best_results.to_pickle("k_best_results.pkl")
 
-# save results
-metrics_df.to_pickle("k_best_results.pkl")
-
-#%%
-# SECTION: Part 2: PCA
-feature_selector = get_feature_selector("pca", pca_components=pca_components)
-preprocessor = get_preprocessor(column_transformer, feature_selector)
-
-linear = ModelContainer(LinearRegression(), preprocessor)
-
-lasso = ModelContainer(
-    Lasso(random_state=random_state),
-    preprocessor,
-    {"model__alpha": np.arange(1, 10)},
-)
-
-ridge = ModelContainer(
-    Ridge(random_state=random_state),
-    preprocessor,
-    {"model__alpha": np.arange(50, 500, 50)},
-)
-
-models = [linear, lasso, ridge]
-result_container = ResultContainer()
-
-result = fit_models(X, y, models, result_container, n_folds=n_folds)
-metrics_df = result.display_results()
-
-metrics_df.to_pickle("pca_results.pkl")
+pca = get_feature_selector("pca", pca_components=pca_components)
+pca_results = try_feature_selectors(pca)
+pca_results.to_pickle("pca_results.pkl")
 
 #%%
 # SUBSECTION: Compare Results with Full Feature Set

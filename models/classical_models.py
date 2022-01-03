@@ -27,16 +27,17 @@ from sklearn_helpers import (
 simplefilter(action="ignore", category=FutureWarning)
 
 #%%
+# BOOKMARK: Hyperparameters
+random_state = 42
+n_folds = 10
+n_iter = 10
+
+#%%
 # SUBSECTION: Transform Categorical Columns to Dummies and Standardize Numeric Columns
 listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
 
 X = listings_subset.drop(columns="price")
 y = listings_subset["price"]
-
-# BOOKMARK: Hyperparameters
-random_state = 42
-n_folds = 10
-n_iter = 10
 
 column_transformer = get_column_transformer()
 
