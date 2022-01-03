@@ -136,6 +136,6 @@ metrics_df
 
 #%%
 # save results
-metrics_df.to_pickle("full_feature_results.pkl")
+metrics_df.to_pickle("full_features_results.pkl")
 
 #%%

@@ -75,13 +75,17 @@ result_container = ResultContainer()
 # Since the pipelines include preprocessing and selecting, we fit the model with X and not X_subset
 result = fit_models(X, y, models, result_container, n_folds=10)
 metrics_df = result.display_results()
-metrics_df
+
+# save results
+metrics_df.to_pickle("reduced_features_results.pkl")
 
 #%%
 # SUBSECTION: Compare Results with Full Feature Set
+metrics_df
 
+#%%
 # Performance on Validation Set is still bad, but
 # maybe slightly better than with full model => Investigate Feature Selection further
-pd.read_pickle("full_feature_results.pkl")
+pd.read_pickle("full_features_results.pkl")
 
 #%%
