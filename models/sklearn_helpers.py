@@ -4,47 +4,55 @@ from typing import Any, Optional, Union
 
 import numpy as np
 import pandas as pd
-from sklearn.compose import ColumnTransformer, make_column_transformer
+from sklearn.compose import (
+    ColumnTransformer,
+    make_column_selector,
+    make_column_transformer,
+)
+from sklearn.decomposition import PCA
+from sklearn.feature_selection import SelectKBest
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, cross_validate
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 
-def get_preprocessor(df: pd.DataFrame) -> ColumnTransformer:
-    categorical_cols = [
-        "host_gender",
-        "host_identity_verified",
-        "host_is_superhost",
-        "neighbourhood",
-        "room_type",
-        "shared_bathrooms",
-    ]
-
-    numeric_cols = [
-        col for col in df.columns if col not in categorical_cols and col != "price"
-    ]
-
-    numeric_transformer = StandardScaler()
-    categorical_transformer = OneHotEncoder(handle_unknown="ignore")
-
-    preprocessor = make_column_transformer(
-        (numeric_transformer, numeric_cols),
-        (categorical_transformer, categorical_cols),
+def get_column_transformer() -> ColumnTransformer:
+    return make_column_transformer(
+        (StandardScaler(), make_column_selector(dtype_include=np.number)),
+        (OneHotEncoder(dtype=int), make_column_selector(dtype_exclude=np.number)),
     )
 
-    return preprocessor
+
+def get_feature_selector(
+    feature_selector: str,
+    pca_components: Optional[int] = None,
+    k: int = 10,
+) -> Union[PCA, SelectKBest]:
+
+    feature_selectors = {"pca": PCA(pca_components), "k_best": SelectKBest(k=k)}
+    return feature_selectors[feature_selector]
+
+
+def get_preprocessor(
+    column_transformer: ColumnTransformer, feature_selector: Union[PCA, SelectKBest]
+) -> Pipeline:
+    return Pipeline(
+        [
+            ("column_transformer", column_transformer),
+            ("feature_selector", feature_selector),
+        ]
+    )
 
 
 @dataclass
 class ModelContainer:
     model: Any
     preprocessor: Union[ColumnTransformer, Pipeline]
-    pipeline_name: str
     param_grid: Optional[dict] = None
 
     def __post_init__(self):
         self.pipeline = Pipeline(
-            [("preprocessor", self.preprocessor), (self.pipeline_name, self.model)]
+            [("preprocessor", self.preprocessor), ("model", self.model)]
         )
 
 
@@ -121,6 +129,7 @@ def fit_models(
                 cv = RandomizedSearchCV(
                     estimator=model.pipeline,
                     param_distributions=model.param_grid,
+                    cv=n_folds,
                     n_iter=n_iter,
                     scoring=scoring,
                     refit="neg_mean_squared_error",

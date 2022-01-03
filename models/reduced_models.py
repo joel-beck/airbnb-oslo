@@ -3,8 +3,6 @@ from warnings import simplefilter
 
 import numpy as np
 import pandas as pd
-from sklearn.feature_selection import SelectKBest
-from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import Lasso, LinearRegression, Ridge
 
 simplefilter(action="ignore", category=FutureWarning)
@@ -13,11 +11,12 @@ from sklearn_helpers import (
     ModelContainer,
     ResultContainer,
     fit_models,
+    get_column_transformer,
+    get_feature_selector,
     get_preprocessor,
 )
 
 #%%
-# SECTION: Select Features
 listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
 
 # 18 columns in X
@@ -25,43 +24,45 @@ X = listings_subset.drop(columns="price")
 y = listings_subset["price"]
 
 #%%
+# SECTION: Part 1: SelectKBest
 # SUBSECTION: Get Selected Features during Model Fitting
-# 41 columns in X_processed
-preprocessor = get_preprocessor(listings_subset)
-X_processed = preprocessor.fit_transform(X, y)
+column_transformer = get_column_transformer()
+feature_selector = get_feature_selector("k_best", k=10)
+preprocessor = get_preprocessor(column_transformer, feature_selector)
 
-# 10 columns in X_subset
-selector = SelectKBest(k=10)
-X_subset = selector.fit_transform(X_processed, y)
+preprocessor.fit_transform(X, y)
 
-selected_features = np.array(preprocessor.get_feature_names_out())[
-    selector.get_support()
-]
+# 40 columns after One-Hot Encoding
+encoded_features = preprocessor.named_steps[
+    "column_transformer"
+].get_feature_names_out()
+len(encoded_features)
+
+#%%
+selected_features = preprocessor.named_steps["feature_selector"].get_feature_names_out(
+    encoded_features
+)
 
 print("Selected Features:")
 for feature in selected_features:
     print(feature.split("__")[1])
 
 #%%
-# SECTION: Define Models
+# SUBSECTION: Define Models
 random_state = 42
 
-linear = ModelContainer(
-    LinearRegression(), make_pipeline(preprocessor, selector), "linear", None
-)
+linear = ModelContainer(LinearRegression(), preprocessor)
 
 lasso = ModelContainer(
     Lasso(random_state=random_state),
-    make_pipeline(preprocessor, selector),
-    "lasso",
-    {"lasso__alpha": np.arange(1, 10)},
+    preprocessor,
+    {"model__alpha": np.arange(1, 10)},
 )
 
 ridge = ModelContainer(
     Ridge(random_state=random_state),
-    make_pipeline(preprocessor, selector),
-    "ridge",
-    {"ridge__alpha": np.arange(100, 500, 50)},
+    preprocessor,
+    {"model__alpha": np.arange(50, 500, 50)},
 )
 
 models = [linear, lasso, ridge]
@@ -71,21 +72,48 @@ result_container = ResultContainer()
 
 
 #%%
-# SECTION: Fit Models & Analyze Results
-# Since the pipelines include preprocessing and selecting, we fit the model with X and not X_subset
-result = fit_models(X, y, models, result_container, n_folds=10)
+# SUBSECTION: Fit Models & Analyze Results
+result = fit_models(X, y, models, result_container, n_folds=5)
 metrics_df = result.display_results()
 
 # save results
-metrics_df.to_pickle("reduced_features_results.pkl")
+metrics_df.to_pickle("k_best_results.pkl")
 
 #%%
-# SUBSECTION: Compare Results with Full Feature Set
-metrics_df
+# SECTION: Part 2: PCA
+feature_selector = get_feature_selector("pca", pca_components=10)
+preprocessor = get_preprocessor(column_transformer, feature_selector)
+
+linear = ModelContainer(LinearRegression(), preprocessor)
+
+lasso = ModelContainer(
+    Lasso(random_state=random_state),
+    preprocessor,
+    {"model__alpha": np.arange(1, 10)},
+)
+
+ridge = ModelContainer(
+    Ridge(random_state=random_state),
+    preprocessor,
+    {"model__alpha": np.arange(50, 500, 50)},
+)
+
+models = [linear, lasso, ridge]
+result_container = ResultContainer()
+
 
 #%%
-# Performance on Validation Set is still bad, but
-# maybe slightly better than with full model => Investigate Feature Selection further
+result = fit_models(X, y, models, result_container, n_folds=5)
+metrics_df = result.display_results()
+
+metrics_df.to_pickle("pca_results.pkl")
+
+#%%
+# SECTION: Compare Results with Full Feature Set
+pd.read_pickle("k_best_results.pkl")
+
+#%%
+pd.read_pickle("pca_results.pkl")
+
+#%%
 pd.read_pickle("full_features_results.pkl")
-
-#%%

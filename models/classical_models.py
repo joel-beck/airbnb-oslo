@@ -21,7 +21,7 @@ from sklearn_helpers import (
     ModelContainer,
     ResultContainer,
     fit_models,
-    get_preprocessor,
+    get_column_transformer,
 )
 
 simplefilter(action="ignore", category=FutureWarning)
@@ -29,10 +29,11 @@ simplefilter(action="ignore", category=FutureWarning)
 #%%
 # SUBSECTION: Transform Categorical Columns to Dummies and Standardize Numeric Columns
 listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
-preprocessor = get_preprocessor(listings_subset)
 
 X = listings_subset.drop(columns="price")
 y = listings_subset["price"]
+
+column_transformer = get_column_transformer()
 
 #%%
 # SUBSECTION: Define Models & Hyperparameters
@@ -45,63 +46,57 @@ baseline_pred = np.full(shape=y.shape, fill_value=mean_price)
 baseline_r2 = r2_score(y_true=y, y_pred=baseline_pred)
 baseline_mse = mean_squared_error(y_true=y, y_pred=baseline_pred)
 
-linear = ModelContainer(LinearRegression(), preprocessor, "linear", None)
+linear = ModelContainer(LinearRegression(), column_transformer)
 lasso = ModelContainer(
     Lasso(random_state=random_state),
-    preprocessor,
-    "lasso",
-    {"lasso__alpha": np.arange(10, 100, 20)},
+    column_transformer,
+    {"model__alpha": np.arange(10, 100, 20)},
 )
 
 ridge = ModelContainer(
     Ridge(random_state=random_state),
-    preprocessor,
-    "ridge",
-    {"ridge__alpha": np.arange(100, 1000, 50)},
+    column_transformer,
+    {"model__alpha": np.arange(50, 500, 50)},
 )
 
 random_forest = ModelContainer(
     RandomForestRegressor(random_state=random_state),
-    preprocessor,
-    "random_forest",
+    column_transformer,
     {
-        "random_forest__max_depth": np.arange(1, 10),
-        "random_forest__min_samples_leaf": np.arange(1, 10),
-        "random_forest__n_estimators": np.arange(1, 10),
+        "model__max_depth": np.arange(1, 10),
+        "model__min_samples_leaf": np.arange(1, 10),
+        "model__n_estimators": np.arange(1, 10),
     },
 )
 
 gradient_boosting = ModelContainer(
     GradientBoostingRegressor(random_state=random_state),
-    preprocessor,
-    "gradient_boosting",
+    column_transformer,
     {
-        "gradient_boosting__learning_rate": np.arange(0.1, 1, 0.1),
-        "gradient_boosting__max_depth": np.arange(1, 10),
-        "gradient_boosting__min_samples_leaf": np.arange(1, 10),
-        "gradient_boosting__n_estimators": np.arange(1, 10),
-        "gradient_boosting__subsample": np.arange(0.01, 0.2, 0.02),
+        "model__learning_rate": np.arange(0.1, 1, 0.1),
+        "model__max_depth": np.arange(1, 10),
+        "model__min_samples_leaf": np.arange(1, 10),
+        "model__n_estimators": np.arange(1, 10),
+        "model__subsample": np.arange(0.01, 0.2, 0.02),
     },
 )
 
 ada_boost = ModelContainer(
     AdaBoostRegressor(random_state=random_state),
-    preprocessor,
-    "ada_boost",
+    column_transformer,
     {
-        "ada_boost__learning_rate": np.arange(1, 5),
-        "ada_boost__n_estimators": np.arange(2, 20, 2),
+        "model__learning_rate": np.arange(1, 5),
+        "model__n_estimators": np.arange(2, 20, 2),
     },
 )
 
 bagging = ModelContainer(
     BaggingRegressor(random_state=random_state),
-    preprocessor,
-    "bagging",
+    column_transformer,
     {
-        "bagging__max_features": np.arange(0.1, 1, 0.1),
-        "bagging__max_samples": np.arange(0.01, 0.1, 0.01),
-        "bagging__n_estimators": np.arange(10, 50, 10),
+        "model__max_features": np.arange(0.1, 1, 0.1),
+        "model__max_samples": np.arange(0.01, 0.1, 0.01),
+        "model__n_estimators": np.arange(10, 50, 10),
     },
 )
 
@@ -130,12 +125,18 @@ result_container = ResultContainer(
 
 #%%
 # SECTION: Fit Models & Analyze Results
-result = fit_models(X, y, models, result_container, n_folds=5, n_iter=20)
+result = fit_models(X, y, models, result_container, n_folds=5, n_iter=10)
 metrics_df = result.display_results()
-metrics_df
 
-#%%
 # save results
 metrics_df.to_pickle("full_features_results.pkl")
 
 #%%
+# SUBSECTION: Compare Results with Reduced Feature Sets
+pd.read_pickle("full_features_results.pkl")
+
+#%%
+pd.read_pickle("k_best_results.pkl")
+
+#%%
+pd.read_pickle("pca_results.pkl")
