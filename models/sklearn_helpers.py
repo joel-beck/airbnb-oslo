@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from time import perf_counter
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -38,7 +38,7 @@ def get_preprocessor(df: pd.DataFrame) -> ColumnTransformer:
 @dataclass
 class ModelContainer:
     model: Any
-    preprocessor: ColumnTransformer
+    preprocessor: Union[ColumnTransformer, Pipeline]
     pipeline_name: str
     param_grid: Optional[dict] = None
 

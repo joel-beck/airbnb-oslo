@@ -4,6 +4,7 @@ from warnings import simplefilter
 import numpy as np
 import pandas as pd
 from sklearn.feature_selection import SelectKBest
+from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import Lasso, LinearRegression, Ridge
 
 simplefilter(action="ignore", category=FutureWarning)
@@ -45,20 +46,22 @@ for feature in selected_features:
 # SECTION: Define Models
 random_state = 42
 
-linear = ModelContainer(LinearRegression(), preprocessor, "linear", None)
+linear = ModelContainer(
+    LinearRegression(), make_pipeline(preprocessor, selector), "linear", None
+)
 
 lasso = ModelContainer(
     Lasso(random_state=random_state),
-    preprocessor,
+    make_pipeline(preprocessor, selector),
     "lasso",
-    {"lasso__alpha": np.arange(10, 100, 20)},
+    {"lasso__alpha": np.arange(1, 10)},
 )
 
 ridge = ModelContainer(
     Ridge(random_state=random_state),
-    preprocessor,
+    make_pipeline(preprocessor, selector),
     "ridge",
-    {"ridge__alpha": np.arange(100, 1000, 50)},
+    {"ridge__alpha": np.arange(100, 500, 50)},
 )
 
 models = [linear, lasso, ridge]
