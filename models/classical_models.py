@@ -127,7 +127,7 @@ result_container = ResultContainer(
 )
 
 #%%
-# SECTION: Fit Models & Analyze Results
+# SUBSECTION: Fit Models
 result = fit_models(X, y, models, result_container, n_folds=n_folds, n_iter=n_iter)
 metrics_df = result.display_results()
 

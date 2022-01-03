@@ -110,7 +110,7 @@ metrics_df = result.display_results()
 metrics_df.to_pickle("pca_results.pkl")
 
 #%%
-# SECTION: Compare Results with Full Feature Set
+# SUBSECTION: Compare Results with Full Feature Set
 # import pandas as pd
 pd.read_pickle("k_best_results.pkl")
 
