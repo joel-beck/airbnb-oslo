@@ -79,6 +79,8 @@ def fit_models(
     y: pd.Series,
     models: list[ModelContainer],
     result_container: ResultContainer,
+    n_folds: int = 5,
+    n_iter: int = 10,
 ) -> ResultContainer:
     start = perf_counter()
 
@@ -109,7 +111,7 @@ def fit_models(
                 cv = GridSearchCV(
                     estimator=model.pipeline,
                     param_grid=model.param_grid,
-                    cv=5,
+                    cv=n_folds,
                     scoring=scoring,
                     refit="neg_mean_squared_error",
                     return_train_score=True,
@@ -119,7 +121,7 @@ def fit_models(
                 cv = RandomizedSearchCV(
                     estimator=model.pipeline,
                     param_distributions=model.param_grid,
-                    n_iter=10,
+                    n_iter=n_iter,
                     scoring=scoring,
                     refit="neg_mean_squared_error",
                     return_train_score=True,
@@ -127,8 +129,9 @@ def fit_models(
 
             cv.fit(X, y)
 
-            hyperparam_key = [key for key in cv.best_params_]
+            hyperparam_key = [key.split("__")[1] for key in cv.best_params_]
             hyperparam_value = [value for value in cv.best_params_.values()]
+
             # display scalars in DataFrame instead of one-element lists
             if len(model.param_grid) == 1:
                 hyperparam_key = hyperparam_key[0]

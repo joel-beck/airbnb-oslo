@@ -50,14 +50,14 @@ lasso = ModelContainer(
     Lasso(random_state=random_state),
     preprocessor,
     "lasso",
-    {"lasso__alpha": range(20, 50, 10)},
+    {"lasso__alpha": np.arange(10, 100, 20)},
 )
 
 ridge = ModelContainer(
     Ridge(random_state=random_state),
     preprocessor,
     "ridge",
-    {"ridge__alpha": range(20, 50, 10)},
+    {"ridge__alpha": np.arange(100, 1000, 50)},
 )
 
 random_forest = ModelContainer(
@@ -65,8 +65,9 @@ random_forest = ModelContainer(
     preprocessor,
     "random_forest",
     {
-        "random_forest__n_estimators": [10, 50, 100],
-        "random_forest__max_depth": [1, 3, 5],
+        "random_forest__max_depth": np.arange(1, 10),
+        "random_forest__min_samples_leaf": np.arange(1, 10),
+        "random_forest__n_estimators": np.arange(1, 10),
     },
 )
 
@@ -74,21 +75,34 @@ gradient_boosting = ModelContainer(
     GradientBoostingRegressor(random_state=random_state),
     preprocessor,
     "gradient_boosting",
-    {"gradient_boosting__max_depth": range(2, 5)},
+    {
+        "gradient_boosting__learning_rate": np.arange(0.1, 1, 0.1),
+        "gradient_boosting__max_depth": np.arange(1, 10),
+        "gradient_boosting__min_samples_leaf": np.arange(1, 10),
+        "gradient_boosting__n_estimators": np.arange(1, 10),
+        "gradient_boosting__subsample": np.arange(0.01, 0.2, 0.02),
+    },
 )
 
 ada_boost = ModelContainer(
     AdaBoostRegressor(random_state=random_state),
     preprocessor,
     "ada_boost",
-    {"ada_boost__learning_rate": [1, 2, 3]},
+    {
+        "ada_boost__learning_rate": np.arange(1, 5),
+        "ada_boost__n_estimators": np.arange(2, 20, 2),
+    },
 )
 
 bagging = ModelContainer(
     BaggingRegressor(random_state=random_state),
     preprocessor,
     "bagging",
-    {"bagging__n_estimators": [10, 20, 50]},
+    {
+        "bagging__max_features": np.arange(0.1, 1, 0.1),
+        "bagging__max_samples": np.arange(0.01, 0.1, 0.01),
+        "bagging__n_estimators": np.arange(10, 50, 10),
+    },
 )
 
 #%%
@@ -103,7 +117,6 @@ models = [
     bagging,
 ]
 
-#%%
 # Initialize Results with Baseline Model
 result_container = ResultContainer(
     model_names=["Mean Prediction"],
@@ -115,10 +128,9 @@ result_container = ResultContainer(
     mse_val_list=[baseline_mse],
 )
 
-
 #%%
 # SECTION: Fit Models & Analyze Results
-result = fit_models(X, y, models, result_container)
+result = fit_models(X, y, models, result_container, n_folds=5, n_iter=20)
 metrics_df = result.display_results()
 metrics_df
 
