@@ -159,10 +159,12 @@ metrics_df = get_results(
     grid_key_list,
     grid_value_list,
 )
-metrics_df
+print(metrics_df)
 
 #%%
 # save results
 metrics_df.to_pickle("full_feature_results.pkl")
 
 #%%
+
+metrics_df = pd.read_pickle("models/full_feature_results.pkl")
