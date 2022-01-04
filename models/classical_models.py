@@ -54,13 +54,13 @@ linear = ModelContainer(LinearRegression(), column_transformer)
 lasso = ModelContainer(
     Lasso(random_state=random_state),
     column_transformer,
-    {"model__alpha": np.arange(10, 100, 20)},
+    {"model__alpha": np.arange(1, 50)},
 )
 
 ridge = ModelContainer(
     Ridge(random_state=random_state),
     column_transformer,
-    {"model__alpha": np.arange(50, 500, 50)},
+    {"model__alpha": np.arange(10, 1000, 10)},
 )
 
 random_forest = ModelContainer(
@@ -129,19 +129,30 @@ result_container = ResultContainer(
 
 #%%
 # SUBSECTION: Fit Models
-result = fit_models(X, y, models, result_container, n_folds=n_folds, n_iter=n_iter)
+result = fit_models(X, y, models, result_container, n_folds, n_iter, random_state)
 metrics_df = result.display_results()
 
 # save results
 metrics_df.to_pickle("full_features_results.pkl")
 
 #%%
-# SUBSECTION: Compare Results with Reduced Feature Sets
+# SUBSECTION: Compare Results with Full Feature Set
 # import pandas as pd
-pd.read_pickle("full_features_results.pkl")
-
-#%%
+print("SelectKBest Results:")
 pd.read_pickle("k_best_results.pkl")
 
 #%%
+print("RFE Results:")
+pd.read_pickle("rfe_results.pkl")
+
+#%%
+print("Variance Threshold Results:")
+pd.read_pickle("vt_results.pkl")
+
+#%%
+print("PCA Results:")
 pd.read_pickle("pca_results.pkl")
+
+#%%
+print("Full Feature Set Results:")
+pd.read_pickle("full_features_results.pkl")

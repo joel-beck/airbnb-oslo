@@ -89,6 +89,7 @@ def fit_models(
     result_container: ResultContainer,
     n_folds: int = 5,
     n_iter: int = 10,
+    random_state: Optional[int] = None
 ) -> ResultContainer:
     start = perf_counter()
 
@@ -114,28 +115,16 @@ def fit_models(
 
         # if model has hyperparameters
         else:
-            # if model has exactly one hyperparameter
-            if len(model.param_grid) == 1:
-                cv = GridSearchCV(
-                    estimator=model.pipeline,
-                    param_grid=model.param_grid,
-                    cv=n_folds,
-                    scoring=scoring,
-                    refit="neg_mean_squared_error",
-                    return_train_score=True,
-                )
-            # if model has multiple hyperparameters
-            else:
-                cv = RandomizedSearchCV(
-                    estimator=model.pipeline,
-                    param_distributions=model.param_grid,
-                    cv=n_folds,
-                    n_iter=n_iter,
-                    scoring=scoring,
-                    refit="neg_mean_squared_error",
-                    return_train_score=True,
-                )
-
+            cv = RandomizedSearchCV(
+                estimator=model.pipeline,
+                param_distributions=model.param_grid,
+                cv=n_folds,
+                n_iter=n_iter,
+                scoring=scoring,
+                refit="neg_mean_squared_error",
+                return_train_score=True,
+                random_state=random_state
+            )
             cv.fit(X, y)
 
             hyperparam_key = [key.split("__")[1] for key in cv.best_params_]
