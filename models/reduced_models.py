@@ -19,6 +19,7 @@ from sklearn_helpers import (
 )
 
 simplefilter(action="ignore", category=FutureWarning)
+pd.set_option("precision", 3)
 
 #%%
 # BOOKMARK: Hyperparameters
@@ -37,6 +38,7 @@ listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
 
 # 18 columns in X
 X = listings_subset.drop(columns="price")
+# TODO: Use Log-Price to Fit the Models
 y = listings_subset["price"]
 
 #%%

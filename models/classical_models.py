@@ -15,7 +15,7 @@ from sklearn.ensemble import (
     RandomForestRegressor,
 )
 from sklearn.linear_model import Lasso, LinearRegression, Ridge
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 from sklearn_helpers import (
     ModelContainer,
@@ -25,6 +25,7 @@ from sklearn_helpers import (
 )
 
 simplefilter(action="ignore", category=FutureWarning)
+pd.set_option("precision", 3)
 
 #%%
 # BOOKMARK: Hyperparameters
@@ -49,6 +50,7 @@ mean_price = y.mean()
 baseline_pred = np.full(shape=y.shape, fill_value=mean_price)
 baseline_r2 = r2_score(y_true=y, y_pred=baseline_pred)
 baseline_mse = mean_squared_error(y_true=y, y_pred=baseline_pred)
+baseline_mae = mean_absolute_error(y_true=y, y_pred=baseline_pred)
 
 linear = ModelContainer(LinearRegression(), column_transformer)
 lasso = ModelContainer(
@@ -125,6 +127,8 @@ result_container = ResultContainer(
     r2_val_list=[baseline_r2],
     mse_train_list=[baseline_mse],
     mse_val_list=[baseline_mse],
+    mae_train_list=[baseline_mae],
+    mae_val_list=[baseline_mae],
 )
 
 #%%
@@ -156,3 +160,5 @@ pd.read_pickle("pca_results.pkl")
 #%%
 print("Full Feature Set Results:")
 pd.read_pickle("full_features_results.pkl")
+
+#%%

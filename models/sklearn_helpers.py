@@ -61,6 +61,8 @@ class ResultContainer:
     model_names: list[str] = field(default_factory=list)
     grid_key_list: list[str] = field(default_factory=list)
     grid_value_list: list = field(default_factory=list)
+    mae_train_list: list[float] = field(default_factory=list)
+    mae_val_list: list[float] = field(default_factory=list)
     r2_train_list: list[float] = field(default_factory=list)
     r2_val_list: list[float] = field(default_factory=list)
     mse_train_list: list[float] = field(default_factory=list)
@@ -69,6 +71,8 @@ class ResultContainer:
     def display_results(self) -> pd.DataFrame:
         metrics_df = pd.DataFrame(
             {
+                "mae_train": self.mae_train_list,
+                "mae_val": self.mae_val_list,
                 "r2_train": self.r2_train_list,
                 "r2_val": self.r2_val_list,
                 "mse_train": self.mse_train_list,
@@ -79,7 +83,7 @@ class ResultContainer:
             index=self.model_names,
         )
 
-        return metrics_df.sort_values("r2_val", ascending=False)
+        return metrics_df.sort_values("mae_val")
 
 
 def fit_models(
@@ -89,7 +93,7 @@ def fit_models(
     result_container: ResultContainer,
     n_folds: int = 5,
     n_iter: int = 10,
-    random_state: Optional[int] = None
+    random_state: Optional[int] = None,
 ) -> ResultContainer:
     start = perf_counter()
 
@@ -97,7 +101,7 @@ def fit_models(
         print("Fitting", model.model.__class__.__name__)
         result_container.model_names.append(model.model.__class__.__name__)
 
-        scoring = ["r2", "neg_mean_squared_error"]
+        scoring = ["r2", "neg_mean_squared_error", "neg_mean_absolute_error"]
 
         # if model does not have hyperparameters
         if model.param_grid is None:
@@ -105,6 +109,8 @@ def fit_models(
                 model.pipeline, X, y, cv=5, scoring=scoring, return_train_score=True
             )
 
+            mae_train = -np.mean(scores["train_neg_mean_absolute_error"])
+            mae_val = -np.mean(scores["test_neg_mean_absolute_error"])
             r2_train = np.mean(scores["train_r2"])
             r2_val = np.mean(scores["test_r2"])
             mse_train = -np.mean(scores["train_neg_mean_squared_error"])
@@ -121,9 +127,9 @@ def fit_models(
                 cv=n_folds,
                 n_iter=n_iter,
                 scoring=scoring,
-                refit="neg_mean_squared_error",
+                refit="neg_mean_absolute_error",
                 return_train_score=True,
-                random_state=random_state
+                random_state=random_state,
             )
             cv.fit(X, y)
 
@@ -137,12 +143,18 @@ def fit_models(
 
             best_index = cv.cv_results_["params"].index(cv.best_params_)
 
+            # for some reason, only negative mean squared/absolute error are available metrics
+            mae_train = -cv.cv_results_["mean_train_neg_mean_absolute_error"][
+                best_index
+            ]
+            mae_val = -cv.cv_results_["mean_test_neg_mean_absolute_error"][best_index]
             r2_train = cv.cv_results_["mean_train_r2"][best_index]
             r2_val = cv.cv_results_["mean_test_r2"][best_index]
-            # for some reason, only negative mean squared error is an available metric
             mse_train = -cv.cv_results_["mean_train_neg_mean_squared_error"][best_index]
             mse_val = -cv.cv_results_["mean_test_neg_mean_squared_error"][best_index]
 
+        result_container.mae_train_list.append(mae_train)
+        result_container.mae_val_list.append(mae_val)
         result_container.r2_train_list.append(r2_train)
         result_container.r2_val_list.append(r2_val)
         result_container.mse_train_list.append(mse_train)
