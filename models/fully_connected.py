@@ -1,8 +1,11 @@
 #%%
+import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader, TensorDataset
 
 from pytorch_helpers import (
     plot_regression,
@@ -10,14 +13,35 @@ from pytorch_helpers import (
     print_param_shapes,
     run_regression,
 )
+from sklearn_helpers import get_column_transformer
 
 #%%
+# SECTION: PyTorch Training Test
+listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
+
+X = listings_subset.drop(columns="price")
+y = listings_subset["price"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=123, shuffle=True
+)
+
+column_transformer = get_column_transformer()
+
+X_train_tensor = torch.tensor(
+    column_transformer.fit_transform(X_train).astype(np.float32)
+)
+y_train_tensor = torch.tensor(y_train.values.astype(np.float32))
+trainset = TensorDataset(X_train_tensor, y_train_tensor)
+
+X_test_tensor = torch.tensor(column_transformer.transform(X_test).astype(np.float32))
+y_test_tensor = torch.tensor(y_test.values.astype(np.float32))
+testset = TensorDataset(X_test_tensor, y_test_tensor)
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-trainset = torch.load("../data-clean/trainset_pytorch.pt")
-testset = torch.load("../data-clean/testset_pytorch.pt")
 
 #%%
-# SUBSECTION: Hyperparameters
+# BOOKMARK: Hyperparameters
 batch_size = 64
 in_features = len(trainset[0][0])
 hidden_features_list = [32, 64, 128, 256, 128, 64, 32]
@@ -25,6 +49,7 @@ dropout_prob = 0.5
 loss_function = nn.MSELoss(reduction="sum")
 
 #%%
+# BOOKMARK: Subset
 # comment out to train on whole dataset
 # subset_size = batch_size * 2
 
@@ -35,7 +60,7 @@ loss_function = nn.MSELoss(reduction="sum")
 # testset = Subset(dataset=testset, indices=val_indices)
 
 #%%
-# SUBSECTION: DataLoaders
+# BOOKMARK: DataLoaders
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 testloader = DataLoader(testset, batch_size=batch_size, shuffle=True)
 
@@ -110,10 +135,3 @@ train_losses, val_losses = run_regression(
 )
 
 plot_regression(train_losses, val_losses)
-
-#%%
-# NOTE
-# Right now, the model does not overfit for 50 Epochs.
-# However, the validation loss per epoch decreases very slowly.
-# Also the Validation Loss per Epoch is much lower than the Training Loss per Epoch, even though both are computed per sample
-# => Probably due to the squaring in MSELoss, which dominates linear division by the epoch size
