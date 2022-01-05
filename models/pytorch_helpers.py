@@ -29,6 +29,22 @@ def generate_subsets(trainset, valset, subset_size):
     return trainset, valset
 
 
+def init_data_loaders(trainset, valset, testset, batch_size=1024, num_cpus=1):
+    trainloader = torch.utils.data.DataLoader(trainset,
+                                                   batch_size=batch_size,
+                                                   shuffle=True,
+                                                   num_workers=num_cpus)
+    valloader = torch.utils.data.DataLoader(valset,
+                                                 batch_size=batch_size,
+                                                 shuffle=True,
+                                                 num_workers=num_cpus)
+    testloader = torch.utils.data.DataLoader(testset,
+                                                  batch_size=batch_size,
+                                                  shuffle=True,
+                                                  num_workers=num_cpus)
+    return trainloader, valloader, testloader
+
+
 def print_param_shapes(model, col_widths=(25, 8)):
     for name, param in model.named_parameters():
         print(
@@ -395,3 +411,162 @@ def plot_classification(train_losses, val_losses, train_accs, val_accs):
     sns.despine()
 
     plt.show()
+
+
+
+
+
+#########################
+### Mareis Funktionen ###
+
+import fastprogress
+
+def train(dataloader, optimizer, model, loss_fn, device, master_bar):
+    epoch_loss, epoch_total = 0.0, 0.0
+
+    for x, y in fastprogress.progress_bar(dataloader, parent=master_bar):
+
+        x = x.to(device=device)
+        y = y.to(device=device)
+
+        optimizer.zero_grad()
+        model.train()
+
+        y_pred = model(x).squeeze()
+        batch_size = len(y)
+        epoch_total += batch_size
+
+        # total loss per sample in minibatch (sum of squared deviations)
+        # when using MSELoss(reduction="sum")
+        loss = loss_fn(y_pred, y)
+        epoch_loss += loss
+
+        loss.backward()
+        optimizer.step()
+
+    # return mean loss per sample in whole dataset
+    return epoch_loss.detach().to(device="cpu").numpy() / epoch_total
+
+def validate(dataloader, model, loss_fn, device, master_bar):
+    epoch_loss, epoch_total = 0.0, 0.0
+
+    model.eval()
+    with torch.no_grad():
+        for x, y in fastprogress.progress_bar(dataloader, parent=master_bar):
+
+            x = x.to(device=device)
+            y = y.to(device=device)
+
+            y_pred = model(x).squeeze()
+            batch_size = len(y)
+            epoch_total += batch_size # warum +=
+
+            loss = loss_fn(y_pred, y)
+            epoch_loss += loss  # warum +=
+
+    return epoch_loss.detach().to(device="cpu").numpy() / epoch_total
+
+
+def run_training(model, optimizer, loss_fn, device, num_epochs,
+                 train_dataloader, val_dataloader, early_stopper=None, verbose=False):
+
+    start_time = time.time()
+    master_bar = fastprogress.master_bar(range(num_epochs))
+    train_losses, val_losses, train_accs, val_accs = [], [], [], []
+
+    for epoch in master_bar:
+        # Train the model
+        epoch_train_loss = train(train_dataloader, optimizer, model, loss_fn, device, master_bar)
+        # Validate the model
+        epoch_val_loss = validate(val_dataloader, model, loss_function, device, master_bar)
+
+        # Save loss and acc for plotting
+        train_losses.append(epoch_train_loss)
+        val_losses.append(epoch_val_loss)
+
+        if verbose:
+            master_bar.write(
+                f'Train loss: {epoch_train_loss:.2f}, val loss: {epoch_val_loss:.2f}')
+
+        # if early_stopper:
+        #     early_stopper.update(epoch_val_loss, model)
+        #     if early_stopper.early_stop:
+        #         early_stopper.load_checkpoint(model)
+        #         print("Early stopping, since the validation loss did not decrease. Epoch: {}".format(epoch))
+        #         break
+
+
+    time_elapsed = np.round(time.time() - start_time, 0).astype(int)
+    print(f'Finished training after {time_elapsed} seconds.')
+    return train_losses, val_losses
+
+
+def plot(title, label, train_results, val_results, yscale='linear', save_path=None,
+         extra_pt=None, extra_pt_label=None):
+    """Plot learning curves.
+
+    Args:
+        title (str): Title of plot
+        label (str): x-axis label
+        train_results (list): Results vector of training of length of number
+            of epochs trained. Could be loss or accuracy.
+        val_results (list): Results vector of validation of length of number
+            of epochs. Could be loss or accuracy.
+        yscale (str, optional): Matplotlib.pyplot.yscale parameter.
+            Defaults to 'linear'.
+        save_path (str, optional): If passed, figure will be saved at this path.
+            Defaults to None.
+        extra_pt (tuple, optional): Tuple of length 2, defining x and y coordinate
+            of where an additional black dot will be plotted. Defaults to None.
+        extra_pt_label (str, optional): Legend label of extra point. Defaults to None.
+    """
+
+    epoch_array = np.arange(len(train_results)) + 1
+    train_label, val_label = "Training " + label.lower(), "Validation " + label.lower()
+
+    sns.set(style='ticks')
+
+    plt.plot(epoch_array, train_results, epoch_array, val_results, linestyle='dashed', marker='o')
+    legend = ['Train results', 'Validation results']
+
+    if extra_pt:
+        if extra_pt == "Loss":
+            min_value = min(val_results)
+            index = val_results.index(min_value)
+        if extra_pt == "Accuracy":
+            max_value = max(val_results)
+            index = val_results.index(max_value)
+
+        plt.axvline(x=index, color='red', linestyle='--')
+
+        # END OF YOUR CODE #
+
+    plt.legend(legend)
+    plt.xlabel('Epoch')
+    plt.ylabel(label)
+    plt.yscale(yscale)
+    plt.title(title)
+
+    sns.despine(trim=True, offset=5)
+    plt.title(title, fontsize=15)
+    if save_path:
+        plt.savefig(str(save_path), bbox_inches='tight')
+    plt.show()
+
+
+def run_NN(name, model, act_fn=None, num_epochs=100, lr=10e-3,
+            early_stopper=None, train_dataloader=trainloader, val_dataloader=valloader):
+
+    model.to(device)
+
+    loss_fn = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(mlp.parameters(), lr=lr)
+
+    train_losses, val_losses = run_training(model, optimizer, loss_fn, device, num_epochs,
+                                            train_dataloader=trainloader, val_dataloader=valloader,
+                                            verbose=True)
+
+    plot(title="Loss vs. Epoch", label="Loss", train_results=train_losses, val_results=val_losses, yscale='linear',
+         save_path=None, extra_pt=None, extra_pt_label=None)
+
+    torch.save(mlp.state_dict(), name)
