@@ -31,9 +31,13 @@ def generate_subsets(trainset, valset, subset_size):
 
 
 def init_data_loaders(trainset, valset, testset, batch_size=64):
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
+    trainloader = torch.utils.data.DataLoader(
+        trainset, batch_size=batch_size, shuffle=True
+    )
     valloader = torch.utils.data.DataLoader(valset, batch_size=batch_size, shuffle=True)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=True)
+    testloader = torch.utils.data.DataLoader(
+        testset, batch_size=batch_size, shuffle=True
+    )
 
     return trainloader, valloader, testloader
 
@@ -83,8 +87,8 @@ def train_regression(dataloader, optimizer, model, loss_function, device):
         model.train()
 
         y_pred = model(x).squeeze()
-        #batch_size = len(y)
-        #epoch_total += batch_size
+        # batch_size = len(y)
+        # epoch_total += batch_size
 
         # total loss per sample in minibatch (sum of squared deviations)
         # when using MSELoss(reduction="sum")
@@ -102,26 +106,27 @@ def train_regression(dataloader, optimizer, model, loss_function, device):
 
 
 def validate_regression(dataloader, model, loss_function, device):
-    #epoch_loss, epoch_total = 0.0, 0.0
+    # epoch_loss, epoch_total = 0.0, 0.0
     epoch_loss = []
 
     model.eval()
     with torch.no_grad():
         for x, y in dataloader:
 
-            x = x.to(device=device)
-            y = y.to(device=device)
+            x = x.to(device=device, dtype=torch.float)
+            y = y.to(device=device, dtype=torch.float)
 
             y_pred = model(x).squeeze()
-            #batch_size = len(y)
-            #epoch_total += batch_size
+            # batch_size = len(y)
+            # epoch_total += batch_size
 
             loss = loss_function(y_pred, y)
-            #epoch_loss += loss
+            # epoch_loss += loss
             epoch_loss.append(loss.item())
 
-    #return epoch_loss.detach().to(device="cpu").numpy() / epoch_total
+    # return epoch_loss.detach().to(device="cpu").numpy() / epoch_total
     return np.mean(epoch_loss)
+
 
 def run_regression(
     model,
