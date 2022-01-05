@@ -101,6 +101,8 @@ reg_summary(reg, X, y)
 
 #%%
 
+### Variable selection ###
+
 plt.scatter(X['number_of_reviews'], y, color="black")
 plt.show()
 
