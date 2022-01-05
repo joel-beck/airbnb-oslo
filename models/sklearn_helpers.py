@@ -11,7 +11,7 @@ from sklearn.compose import (
 )
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, cross_validate
+from sklearn.model_selection import RandomizedSearchCV, cross_validate
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
