@@ -1,4 +1,5 @@
 #%%
+import fastprogress
 import os
 import numpy as np
 import pandas as pd
@@ -52,7 +53,7 @@ batch_size = 64
 # NN structure
 in_features = len(trainset[0][0])
 hidden_features_list = [32, 64, 128, 64, 32]
-dropout_prob = 0.5
+dropout_prob = 0.25
 loss_function = nn.MSELoss(reduction="sum")
 
 #%%
@@ -63,7 +64,7 @@ trainset, valset = generate_train_val_data_split(trainset, split_seed=42, val_fr
 #%%
 # BOOKMARK: DataLoaders
 
-trainloader, valloader, testloader = init_data_loaders(trainset, valset, testset, batch_size=batch_size)
+trainloader, valloader, testloader = init_data_loaders(trainset, valset, testset, batch_size)
 
 #%%
 # SECTION: Model Construction
@@ -98,9 +99,9 @@ class NN(nn.Module):
         layers = []
         for out_features in out_features_list:
             layers.append(nn.Linear(in_features, out_features, bias=True))
-            # layers.append(nn.BatchNorm1d(out_features))
+            #layers.append(nn.BatchNorm1d(out_features))
             layers.append(nn.ReLU())
-            # layers.append(nn.Dropout(p=dropout_prob))
+            #layers.append(nn.Dropout(p=dropout_prob))
             in_features = out_features
 
         return nn.Sequential(*layers)
@@ -114,22 +115,22 @@ print_param_shapes(model)
 
 #%%
 # SECTION: Model Training
-# model = NN(in_features, hidden_features_list, dropout_prob).to(device)
+#model = NN(in_features, hidden_features_list, dropout_prob).to(device)
 
-# num_epochs = 50
-# lr = 0.001
-# optimizer = optim.Adam(params=model.parameters(), lr=lr)
-#
-# train_losses, val_losses = run_regression(
-#     model,
-#     optimizer,
-#     loss_function,
-#     device,
-#     num_epochs,
-#     trainloader,
-#     testloader,
-#     verbose=True,
-#     save_best=True,
-# )
-#
-# plot_regression(train_losses, val_losses)
+num_epochs = 50
+lr = 0.01
+optimizer = optim.Adam(params=model.parameters(), lr=lr)
+
+train_losses, val_losses = run_regression(
+    model,
+    optimizer,
+    loss_function,
+    device,
+    num_epochs,
+    trainloader,
+    testloader,
+    verbose=True,
+    save_best=True,
+)
+
+plot_regression(train_losses, val_losses)
