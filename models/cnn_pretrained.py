@@ -3,24 +3,36 @@ from io import BytesIO
 
 import pandas as pd
 import requests
+import torch
 import torch.nn as nn
 from PIL import Image
 from torch import optim
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
-from torchvision.models import (
-    resnet18,
-    efficientnet_b7,
-    densenet121,
-    alexnet,
-    squeezenet1_0,
-)
+from torchvision.models import resnet18
 
 # relative imports only work from current directory without package structure
-from pytorch_helpers import *
+from pytorch_helpers import (
+    generate_subsets,
+    generate_train_val_data_split,
+    plot_regression,
+    print_param_shapes,
+    run_regression,
+)
 
 #%%
+front_page_pictures = pd.read_pickle("../data-clean/front_page_pictures.pkl")
 listings_df = pd.read_pickle("../data-clean/listings.pkl")
+
+#%%
+# drop prices of 0 and missing images
+picture_price_df = (
+    pd.merge(
+        front_page_pictures, listings_df["price"], left_index=True, right_index=True
+    )
+    .loc[lambda x: x["price"] > 0]
+    .dropna()
+)
 
 #%%
 IMAGE_SIZE = [224, 224]
@@ -40,10 +52,8 @@ device = torch.device(device="cuda" if torch.cuda.is_available() else "cpu")
 #%%
 class ListingsImages(Dataset):
     def __init__(self, df, image_transforms=None):
-        self.x = df["picture_url"]
-        self.y = torch.tensor(
-            df["price"].loc[df["price"] > 0].values, dtype=torch.float
-        )
+        self.x = df["listing_url"]
+        self.y = torch.tensor(df["price"].values, dtype=torch.float)
         self.image_transforms = image_transforms
 
     def __getitem__(self, index):
@@ -63,7 +73,7 @@ class ListingsImages(Dataset):
 
 
 #%%
-full_dataset = ListingsImages(listings_df, image_transforms)
+full_dataset = ListingsImages(picture_price_df, image_transforms)
 trainset, valset = generate_train_val_data_split(full_dataset)
 
 # comment out to train on full dataset
@@ -73,19 +83,16 @@ trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 valloader = DataLoader(valset, batch_size=batch_size, shuffle=True)
 
 #%%
-# model = resnet18(pretrained=True).to(device=device)
-# model = densenet121(pretrained=True).to(device=device)
-# model = efficientnet_b7(pretrained=True).to(device=device)
-# model = alexnet(pretrained=True).to(device=device)
-model = squeezenet1_0(pretrained=True).to(device=device)
+model = resnet18(pretrained=True).to(device=device)
 
 # freeze weights
 for param in model.parameters():
     param.requires_grad = False
 
 # replace last fully connected layer, weights of new layer require gradient computation
-# in_features = model.classifier[1].in_features
-model.classifier[1] = model.classifier[1] = nn.Conv2d(512, 1, kernel_size=1)
+in_features = model.fc.in_features
+model.fc = nn.Linear(in_features, 1)
+
 print_param_shapes(model)
 
 #%%
