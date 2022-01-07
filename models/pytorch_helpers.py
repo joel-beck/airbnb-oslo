@@ -215,12 +215,12 @@ def run_regression(
 
         if save_best:
             if epoch_train_mae < best_train_mae:
-                best_mae_train_epoch = epoch
-                best_mae_train = epoch_train_mae
+                best_train_mae_epoch = epoch
+                best_train_mae = epoch_train_mae
 
             if epoch_val_mae < best_val_mae:
-                best_mae_val_epoch = epoch
-                best_mae_val = epoch_val_mae
+                best_val_mae_epoch = epoch
+                best_val_mae = epoch_val_mae
 
                 # save weights for lowest validation mae
                 if save_path is not None:
@@ -240,10 +240,8 @@ def run_regression(
 
     if save_best:
         print(
-            f"\nBest Mean MAE Training: {best_mae_train:.3f} (Epoch {best_mae_train_epoch})"
-        )
-        print(
-            f"Best Mean MAE Validation: {best_mae_val:.3f} (Epoch {best_mae_val_epoch})"
+            f"\nBest Mean MAE Training: {best_train_mae:.3f} (Epoch {best_train_mae_epoch})"
+            f"\nBest Mean MAE Validation: {best_val_mae:.3f} (Epoch {best_val_mae_epoch})"
         )
 
     return train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s
