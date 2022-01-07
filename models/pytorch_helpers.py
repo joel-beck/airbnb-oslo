@@ -1,15 +1,19 @@
 import time
-
+from typing import Any, Optional, Union
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
 import numpy as np
 import seaborn as sns
 import torch
 import torch.nn as nn
-from torch.utils.data import Subset, random_split
+from torch.utils.data import Subset, random_split, DataLoader, Dataset
+from torch.optim import Adam, SGD
+from sklearn.metrics import mean_absolute_error, r2_score
 
 
-def generate_train_val_data_split(full_dataset, split_seed=123, val_frac=0.2):
+def generate_train_val_data_split(
+    full_dataset: Dataset, split_seed: int = 123, val_frac: float = 0.2
+) -> tuple[Dataset, Dataset]:
     num_val_samples = np.ceil(val_frac * len(full_dataset)).astype(int)
     num_train_samples = len(full_dataset) - num_val_samples
     trainset, valset = random_split(
@@ -20,7 +24,9 @@ def generate_train_val_data_split(full_dataset, split_seed=123, val_frac=0.2):
     return trainset, valset
 
 
-def generate_subsets(trainset, valset, subset_size):
+def generate_subsets(
+    trainset: Dataset, valset: Dataset, subset_size: int
+) -> tuple[Dataset, Dataset]:
     train_indices = torch.randint(0, len(trainset) + 1, size=(subset_size,))
     trainset = Subset(dataset=trainset, indices=train_indices)
 
@@ -30,7 +36,9 @@ def generate_subsets(trainset, valset, subset_size):
     return trainset, valset
 
 
-def init_data_loaders(trainset, valset, testset, batch_size=64):
+def init_data_loaders(
+    trainset: Dataset, valset: Dataset, testset: Dataset, batch_size: int = 64
+) -> tuple[DataLoader, DataLoader, DataLoader]:
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size, shuffle=True
     )
@@ -42,7 +50,7 @@ def init_data_loaders(trainset, valset, testset, batch_size=64):
     return trainloader, valloader, testloader
 
 
-def print_param_shapes(model, col_widths=(25, 8)):
+def print_param_shapes(model: Any, col_widths: tuple[int, int] = (25, 8)):
     for name, param in model.named_parameters():
         print(
             f"Name: {name:<{col_widths[0]}} | # Params: {param.numel():<{col_widths[1]}} | Shape: {list(param.shape)}"
@@ -50,14 +58,19 @@ def print_param_shapes(model, col_widths=(25, 8)):
     print("\nTotal number of parameters:", sum(p.numel() for p in model.parameters()))
 
 
-def _print_shape(input, layer=None, col_width=25):
+def _print_shape(input: torch.Tensor, layer: Optional[Any] = None, col_width: int = 25):
     if layer is None:
         print(f"{f'Input shape:':<{col_width}} {list(input.shape)}")
     else:
         print(f"{f'{layer.__class__.__name__} output shape:':<25} {list(input.shape)}")
 
 
-def print_data_shapes(model, device, input_shape, exclude=nn.Sequential):
+def print_data_shapes(
+    model: Any,
+    device: torch.device,
+    input_shape: tuple[int, ...],
+    exclude: Union[nn.Sequential, list] = nn.Sequential,
+):
     x = torch.rand(size=input_shape, dtype=torch.float32).to(device=device)
     _print_shape(x)
 
@@ -74,9 +87,18 @@ def print_data_shapes(model, device, input_shape, exclude=nn.Sequential):
             _print_shape(x, layer)
 
 
-def train_regression(dataloader, optimizer, model, loss_function, device):
+def train_regression(
+    dataloader: DataLoader,
+    optimizer: Union[Adam, SGD],
+    model: Any,
+    loss_function: nn.MSELoss,
+    device: torch.device,
+) -> tuple[float, float, float]:
     # epoch_loss, epoch_total = 0.0, 0.0
     epoch_loss = []
+    # calculate mean absolute error and r2 with values of all batches
+    y_true_list = []
+    y_pred_list = []
 
     for x, y in dataloader:
 
@@ -87,6 +109,10 @@ def train_regression(dataloader, optimizer, model, loss_function, device):
         model.train()
 
         y_pred = model(x).squeeze()
+
+        y_true_list.extend(list(y.detach()))
+        y_pred_list.extend(list(y_pred.detach()))
+
         # batch_size = len(y)
         # epoch_total += batch_size
 
@@ -102,12 +128,19 @@ def train_regression(dataloader, optimizer, model, loss_function, device):
 
     # return mean loss per sample in whole dataset
     # return epoch_loss.detach().to(device="cpu").numpy() / epoch_total
-    return np.mean(epoch_loss)
+    mae = mean_absolute_error(y_true_list, y_pred_list)
+    r2 = r2_score(y_true_list, y_pred_list)
+
+    return np.mean(epoch_loss), mae, r2
 
 
-def validate_regression(dataloader, model, loss_function, device):
+def validate_regression(
+    dataloader: DataLoader, model: Any, loss_function: nn.MSELoss, device: torch.device
+) -> tuple[float, float, float]:
     # epoch_loss, epoch_total = 0.0, 0.0
     epoch_loss = []
+    y_true_list = []
+    y_pred_list = []
 
     model.eval()
     with torch.no_grad():
@@ -120,43 +153,53 @@ def validate_regression(dataloader, model, loss_function, device):
             # batch_size = len(y)
             # epoch_total += batch_size
 
+            y_true_list.extend(list(y.detach()))
+            y_pred_list.extend(list(y_pred.detach()))
+
             loss = loss_function(y_pred, y)
             # epoch_loss += loss
             epoch_loss.append(loss.item())
 
     # return epoch_loss.detach().to(device="cpu").numpy() / epoch_total
-    return np.mean(epoch_loss)
+    mae = mean_absolute_error(y_true_list, y_pred_list)
+    r2 = r2_score(y_true_list, y_pred_list)
+
+    return np.mean(epoch_loss), mae, r2
 
 
 def run_regression(
-    model,
-    optimizer,
-    loss_function,
-    device,
-    num_epochs,
-    train_dataloader,
-    val_dataloader,
-    save_best=False,
-    save_path=None,
-    verbose=False,
-):
+    model: Any,
+    optimizer: Union[Adam, SGD],
+    loss_function: nn.MSELoss,
+    device: torch.device,
+    num_epochs: int,
+    train_dataloader: DataLoader,
+    val_dataloader: DataLoader,
+    save_best: bool = False,
+    save_path: bool = None,
+    verbose: bool = False,
+) -> tuple[list[float], ...]:
+
     start_time = time.perf_counter()
     train_losses, val_losses = [], []
+    train_maes, val_maes = [], []
+    train_r2s, val_r2s = [], []
 
     if save_best:
-        best_loss_train = np.inf
-        best_loss_val = np.inf
+        # use mean absolute error as metric for early stopping
+        best_train_mae = np.inf
+        best_val_mae = np.inf
 
     for epoch in range(1, num_epochs + 1):
 
-        epoch_train_loss = train_regression(
+        epoch_train_loss, epoch_train_mae, epoch_train_r2 = train_regression(
             dataloader=train_dataloader,
             optimizer=optimizer,
             model=model,
             loss_function=loss_function,
             device=device,
         )
-        epoch_val_loss = validate_regression(
+        epoch_val_loss, epoch_val_mae, epoch_val_r2 = validate_regression(
             dataloader=val_dataloader,
             model=model,
             loss_function=loss_function,
@@ -165,17 +208,21 @@ def run_regression(
 
         train_losses.append(epoch_train_loss)
         val_losses.append(epoch_val_loss)
+        train_maes.append(epoch_train_mae)
+        val_maes.append(epoch_val_mae)
+        train_r2s.append(epoch_train_r2)
+        val_r2s.append(epoch_val_r2)
 
         if save_best:
-            if epoch_train_loss < best_loss_train:
-                best_loss_train_epoch = epoch
-                best_loss_train = epoch_train_loss
+            if epoch_train_mae < best_train_mae:
+                best_mae_train_epoch = epoch
+                best_mae_train = epoch_train_mae
 
-            if epoch_val_loss < best_loss_val:
-                best_loss_val_epoch = epoch
-                best_loss_val = epoch_val_loss
+            if epoch_val_mae < best_val_mae:
+                best_mae_val_epoch = epoch
+                best_mae_val = epoch_val_mae
 
-                # save weights for lowest validation loss
+                # save weights for lowest validation mae
                 if save_path is not None:
                     torch.save(model.state_dict(), save_path)
 
@@ -183,7 +230,9 @@ def run_regression(
             if epoch % int(num_epochs / 5) == 0:
                 print(f"Epoch: {epoch} / {num_epochs}\n{'-' * 50}")
                 print(
-                    f"Mean Loss Training: {epoch_train_loss:.5f} | Mean Loss Validation: {epoch_val_loss:.5f}\n"
+                    f"Mean Loss Training: {epoch_train_loss:.3f} | Mean Loss Validation: {epoch_val_loss:.3f}\n"
+                    f"Mean MAE Training: {epoch_train_mae:.3f} | Mean MAE Validation: {epoch_val_mae:.3f}\n"
+                    f"Mean R2 Training: {epoch_train_r2:.3f} | Mean R2 Validation: {epoch_val_r2:.3f}\n"
                 )
 
     time_elapsed = np.round(time.perf_counter() - start_time, 0).astype(int)
@@ -191,38 +240,66 @@ def run_regression(
 
     if save_best:
         print(
-            f"\nBest Mean Loss Training: {best_loss_train:.3f} (Epoch {best_loss_train_epoch})"
+            f"\nBest Mean MAE Training: {best_mae_train:.3f} (Epoch {best_mae_train_epoch})"
         )
         print(
-            f"Best Mean Loss Validation: {best_loss_val:.3f} (Epoch {best_loss_val_epoch})"
+            f"Best Mean MAE Validation: {best_mae_val:.3f} (Epoch {best_mae_val_epoch})"
         )
 
-    return train_losses, val_losses
+    return train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s
 
 
-def plot_regression(train_losses, val_losses):
+def plot_regression(
+    train_losses: list[float],
+    val_losses: list[float],
+    train_maes: list[float],
+    val_maes: list[float],
+    train_r2s: list[float],
+    val_r2s: list[float],
+):
     sns.set_theme(style="whitegrid")
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, figsize=(9, 9))
 
     epochs = range(1, len(train_losses) + 1)
 
-    ax.plot(epochs, train_losses, label="Training", marker="o")
-    ax.plot(epochs, val_losses, label="Validation", marker="o")
-    ax.set(
-        title="Loss",
+    ax1.plot(epochs, train_losses, label="Training", marker="o")
+    ax1.plot(epochs, val_losses, label="Validation", marker="o")
+    ax1.set(
+        title="Mean Squared Error",
+        xlabel="",
+        ylabel="",
+    )
+    ax1.legend()
+    # ax.ticklabel_format(useOffset=False)
+    # ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False)) # tried to delete the 1e* on top of the plot
+
+    ax2.plot(epochs, train_maes, label="Training", marker="o")
+    ax2.plot(epochs, val_maes, label="Validation", marker="o")
+    ax2.set(
+        title="Mean Absolute Error",
+        xlabel="",
+        ylabel="",
+    )
+
+    ax3.plot(epochs, train_r2s, label="Training", marker="o")
+    ax3.plot(epochs, val_r2s, label="Validation", marker="o")
+    ax3.set(
+        title="R2",
         xlabel="Epoch",
         ylabel="",
     )
-    ax.legend()
-    # ax.ticklabel_format(useOffset=False)
-    # ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False)) # tried to delete the 1e* on top of the plot
+
+    fig.tight_layout()
+    sns.move_legend(
+        obj=ax1, loc="upper center", bbox_to_anchor=(1.1, -0.7), frameon=False
+    )
 
     sns.despine()
     plt.show()
 
 
-def accuracy(correct, total):
+def accuracy(correct: int, total: int) -> float:
     return np.round(correct / total, decimals=3)
 
 

@@ -25,12 +25,12 @@ front_page_pictures = pd.read_pickle("../data-clean/front_page_pictures.pkl")
 listings_df = pd.read_pickle("../data-clean/listings.pkl")
 
 #%%
-# drop prices of 0 and missing images
+# drop prices of 0, largest price (outlier) and missing images
 picture_price_df = (
     pd.merge(
         front_page_pictures, listings_df["price"], left_index=True, right_index=True
     )
-    .loc[lambda x: x["price"] > 0]
+    .loc[lambda x: (x["price"] > 0) & (x["price"] < 80000)]
     .dropna()
 )
 
@@ -106,7 +106,7 @@ num_epochs = 5
 optimizer = optim.Adam(params_to_update, lr=lr)
 loss_function = nn.MSELoss()
 
-train_losses, val_losses = run_regression(
+train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s = run_regression(
     model,
     optimizer,
     loss_function,
@@ -118,6 +118,4 @@ train_losses, val_losses = run_regression(
     save_best=True,
 )
 
-plot_regression(train_losses, val_losses)
-
-#%%
+plot_regression(train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s)
