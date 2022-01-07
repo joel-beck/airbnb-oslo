@@ -76,7 +76,7 @@ reviews_cols = [
 listings_subset = (
     listings_df[listings_cols]
     .join(reviews_features[reviews_cols])
-    .loc[listings_df["price"] > 0]
+    .loc[(listings_df["price"] > 0) & (listings_df["price"] < 80000)]
     .dropna()
 )
 
