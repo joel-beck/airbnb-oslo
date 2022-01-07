@@ -109,6 +109,6 @@ metrics, result_container = run_regression(
 metrics.plot_results()
 
 #%%
-metrics_df = result_container.display_results()
-metrics_df.to_pickle("neural_network_results.pkl")
-metrics_df
+numeric_results = result_container.display_results()
+numeric_results.to_pickle("neural_network_results.pkl")
+numeric_results

@@ -9,7 +9,6 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset
 
 from pytorch_helpers import (
-    plot_regression,
     print_data_shapes,
     print_param_shapes,
     run_regression,
@@ -123,7 +122,7 @@ lr = 0.01
 optimizer = optim.Adam(params=model.parameters(), lr=lr)
 
 # NOTE: Adjusted return values to display mean absolute error and r2
-train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s = run_regression(
+metrics = run_regression(
     model,
     optimizer,
     loss_function,
@@ -135,6 +134,6 @@ train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s = run_regress
     save_best=True,
 )
 
-plot_regression(train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s)
+metrics.plot_results()
 
 #%%

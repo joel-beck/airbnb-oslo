@@ -67,7 +67,7 @@ result_container = ResultContainer(
 #%%
 # SUBSECTION: Fit Models
 result = fit_models(X, y, models, result_container, n_folds, n_iter, random_state)
-metrics_df = result.display_results()
+numeric_results = result.display_results()
 
 # save results
-metrics_df.to_pickle("full_features_results.pkl")
+numeric_results.to_pickle("full_features_results.pkl")

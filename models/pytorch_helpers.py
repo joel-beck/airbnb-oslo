@@ -272,12 +272,12 @@ def run_regression(
     num_epochs: int,
     train_dataloader: DataLoader,
     val_dataloader: DataLoader,
-    result_container: ResultContainer,
+    result_container: Optional[ResultContainer] = None,
     scheduler=None,
     save_best: bool = False,
     save_path: bool = None,
     verbose: bool = False,
-) -> tuple[RegressionMetrics, ResultContainer]:
+) -> Union[tuple[RegressionMetrics, ResultContainer], RegressionMetrics]:
 
     start_time = time.perf_counter()
     metrics = RegressionMetrics()
@@ -339,11 +339,17 @@ def run_regression(
     time_elapsed = np.round(time.perf_counter() - start_time, 0).astype(int)
     print(f"Finished training after {time_elapsed} seconds.")
 
+    # check twice for save_best to include both cases for result_container is None and result_container is not None
     if save_best:
         print(
             f"\nBest Mean MAE Training: {best_train_mae:.3f} (Epoch {best_train_mae_epoch})"
             f"\nBest Mean MAE Validation: {best_val_mae:.3f} (Epoch {best_val_mae_epoch})"
         )
+
+    if result_container is None:
+        return metrics
+
+    if save_best:
         # if save_best=True save results from epoch with best validation mae (starts at epoch=1)
         result_container.update_metrics(
             metrics.train_maes[best_val_mae_epoch - 1],
