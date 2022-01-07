@@ -6,15 +6,14 @@ import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import RFE, SelectKBest, VarianceThreshold
-from sklearn.linear_model import Lasso, LinearRegression, Ridge
 from sklearn.svm import SVR
 
 from sklearn_helpers import (
-    ModelContainer,
     ResultContainer,
     fit_models,
     get_column_transformer,
     get_feature_selector,
+    get_models,
     get_preprocessor,
 )
 
@@ -28,10 +27,10 @@ n_folds = 10
 n_iter = 10
 
 # select approximately 50% of all (40) features with each procedure
-k = 20
-pca_components = 20
-rfe_components = 20
-vt_threshold = 0.1
+k_list = [10, 20, 30]
+pca_components_list = [10, 20, 30]
+rfe_components_list = [10, 20, 30]
+vt_threshold_list = [0.1, 0.2, 0.3]
 
 #%%
 listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
@@ -47,7 +46,7 @@ column_transformer = get_column_transformer()
 
 #%%
 # SUBSECTION: SelectKBest
-k_best = get_feature_selector("k_best", k=k)
+k_best = get_feature_selector("k_best", k=10)
 preprocessor = get_preprocessor(column_transformer, k_best)
 preprocessor.fit_transform(X, y)
 
@@ -68,7 +67,7 @@ for feature in selected_features:
 
 #%%
 # SUBSECTION: RFE
-rfe = RFE(SVR(kernel="linear"), n_features_to_select=rfe_components, step=0.5)
+rfe = RFE(SVR(kernel="linear"), n_features_to_select=10, step=0.5)
 preprocessor = get_preprocessor(column_transformer, rfe)
 preprocessor.fit_transform(X, y)
 
@@ -82,7 +81,7 @@ for feature in selected_features:
 
 #%%
 # SUBSECTION: VarianceThreshold
-vt = VarianceThreshold(threshold=vt_threshold)
+vt = VarianceThreshold(threshold=0.3)
 preprocessor = get_preprocessor(column_transformer, vt)
 preprocessor.fit_transform(X, y)
 
@@ -96,7 +95,7 @@ for feature in selected_features:
 
 #%%
 # SUBSECTION: PCA
-pca = get_feature_selector("pca", pca_components=pca_components)
+pca = get_feature_selector("pca", pca_components=10)
 preprocessor = get_preprocessor(column_transformer, pca)
 preprocessor.fit_transform(X, y)
 
@@ -113,21 +112,7 @@ def try_feature_selectors(feature_selector: Union[PCA, SelectKBest]) -> pd.DataF
     column_transformer = get_column_transformer()
     preprocessor = get_preprocessor(column_transformer, feature_selector)
 
-    linear = ModelContainer(LinearRegression(), preprocessor)
-
-    lasso = ModelContainer(
-        Lasso(random_state=random_state),
-        preprocessor,
-        {"model__alpha": np.arange(1, 50)},
-    )
-
-    ridge = ModelContainer(
-        Ridge(random_state=random_state),
-        preprocessor,
-        {"model__alpha": np.arange(10, 1000, 10)},
-    )
-
-    models = [linear, lasso, ridge]
+    models = get_models(preprocessor, random_state=random_state)
     result_container = ResultContainer()
 
     result = fit_models(X, y, models, result_container, n_folds, n_iter, random_state)
@@ -135,41 +120,33 @@ def try_feature_selectors(feature_selector: Union[PCA, SelectKBest]) -> pd.DataF
 
 
 #%%
-k_best_results = try_feature_selectors(k_best)
-k_best_results.to_pickle("k_best_results.pkl")
+k_best_results = []
+for k in k_list:
+    k_best = get_feature_selector("k_best", k=k)
+    k_best_results.append(try_feature_selectors(k_best))
+
+pd.concat(k_best_results).to_pickle("k_best_results.pkl")
 
 #%%
-rfe_results = try_feature_selectors(rfe)
-rfe_results.to_pickle("rfe_results.pkl")
+rfe_results = []
+for rfe_components in rfe_components_list:
+    rfe = RFE(SVR(kernel="linear"), n_features_to_select=rfe_components, step=0.5)
+    rfe_results.append(try_feature_selectors(rfe))
+
+pd.concat(rfe_results).to_pickle("rfe_results.pkl")
 
 #%%
-vt_results = try_feature_selectors(vt)
-vt_results.to_pickle("vt_results.pkl")
+vt_results = []
+for vt_threshold in vt_threshold_list:
+    vt = VarianceThreshold(threshold=vt_threshold)
+    vt_results.append(try_feature_selectors(vt))
+
+pd.concat(vt_results).to_pickle("vt_results.pkl")
 
 #%%
-pca_results = try_feature_selectors(pca)
-pca_results.to_pickle("pca_results.pkl")
+pca_results = []
+for pca_components in pca_components_list:
+    pca = get_feature_selector("pca", pca_components=pca_components)
+    pca_results.append(try_feature_selectors(pca))
 
-#%%
-# SUBSECTION: Compare Results with Full Feature Set
-# import pandas as pd
-print("SelectKBest Results:")
-pd.read_pickle("k_best_results.pkl")
-
-#%%
-print("RFE Results:")
-pd.read_pickle("rfe_results.pkl")
-
-#%%
-print("Variance Threshold Results:")
-pd.read_pickle("vt_results.pkl")
-
-#%%
-print("PCA Results:")
-pd.read_pickle("pca_results.pkl")
-
-#%%
-print("Full Feature Set Results:")
-pd.read_pickle("full_features_results.pkl")
-
-#%%
+pd.concat(pca_results).to_pickle("pca_results.pkl")
