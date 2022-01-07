@@ -1,7 +1,7 @@
 import time
 from typing import Any, Optional, Union
 import matplotlib.pyplot as plt
-from matplotlib.ticker import ScalarFormatter
+import matplotlib.ticker as mticker
 import numpy as np
 import seaborn as sns
 import torch
@@ -175,6 +175,7 @@ def run_regression(
     num_epochs: int,
     train_dataloader: DataLoader,
     val_dataloader: DataLoader,
+    scheduler = None,
     save_best: bool = False,
     save_path: bool = None,
     verbose: bool = False,
@@ -199,6 +200,10 @@ def run_regression(
             loss_function=loss_function,
             device=device,
         )
+
+        if scheduler is not None:
+            scheduler.step()
+
         epoch_val_loss, epoch_val_mae, epoch_val_r2 = validate_regression(
             dataloader=val_dataloader,
             model=model,
@@ -269,8 +274,9 @@ def plot_regression(
         ylabel="",
     )
     ax1.legend()
-    # ax.ticklabel_format(useOffset=False)
-    # ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False)) # tried to delete the 1e* on top of the plot
+    ticks_loc = ax1.get_yticks().tolist()
+    ax1.yaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
+    ax1.set_yticklabels(['{:,}'.format(int(x)) for x in ticks_loc])
 
     ax2.plot(epochs, train_maes, label="Training", marker="o")
     ax2.plot(epochs, val_maes, label="Validation", marker="o")
