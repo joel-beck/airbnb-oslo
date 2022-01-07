@@ -56,7 +56,7 @@ g = sns.relplot(
     col="feature_selector",
     col_wrap=3,
     s=70,
-).set(xlabel="", ylabel="", xlim=(500, 800))
+).set(xlabel="", ylabel="", xlim=(450, 550))
 
 g.fig.suptitle("Mean Average Error")
 g.fig.subplots_adjust(top=0.9)
@@ -72,7 +72,7 @@ g = sns.relplot(
     col="feature_selector",
     col_wrap=3,
     s=70,
-).set(xlabel="", ylabel="", xlim=(0, 0.3))
+).set(xlabel="", ylabel="", xlim=(0.1, 0.3))
 
 g.fig.suptitle("R^2")
 g.fig.subplots_adjust(top=0.9)
@@ -91,17 +91,11 @@ sns.histplot(y, log_scale=True, ax=ax2).set(title="Log Scale")
 plt.show()
 
 #%%
-# One heavy outlier
-print(y.nlargest(10))
-print()
-print(y.nsmallest(10))
-
-#%%
 # SUBSECTION: Fit and Predict with Best Model
 column_transformer = get_column_transformer()
-rfe = RFE(SVR(kernel="linear"), n_features_to_select=30, step=0.5)
+rfe = RFE(SVR(kernel="linear"), n_features_to_select=10, step=0.5)
 preprocessor = get_preprocessor(column_transformer, rfe)
-best_model = RandomForestRegressor(n_estimators=6, min_samples_leaf=3, max_depth=4)
+best_model = RandomForestRegressor(n_estimators=6, min_samples_leaf=7, max_depth=4)
 
 pipeline = make_pipeline(preprocessor, best_model)
 pipeline.fit(X, y)
@@ -136,19 +130,5 @@ pd.DataFrame({"True Price": np.log(y.values), "Predictions": np.log(y_hat)}).plo
 ax2.set(title="Log Scale")
 
 plt.show()
-
-#%%
-# SUBSECTION: Fit again with largest price value removed
-largest_price = listings_subset.nlargest(1, "price")
-listings_reduced = listings_subset.drop(largest_price.index)
-
-X = listings_reduced.drop(columns=["price"])
-y = listings_reduced["price"]
-
-pipeline = make_pipeline(preprocessor, best_model)
-pipeline.fit(X, y)
-y_hat = pipeline.predict(X)
-
-mean_absolute_error(y, y_hat), r2_score(y, y_hat)
 
 #%%
