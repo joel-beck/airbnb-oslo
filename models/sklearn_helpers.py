@@ -66,26 +66,42 @@ class ModelContainer:
 @dataclass
 class ResultContainer:
     model_names: list[str] = field(default_factory=list)
-    mae_train_list: list[float] = field(default_factory=list)
-    mae_val_list: list[float] = field(default_factory=list)
-    r2_train_list: list[float] = field(default_factory=list)
-    r2_val_list: list[float] = field(default_factory=list)
-    mse_train_list: list[float] = field(default_factory=list)
-    mse_val_list: list[float] = field(default_factory=list)
+    train_mae_list: list[float] = field(default_factory=list)
+    val_mae_list: list[float] = field(default_factory=list)
+    train_r2_list: list[float] = field(default_factory=list)
+    val_r2_list: list[float] = field(default_factory=list)
+    train_mse_list: list[float] = field(default_factory=list)
+    val_mse_list: list[float] = field(default_factory=list)
     grid_key_list: list[str] = field(default_factory=list)
     grid_value_list: list = field(default_factory=list)
     num_features: list[float] = field(default_factory=list)
     feature_selector: list[float] = field(default_factory=list)
 
+    def update_metrics(
+        self,
+        train_mae: float,
+        val_mae: float,
+        train_r2: float,
+        val_r2: float,
+        train_loss: float,
+        val_loss: float,
+    ):
+        self.train_mae_list.append(train_mae)
+        self.val_mae_list.append(val_mae)
+        self.train_r2_list.append(train_r2)
+        self.val_r2_list.append(val_r2)
+        self.train_mse_list.append(train_loss)
+        self.val_mse_list.append(val_loss)
+
     def display_results(self) -> pd.DataFrame:
         metrics_df = pd.DataFrame(
             {
-                "mae_train": self.mae_train_list,
-                "mae_val": self.mae_val_list,
-                "r2_train": self.r2_train_list,
-                "r2_val": self.r2_val_list,
-                "mse_train": self.mse_train_list,
-                "mse_val": self.mse_val_list,
+                "mae_train": self.train_mae_list,
+                "mae_val": self.val_mae_list,
+                "r2_train": self.train_r2_list,
+                "r2_val": self.val_r2_list,
+                "mse_train": self.train_mse_list,
+                "mse_val": self.val_mse_list,
                 "hyperparams": self.grid_key_list,
                 "hyperparam_values": self.grid_value_list,
                 "num_features": self.num_features,
@@ -259,12 +275,12 @@ def fit_models(
                 hyperparam_key = hyperparam_key[0]
                 hyperparam_value = hyperparam_value[0]
 
-        result_container.mae_train_list.append(mae_train)
-        result_container.mae_val_list.append(mae_val)
-        result_container.r2_train_list.append(r2_train)
-        result_container.r2_val_list.append(r2_val)
-        result_container.mse_train_list.append(mse_train)
-        result_container.mse_val_list.append(mse_val)
+        result_container.train_mae_list.append(mae_train)
+        result_container.val_mae_list.append(mae_val)
+        result_container.train_r2_list.append(r2_train)
+        result_container.val_r2_list.append(r2_val)
+        result_container.train_mse_list.append(mse_train)
+        result_container.val_mse_list.append(mse_val)
         result_container.grid_key_list.append(hyperparam_key)
         result_container.grid_value_list.append(hyperparam_value)
         result_container.num_features.append(num_features)

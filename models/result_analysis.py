@@ -24,10 +24,18 @@ rfe_results = pd.read_pickle("rfe_results.pkl")
 vt_results = pd.read_pickle("vt_results.pkl")
 pca_results = pd.read_pickle("pca_results.pkl")
 full_features_results = pd.read_pickle("full_features_results.pkl")
+neural_network_results = pd.read_pickle("neural_network_results.pkl")
 
 #%%
 complete_results = pd.concat(
-    [k_best_results, rfe_results, vt_results, pca_results, full_features_results]
+    [
+        k_best_results,
+        rfe_results,
+        vt_results,
+        pca_results,
+        full_features_results,
+        neural_network_results,
+    ]
 ).sort_values("mae_val")
 
 complete_results.to_pickle("complete_results.pkl")
@@ -56,7 +64,7 @@ g = sns.relplot(
     col="feature_selector",
     col_wrap=3,
     s=70,
-).set(xlabel="", ylabel="", xlim=(450, 550))
+).set(xlabel="", ylabel="", xlim=(380, 550))
 
 g.fig.suptitle("Mean Average Error")
 g.fig.subplots_adjust(top=0.9)
@@ -91,7 +99,7 @@ sns.histplot(y, log_scale=True, ax=ax2).set(title="Log Scale")
 plt.show()
 
 #%%
-# SUBSECTION: Fit and Predict with Best Model
+# SUBSECTION: Fit and Predict with Best Classical Model
 column_transformer = get_column_transformer()
 rfe = RFE(SVR(kernel="linear"), n_features_to_select=10, step=0.5)
 preprocessor = get_preprocessor(column_transformer, rfe)

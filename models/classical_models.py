@@ -52,12 +52,12 @@ models = get_models(column_transformer, random_state=random_state)
 # Initialize Results with Baseline Model
 result_container = ResultContainer(
     model_names=["Mean Prediction"],
-    r2_train_list=[baseline_r2],
-    r2_val_list=[baseline_r2],
-    mse_train_list=[baseline_mse],
-    mse_val_list=[baseline_mse],
-    mae_train_list=[baseline_mae],
-    mae_val_list=[baseline_mae],
+    train_r2_list=[baseline_r2],
+    val_r2_list=[baseline_r2],
+    train_mse_list=[baseline_mse],
+    val_mse_list=[baseline_mse],
+    train_mae_list=[baseline_mae],
+    val_mae_list=[baseline_mae],
     grid_key_list=[None],
     grid_value_list=[None],
     num_features=[None],

@@ -1,5 +1,6 @@
 import time
 from typing import Any, Optional, Union
+from dataclasses import dataclass, field
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
@@ -9,6 +10,7 @@ import torch.nn as nn
 from torch.utils.data import Subset, random_split, DataLoader, Dataset
 from torch.optim import Adam, SGD
 from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn_helpers import ResultContainer
 
 
 def generate_train_val_data_split(
@@ -85,6 +87,60 @@ def print_data_shapes(
         else:
             x = layer(x)
             _print_shape(x, layer)
+
+
+@dataclass
+class RegressionMetrics:
+    train_losses: list[str] = field(default_factory=list)
+    val_losses: list[float] = field(default_factory=list)
+    train_maes: list[float] = field(default_factory=list)
+    val_maes: list[float] = field(default_factory=list)
+    train_r2s: list[float] = field(default_factory=list)
+    val_r2s: list[float] = field(default_factory=list)
+
+    def plot_results(self):
+        sns.set_theme(style="whitegrid")
+
+        fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, figsize=(9, 9))
+
+        epochs = range(1, len(self.train_losses) + 1)
+
+        ax1.plot(epochs, self.train_losses, label="Training", marker="o")
+        ax1.plot(epochs, self.val_losses, label="Validation", marker="o")
+        ax1.set(
+            title="Mean Squared Error",
+            xlabel="",
+            ylabel="",
+        )
+        ax1.legend()
+
+        ticks_loc = ax1.get_yticks().tolist()
+        ax1.yaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
+        ax1.set_yticklabels(["{:,}".format(int(x)) for x in ticks_loc])
+
+        ax2.plot(epochs, self.train_maes, label="Training", marker="o")
+        ax2.plot(epochs, self.val_maes, label="Validation", marker="o")
+        ax2.set(
+            title="Mean Absolute Error",
+            xlabel="",
+            ylabel="",
+        )
+
+        ax3.plot(epochs, self.train_r2s, label="Training", marker="o")
+        ax3.plot(epochs, self.val_r2s, label="Validation", marker="o")
+        ax3.set(
+            title="R2",
+            xlabel="Epoch",
+            ylabel="",
+        )
+
+        fig.tight_layout()
+        sns.move_legend(
+            obj=ax1, loc="upper center", bbox_to_anchor=(1.1, -0.7), frameon=False
+        )
+
+        sns.despine()
+        plt.show()
 
 
 def train_regression(
@@ -175,16 +231,15 @@ def run_regression(
     num_epochs: int,
     train_dataloader: DataLoader,
     val_dataloader: DataLoader,
-    scheduler = None,
+    result_container: ResultContainer,
+    scheduler=None,
     save_best: bool = False,
     save_path: bool = None,
     verbose: bool = False,
-) -> tuple[list[float], ...]:
+) -> tuple[RegressionMetrics, ResultContainer]:
 
     start_time = time.perf_counter()
-    train_losses, val_losses = [], []
-    train_maes, val_maes = [], []
-    train_r2s, val_r2s = [], []
+    metrics = RegressionMetrics()
 
     if save_best:
         # use mean absolute error as metric for early stopping
@@ -211,12 +266,12 @@ def run_regression(
             device=device,
         )
 
-        train_losses.append(epoch_train_loss)
-        val_losses.append(epoch_val_loss)
-        train_maes.append(epoch_train_mae)
-        val_maes.append(epoch_val_mae)
-        train_r2s.append(epoch_train_r2)
-        val_r2s.append(epoch_val_r2)
+        metrics.train_losses.append(epoch_train_loss)
+        metrics.val_losses.append(epoch_val_loss)
+        metrics.train_maes.append(epoch_train_mae)
+        metrics.val_maes.append(epoch_val_mae)
+        metrics.train_r2s.append(epoch_train_r2)
+        metrics.val_r2s.append(epoch_val_r2)
 
         if save_best:
             if epoch_train_mae < best_train_mae:
@@ -248,59 +303,27 @@ def run_regression(
             f"\nBest Mean MAE Training: {best_train_mae:.3f} (Epoch {best_train_mae_epoch})"
             f"\nBest Mean MAE Validation: {best_val_mae:.3f} (Epoch {best_val_mae_epoch})"
         )
+        # if save_best=True save results from epoch with best validation mae (starts at epoch=1)
+        result_container.update_metrics(
+            metrics.train_maes[best_val_mae_epoch - 1],
+            metrics.val_maes[best_val_mae_epoch - 1],
+            metrics.train_r2s[best_val_mae_epoch - 1],
+            metrics.val_r2s[best_val_mae_epoch - 1],
+            metrics.train_losses[best_val_mae_epoch - 1],
+            metrics.val_losses[best_val_mae_epoch - 1],
+        )
+    else:
+        # if save_best=False save result from last epoch (starts at epoch=1)
+        result_container.update_metrics(
+            metrics.train_maes[epoch - 1],
+            metrics.val_maes[epoch - 1],
+            metrics.train_r2s[epoch - 1],
+            metrics.val_r2s[epoch - 1],
+            metrics.train_losses[epoch - 1],
+            metrics.val_losses[epoch - 1],
+        )
 
-    return train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s
-
-
-def plot_regression(
-    train_losses: list[float],
-    val_losses: list[float],
-    train_maes: list[float],
-    val_maes: list[float],
-    train_r2s: list[float],
-    val_r2s: list[float],
-):
-    sns.set_theme(style="whitegrid")
-
-    fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, figsize=(9, 9))
-
-    epochs = range(1, len(train_losses) + 1)
-
-    ax1.plot(epochs, train_losses, label="Training", marker="o")
-    ax1.plot(epochs, val_losses, label="Validation", marker="o")
-    ax1.set(
-        title="Mean Squared Error",
-        xlabel="",
-        ylabel="",
-    )
-    ax1.legend()
-    ticks_loc = ax1.get_yticks().tolist()
-    ax1.yaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
-    ax1.set_yticklabels(['{:,}'.format(int(x)) for x in ticks_loc])
-
-    ax2.plot(epochs, train_maes, label="Training", marker="o")
-    ax2.plot(epochs, val_maes, label="Validation", marker="o")
-    ax2.set(
-        title="Mean Absolute Error",
-        xlabel="",
-        ylabel="",
-    )
-
-    ax3.plot(epochs, train_r2s, label="Training", marker="o")
-    ax3.plot(epochs, val_r2s, label="Validation", marker="o")
-    ax3.set(
-        title="R2",
-        xlabel="Epoch",
-        ylabel="",
-    )
-
-    fig.tight_layout()
-    sns.move_legend(
-        obj=ax1, loc="upper center", bbox_to_anchor=(1.1, -0.7), frameon=False
-    )
-
-    sns.despine()
-    plt.show()
+    return metrics, result_container
 
 
 def accuracy(correct: int, total: int) -> float:

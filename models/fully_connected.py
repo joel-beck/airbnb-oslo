@@ -8,12 +8,11 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
 
 from pytorch_helpers import (
-    plot_regression,
     print_data_shapes,
     print_param_shapes,
     run_regression,
 )
-from sklearn_helpers import get_column_transformer
+from sklearn_helpers import get_column_transformer, ResultContainer
 
 #%%
 # SECTION: PyTorch Training Test
@@ -21,6 +20,10 @@ listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
 
 X = listings_subset.drop(columns="price")
 y = listings_subset["price"]
+
+result_container = ResultContainer(
+    model_names=["NeuralNetwork"], feature_selector=[None]
+)
 
 X_train, X_val, y_train, y_val = train_test_split(
     X, y, test_size=0.2, random_state=123, shuffle=True
@@ -33,6 +36,7 @@ X_train_tensor = torch.tensor(
 )
 y_train_tensor = torch.tensor(y_train.values.astype(np.float32))
 trainset = TensorDataset(X_train_tensor, y_train_tensor)
+result_container.num_features.append(X_train_tensor.shape[1])
 
 X_val_tensor = torch.tensor(column_transformer.transform(X_val).astype(np.float32))
 y_val_tensor = torch.tensor(y_val.values.astype(np.float32))
@@ -42,11 +46,18 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #%%
 # BOOKMARK: Hyperparameters
-batch_size = 128
 in_features = len(trainset[0][0])
 hidden_features_list = [64, 128, 256, 512, 512, 256, 128, 64, 32, 16, 8]
+
+batch_size = 128
+num_epochs = 100
 dropout_prob = 0.5
-loss_function = nn.MSELoss()
+lr = 0.01
+
+result_container.grid_key_list.append(
+    ["batch_size", "num_epochs", "learning_rate", "dropout_probability"]
+)
+result_container.grid_value_list.append([batch_size, num_epochs, lr, dropout_prob])
 
 #%%
 # BOOKMARK: Subset
@@ -116,13 +127,10 @@ print_param_shapes(model)
 
 #%%
 # SECTION: Model Training
-model = LinearRegression(in_features, hidden_features_list, dropout_prob).to(device)
-
-num_epochs = 100
-lr = 0.01
+loss_function = nn.MSELoss()
 optimizer = optim.Adam(params=model.parameters(), lr=lr)
 
-train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s = run_regression(
+metrics, result_container = run_regression(
     model,
     optimizer,
     loss_function,
@@ -130,10 +138,14 @@ train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s = run_regress
     num_epochs,
     trainloader,
     valloader,
+    result_container,
     verbose=True,
     save_best=True,
 )
 
-plot_regression(train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s)
+metrics.plot_results()
 
 #%%
+metrics_df = result_container.display_results()
+metrics_df.to_pickle("neural_network_results.pkl")
+metrics_df
