@@ -116,7 +116,7 @@ def try_feature_selectors(feature_selector: Union[PCA, SelectKBest]) -> pd.DataF
     result_container = ResultContainer()
 
     result = fit_models(X, y, models, result_container, n_folds, n_iter, random_state)
-    return result.display_results()
+    return result.display_df()
 
 
 #%%

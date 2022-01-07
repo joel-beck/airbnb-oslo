@@ -106,9 +106,9 @@ metrics, result_container = run_regression(
     save_path="fully_connected_weights.pt",
 )
 
-metrics.plot_results()
+metrics.plot()
 
 #%%
-numeric_results = result_container.display_results()
+numeric_results = result_container.display_df()
 numeric_results.to_pickle("neural_network_results.pkl")
 numeric_results

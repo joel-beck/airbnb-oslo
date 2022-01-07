@@ -134,6 +134,6 @@ metrics = run_regression(
     save_best=True,
 )
 
-metrics.plot_results()
+metrics.plot()
 
 #%%

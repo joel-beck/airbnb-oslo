@@ -93,7 +93,7 @@ class ResultContainer:
         self.train_mse_list.append(train_loss)
         self.val_mse_list.append(val_loss)
 
-    def display_results(self) -> pd.DataFrame:
+    def display_df(self) -> pd.DataFrame:
         metrics_df = pd.DataFrame(
             {
                 "mae_train": self.train_mae_list,

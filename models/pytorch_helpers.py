@@ -131,7 +131,7 @@ class LinearRegression(nn.Module):
 
 
 @dataclass
-class RegressionMetrics:
+class NeuralNetMetrics:
     train_losses: list[str] = field(default_factory=list)
     val_losses: list[float] = field(default_factory=list)
     train_maes: list[float] = field(default_factory=list)
@@ -139,7 +139,7 @@ class RegressionMetrics:
     train_r2s: list[float] = field(default_factory=list)
     val_r2s: list[float] = field(default_factory=list)
 
-    def plot_results(self):
+    def plot(self):
         sns.set_theme(style="whitegrid")
 
         fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, figsize=(9, 9))
@@ -277,10 +277,10 @@ def run_regression(
     save_best: bool = False,
     save_path: bool = None,
     verbose: bool = False,
-) -> Union[tuple[RegressionMetrics, ResultContainer], RegressionMetrics]:
+) -> Union[tuple[NeuralNetMetrics, ResultContainer], NeuralNetMetrics]:
 
     start_time = time.perf_counter()
-    metrics = RegressionMetrics()
+    metrics = NeuralNetMetrics()
 
     if save_best:
         # use mean absolute error as metric for early stopping
