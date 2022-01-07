@@ -104,8 +104,8 @@ lr = 0.01
 num_epochs = 5
 # use only parameters with requires_grad = True in optimizer
 optimizer = optim.Adam(params_to_update, lr=lr)
-loss_function = nn.MSELoss()
 
+loss_function = nn.MSELoss()
 train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s = run_regression(
     model,
     optimizer,

@@ -5,12 +5,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import torch
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import RFE
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVR
+from torch.utils.data import DataLoader, TensorDataset
 
+from pytorch_helpers import LinearRegression
 from sklearn_helpers import get_column_transformer, get_preprocessor
 
 simplefilter(action="ignore", category=FutureWarning)
@@ -107,36 +110,76 @@ best_model = RandomForestRegressor(n_estimators=6, min_samples_leaf=7, max_depth
 
 pipeline = make_pipeline(preprocessor, best_model)
 pipeline.fit(X, y)
-y_hat = pipeline.predict(X)
+y_hat_classic = pipeline.predict(X)
 
-mean_absolute_error(y, y_hat), r2_score(y, y_hat)
+mean_absolute_error(y, y_hat_classic), r2_score(y, y_hat_classic)
+
+#%%
+# SUBSECTION: Fit and Predict with Neural Network Model
+column_transformer = get_column_transformer()
+X_tensor = torch.tensor(column_transformer.fit_transform(X).astype(np.float32))
+y_tensor = torch.tensor(y.values.astype(np.float32))
+dataset = TensorDataset(X_tensor, y_tensor)
+dataloader = DataLoader(dataset, batch_size=X_tensor.shape[0])
+
+in_features = X_tensor.shape[1]
+hidden_features_list = [64, 128, 256, 512, 512, 256, 128, 64, 32, 16, 8]
+dropout_prob = 0.5
+
+model = LinearRegression(in_features, hidden_features_list, dropout_prob)
+model.load_state_dict(torch.load("fully_connected_weights.pt"))
+model.eval()
+
+with torch.no_grad():
+    X_nn, y_nn = next(iter(dataloader))
+    y_hat_nn = model(X_nn).squeeze()
+
+mean_absolute_error(y, y_hat_nn.detach()), r2_score(y, y_hat_nn.detach())
 
 #%%
 # BOOKMARK: Predictions vs. True Price
 
-fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(10, 6))
+sns.set_theme(style="whitegrid")
+fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(12, 6))
+
+# identity line
 ax1.plot(
     [min(y), max(y)],
     [min(y), max(y)],
     linestyle="dashed",
     color="grey",
 )
-pd.DataFrame({"True Price": y.values, "Predictions": y_hat}).plot(
-    kind="scatter", x="True Price", y="Predictions", ax=ax1
-)
-ax1.set(title="Original Scale")
 
+ax1.scatter(
+    y.values, y_hat_classic, label=f"{best_model.__class__.__name__}", alpha=0.5
+)
+ax1.scatter(y.values, y_hat_nn, label="Neural Network", alpha=0.5)
+ax1.set(title="Original Scale", xlabel="True Price", ylabel="Predictions")
+ax1.legend()
+
+# identity line
 ax2.plot(
     [min(np.log(y)), max(np.log(y))],
     [min(np.log(y)), max(np.log(y))],
     linestyle="dashed",
     color="grey",
 )
-pd.DataFrame({"True Price": np.log(y.values), "Predictions": np.log(y_hat)}).plot(
-    kind="scatter", x="True Price", y="Predictions", ax=ax2
-)
-ax2.set(title="Log Scale")
 
+ax2.scatter(
+    np.log(y.values),
+    np.log(y_hat_classic),
+    label=f"{best_model.__class__.__name__}",
+    alpha=0.5,
+)
+ax2.scatter(np.log(y.values), np.log(y_hat_nn), label="Neural Network", alpha=0.5)
+ax2.set(title="Log Scale", xlabel="True Price", ylabel="Predictions")
+
+fig.tight_layout()
+sns.move_legend(
+    obj=ax1, loc="upper center", bbox_to_anchor=(1.1, 1.2), ncol=2, frameon=False
+)
+
+sns.despine()
 plt.show()
 
 #%%

@@ -1,15 +1,17 @@
 import time
-from typing import Any, Optional, Union
 from dataclasses import dataclass, field
+from typing import Any, Optional, Union
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
 import seaborn as sns
 import torch
 import torch.nn as nn
-from torch.utils.data import Subset, random_split, DataLoader, Dataset
-from torch.optim import Adam, SGD
 from sklearn.metrics import mean_absolute_error, r2_score
+from torch.optim import SGD, Adam
+from torch.utils.data import DataLoader, Dataset, Subset, random_split
+
 from sklearn_helpers import ResultContainer
 
 
@@ -87,6 +89,45 @@ def print_data_shapes(
         else:
             x = layer(x)
             _print_shape(x, layer)
+
+
+class LinearRegression(nn.Module):
+    def __init__(self, in_features, hidden_features_list, dropout_prob):
+        super(LinearRegression, self).__init__()
+
+        self.input_layer = nn.Sequential(
+            nn.Linear(in_features, hidden_features_list[0], bias=False),
+            nn.BatchNorm1d(hidden_features_list[0]),
+            nn.ReLU(),
+            nn.Dropout(dropout_prob),
+        )
+
+        self.hidden_layers = self.hidden_block(
+            in_features=hidden_features_list[0],
+            out_features_list=hidden_features_list[1:],
+            dropout_prob=dropout_prob,
+        )
+
+        self.output_layer = nn.Linear(
+            in_features=hidden_features_list[-1], out_features=1
+        )
+
+    def forward(self, x):
+        x = self.input_layer(x)
+        x = self.hidden_layers(x)
+        x = self.output_layer(x)
+        return x
+
+    def hidden_block(self, in_features, out_features_list, dropout_prob):
+        layers = []
+        for out_features in out_features_list:
+            layers.append(nn.Linear(in_features, out_features, bias=False))
+            layers.append(nn.BatchNorm1d(out_features))
+            layers.append(nn.ReLU())
+            layers.append(nn.Dropout(p=dropout_prob))
+            in_features = out_features
+
+        return nn.Sequential(*layers)
 
 
 @dataclass

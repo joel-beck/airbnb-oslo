@@ -8,11 +8,12 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
 
 from pytorch_helpers import (
+    LinearRegression,
     print_data_shapes,
     print_param_shapes,
     run_regression,
 )
-from sklearn_helpers import get_column_transformer, ResultContainer
+from sklearn_helpers import ResultContainer, get_column_transformer
 
 #%%
 # SECTION: PyTorch Training Test
@@ -77,45 +78,6 @@ valloader = DataLoader(valset, batch_size=batch_size, shuffle=True)
 
 #%%
 # SECTION: Model Construction
-class LinearRegression(nn.Module):
-    def __init__(self, in_features, hidden_features_list, dropout_prob):
-        super(LinearRegression, self).__init__()
-
-        self.input_layer = nn.Sequential(
-            nn.Linear(in_features, hidden_features_list[0], bias=False),
-            nn.BatchNorm1d(hidden_features_list[0]),
-            nn.ReLU(),
-            nn.Dropout(dropout_prob),
-        )
-
-        self.hidden_layers = self.hidden_block(
-            in_features=hidden_features_list[0],
-            out_features_list=hidden_features_list[1:],
-            dropout_prob=dropout_prob,
-        )
-
-        self.output_layer = nn.Linear(
-            in_features=hidden_features_list[-1], out_features=1
-        )
-
-    def forward(self, x):
-        x = self.input_layer(x)
-        x = self.hidden_layers(x)
-        x = self.output_layer(x)
-        return x
-
-    def hidden_block(self, in_features, out_features_list, dropout_prob):
-        layers = []
-        for out_features in out_features_list:
-            layers.append(nn.Linear(in_features, out_features, bias=False))
-            layers.append(nn.BatchNorm1d(out_features))
-            layers.append(nn.ReLU())
-            layers.append(nn.Dropout(p=dropout_prob))
-            in_features = out_features
-
-        return nn.Sequential(*layers)
-
-
 model = LinearRegression(in_features, hidden_features_list, dropout_prob).to(device)
 model
 
@@ -141,6 +103,7 @@ metrics, result_container = run_regression(
     result_container,
     verbose=True,
     save_best=True,
+    save_path="fully_connected_weights.pt",
 )
 
 metrics.plot_results()
