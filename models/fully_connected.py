@@ -12,6 +12,7 @@ from pytorch_helpers import (
     print_data_shapes,
     print_param_shapes,
     run_regression,
+    init_weights,
 )
 from sklearn_helpers import ResultContainer, get_column_transformer
 
@@ -51,25 +52,15 @@ in_features = len(trainset[0][0])
 hidden_features_list = [64, 128, 256, 512, 512, 256, 128, 64, 32, 16, 8]
 
 batch_size = 128
-num_epochs = 100
+num_epochs = 200
 dropout_prob = 0.5
 lr = 0.01
+log_y = False
 
 result_container.grid_key_list.append(
     ["batch_size", "num_epochs", "learning_rate", "dropout_probability"]
 )
 result_container.grid_value_list.append([batch_size, num_epochs, lr, dropout_prob])
-
-#%%
-# BOOKMARK: Subset
-# comment out to train on whole dataset
-# subset_size = batch_size * 2
-
-# train_indices = torch.randint(0, len(trainset) + 1, size=(subset_size,))
-# trainset = Subset(dataset=trainset, indices=train_indices)
-
-# val_indices = torch.randint(0, len(testset) + 1, size=(subset_size,))
-# testset = Subset(dataset=testset, indices=val_indices)
 
 #%%
 # BOOKMARK: DataLoaders
@@ -89,6 +80,12 @@ print_param_shapes(model)
 
 #%%
 # SECTION: Model Training
+model = LinearRegression(in_features, hidden_features_list, dropout_prob).to(device)
+
+# avoid negative predicted prices at beginning of training to enable log transformation
+if log_y:
+    model.apply(lambda x: init_weights(x, mean=50))
+
 loss_function = nn.MSELoss()
 optimizer = optim.Adam(params=model.parameters(), lr=lr)
 
@@ -101,9 +98,10 @@ metrics, result_container = run_regression(
     trainloader,
     valloader,
     result_container,
+    log_y=log_y,
     verbose=True,
     save_best=True,
-    save_path="fully_connected_weights.pt",
+    # save_path="fully_connected_weights.pt",
 )
 
 metrics.plot()

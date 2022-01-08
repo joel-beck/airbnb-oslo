@@ -77,7 +77,7 @@ class ResultContainer:
     num_features: list[float] = field(default_factory=list)
     feature_selector: list[float] = field(default_factory=list)
 
-    def update_metrics(
+    def append(
         self,
         train_mae: float,
         val_mae: float,

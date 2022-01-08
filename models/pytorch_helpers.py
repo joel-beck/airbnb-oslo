@@ -8,7 +8,7 @@ import numpy as np
 import seaborn as sns
 import torch
 import torch.nn as nn
-from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from torch.optim import SGD, Adam
 from torch.utils.data import DataLoader, Dataset, Subset, random_split
 
@@ -139,6 +139,22 @@ class NeuralNetMetrics:
     train_r2s: list[float] = field(default_factory=list)
     val_r2s: list[float] = field(default_factory=list)
 
+    def append(
+        self,
+        train_loss: float,
+        val_loss: float,
+        train_mae: float,
+        val_mae: float,
+        train_r2: float,
+        val_r2: float,
+    ):
+        self.train_losses.append(train_loss)
+        self.val_losses.append(val_loss)
+        self.train_maes.append(train_mae)
+        self.val_maes.append(val_mae)
+        self.train_r2s.append(train_r2)
+        self.val_r2s.append(val_r2)
+
     def plot(self):
         sns.set_theme(style="whitegrid")
 
@@ -184,84 +200,110 @@ class NeuralNetMetrics:
         plt.show()
 
 
+def init_weights(layer: nn.Module, mean: float = 0, std: float = 1):
+    if isinstance(layer, nn.Linear):
+        # avoid negative predicted prices at beginning of training to enable log transformation
+        torch.nn.init.normal_(layer.weight, mean=mean, std=std)
+
+
 def train_regression(
     dataloader: DataLoader,
     optimizer: Union[Adam, SGD],
     model: Any,
     loss_function: nn.MSELoss,
     device: torch.device,
+    log_y: bool = False,
 ) -> tuple[float, float, float]:
-    # epoch_loss, epoch_total = 0.0, 0.0
-    epoch_loss = []
-    # calculate mean absolute error and r2 with values of all batches
+    # calculate mean squared error, mean_absolute error and r2 with values of all batches to perform comparable computations as with classical models
     y_true_list = []
     y_pred_list = []
 
+    model.train()
     for x, y in dataloader:
-
         x = x.to(device=device)
         y = y.to(device=device)
 
         optimizer.zero_grad()
-        model.train()
-
         y_pred = model(x).squeeze()
+
+        # train model / backpropagate loss on log scale
+        if log_y:
+            y = torch.log(y)
+            y_pred = torch.log(y_pred)
+
+        loss = loss_function(y_pred, y)
+        loss.backward()
+        optimizer.step()
+
+        # collect error metrics on original scale
+        if log_y:
+            y = torch.exp(y)
+            y_pred = torch.exp(y_pred)
 
         y_true_list.extend(list(y.detach()))
         y_pred_list.extend(list(y_pred.detach()))
 
-        # batch_size = len(y)
-        # epoch_total += batch_size
-
-        # total loss per sample in minibatch (sum of squared deviations)
-        # when using MSELoss(reduction="sum")
-        loss = loss_function(y_pred, y)
-        # epoch_loss += loss
-
-        loss.backward()
-        optimizer.step()
-
-        epoch_loss.append(loss.item())
-
-    # return mean loss per sample in whole dataset
-    # return epoch_loss.detach().to(device="cpu").numpy() / epoch_total
+    print(f"y_true_list = {y_true_list[:6]}")
+    print(f"y_pred_list = {y_pred_list[:6]}")
+    mse = mean_squared_error(y_true_list, y_pred_list)
     mae = mean_absolute_error(y_true_list, y_pred_list)
     r2 = r2_score(y_true_list, y_pred_list)
 
-    return np.mean(epoch_loss), mae, r2
+    return mse, mae, r2
 
 
 def validate_regression(
-    dataloader: DataLoader, model: Any, loss_function: nn.MSELoss, device: torch.device
+    dataloader: DataLoader, model: Any, device: torch.device
 ) -> tuple[float, float, float]:
-    # epoch_loss, epoch_total = 0.0, 0.0
-    epoch_loss = []
     y_true_list = []
     y_pred_list = []
 
     model.eval()
     with torch.no_grad():
         for x, y in dataloader:
-
             x = x.to(device=device, dtype=torch.float)
             y = y.to(device=device, dtype=torch.float)
 
             y_pred = model(x).squeeze()
-            # batch_size = len(y)
-            # epoch_total += batch_size
 
             y_true_list.extend(list(y.detach()))
             y_pred_list.extend(list(y_pred.detach()))
 
-            loss = loss_function(y_pred, y)
-            # epoch_loss += loss
-            epoch_loss.append(loss.item())
-
-    # return epoch_loss.detach().to(device="cpu").numpy() / epoch_total
+    mse = mean_squared_error(y_true_list, y_pred_list)
     mae = mean_absolute_error(y_true_list, y_pred_list)
     r2 = r2_score(y_true_list, y_pred_list)
 
-    return np.mean(epoch_loss), mae, r2
+    return mse, mae, r2
+
+
+def print_epoch(
+    epoch: int,
+    num_epochs: int,
+    epoch_train_mse: float,
+    epoch_val_mse: float,
+    epoch_train_mae: float,
+    epoch_val_mae: float,
+    epoch_train_r2: float,
+    epoch_val_r2: float,
+):
+    print(f"Epoch: {epoch} / {num_epochs}\n{'-' * 50}")
+    print(
+        f"Mean MSE Training: {epoch_train_mse:.3f} | Mean MSE Validation: {epoch_val_mse:.3f}\n"
+        f"Mean MAE Training: {epoch_train_mae:.3f} | Mean MAE Validation: {epoch_val_mae:.3f}\n"
+        f"Mean R2 Training: {epoch_train_r2:.3f} | Mean R2 Validation: {epoch_val_r2:.3f}\n"
+    )
+
+
+def print_best(
+    best_train_mae: float,
+    best_train_mae_epoch: int,
+    best_val_mae: float,
+    best_val_mae_epoch: int,
+):
+    print(
+        f"\nBest Mean MAE Training: {best_train_mae:.3f} (Epoch {best_train_mae_epoch})"
+        f"\nBest Mean MAE Validation: {best_val_mae:.3f} (Epoch {best_val_mae_epoch})"
+    )
 
 
 def run_regression(
@@ -273,7 +315,8 @@ def run_regression(
     train_dataloader: DataLoader,
     val_dataloader: DataLoader,
     result_container: Optional[ResultContainer] = None,
-    scheduler=None,
+    log_y: bool = False,
+    scheduler: Optional[Any] = None,
     save_best: bool = False,
     save_path: bool = None,
     verbose: bool = False,
@@ -289,30 +332,32 @@ def run_regression(
 
     for epoch in range(1, num_epochs + 1):
 
-        epoch_train_loss, epoch_train_mae, epoch_train_r2 = train_regression(
+        epoch_train_mse, epoch_train_mae, epoch_train_r2 = train_regression(
             dataloader=train_dataloader,
             optimizer=optimizer,
             model=model,
             loss_function=loss_function,
             device=device,
+            log_y=log_y,
         )
 
         if scheduler is not None:
             scheduler.step()
 
-        epoch_val_loss, epoch_val_mae, epoch_val_r2 = validate_regression(
+        epoch_val_mse, epoch_val_mae, epoch_val_r2 = validate_regression(
             dataloader=val_dataloader,
             model=model,
-            loss_function=loss_function,
             device=device,
         )
 
-        metrics.train_losses.append(epoch_train_loss)
-        metrics.val_losses.append(epoch_val_loss)
-        metrics.train_maes.append(epoch_train_mae)
-        metrics.val_maes.append(epoch_val_mae)
-        metrics.train_r2s.append(epoch_train_r2)
-        metrics.val_r2s.append(epoch_val_r2)
+        metrics.append(
+            epoch_train_mse,
+            epoch_val_mse,
+            epoch_train_mae,
+            epoch_val_mae,
+            epoch_train_r2,
+            epoch_val_r2,
+        )
 
         if save_best:
             if epoch_train_mae < best_train_mae:
@@ -329,11 +374,15 @@ def run_regression(
 
         if verbose:
             if epoch % int(num_epochs / 5) == 0:
-                print(f"Epoch: {epoch} / {num_epochs}\n{'-' * 50}")
-                print(
-                    f"Mean Loss Training: {epoch_train_loss:.3f} | Mean Loss Validation: {epoch_val_loss:.3f}\n"
-                    f"Mean MAE Training: {epoch_train_mae:.3f} | Mean MAE Validation: {epoch_val_mae:.3f}\n"
-                    f"Mean R2 Training: {epoch_train_r2:.3f} | Mean R2 Validation: {epoch_val_r2:.3f}\n"
+                print_epoch(
+                    epoch,
+                    num_epochs,
+                    epoch_train_mse,
+                    epoch_val_mse,
+                    epoch_train_mae,
+                    epoch_val_mae,
+                    epoch_train_r2,
+                    epoch_val_r2,
                 )
 
     time_elapsed = np.round(time.perf_counter() - start_time, 0).astype(int)
@@ -341,9 +390,8 @@ def run_regression(
 
     # check twice for save_best to include both cases for result_container is None and result_container is not None
     if save_best:
-        print(
-            f"\nBest Mean MAE Training: {best_train_mae:.3f} (Epoch {best_train_mae_epoch})"
-            f"\nBest Mean MAE Validation: {best_val_mae:.3f} (Epoch {best_val_mae_epoch})"
+        print_best(
+            best_train_mae, best_train_mae_epoch, best_val_mae, best_val_mae_epoch
         )
 
     if result_container is None:
@@ -351,7 +399,7 @@ def run_regression(
 
     if save_best:
         # if save_best=True save results from epoch with best validation mae (starts at epoch=1)
-        result_container.update_metrics(
+        result_container.append(
             metrics.train_maes[best_val_mae_epoch - 1],
             metrics.val_maes[best_val_mae_epoch - 1],
             metrics.train_r2s[best_val_mae_epoch - 1],
@@ -361,7 +409,7 @@ def run_regression(
         )
     else:
         # if save_best=False save result from last epoch (starts at epoch=1)
-        result_container.update_metrics(
+        result_container.append(
             metrics.train_maes[epoch - 1],
             metrics.val_maes[epoch - 1],
             metrics.train_r2s[epoch - 1],
