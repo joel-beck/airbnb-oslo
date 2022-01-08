@@ -57,10 +57,10 @@ dropout_prob = 0.5
 lr = 0.01
 log_y = False
 
-result_container.grid_key_list.append(
+result_container.hyperparam_keys.append(
     ["batch_size", "num_epochs", "learning_rate", "dropout_probability"]
 )
-result_container.grid_value_list.append([batch_size, num_epochs, lr, dropout_prob])
+result_container.hyperparam_values.append([batch_size, num_epochs, lr, dropout_prob])
 
 #%%
 # BOOKMARK: DataLoaders
@@ -101,7 +101,7 @@ metrics, result_container = run_regression(
     log_y=log_y,
     verbose=True,
     save_best=True,
-    # save_path="fully_connected_weights.pt",
+    save_path="fully_connected_weights.pt",
 )
 
 metrics.plot()

@@ -243,8 +243,6 @@ def train_regression(
         y_true_list.extend(list(y.detach()))
         y_pred_list.extend(list(y_pred.detach()))
 
-    print(f"y_true_list = {y_true_list[:6]}")
-    print(f"y_pred_list = {y_pred_list[:6]}")
     mse = mean_squared_error(y_true_list, y_pred_list)
     mae = mean_absolute_error(y_true_list, y_pred_list)
     r2 = r2_score(y_true_list, y_pred_list)
@@ -323,6 +321,8 @@ def run_regression(
 ) -> Union[tuple[NeuralNetMetrics, ResultContainer], NeuralNetMetrics]:
 
     start_time = time.perf_counter()
+
+    result_container.log_y.append(log_y)
     metrics = NeuralNetMetrics()
 
     if save_best:

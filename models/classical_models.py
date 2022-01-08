@@ -46,9 +46,6 @@ baseline_mse = mean_squared_error(y_true=y, y_pred=baseline_pred)
 baseline_mae = mean_absolute_error(y_true=y, y_pred=baseline_pred)
 
 #%%
-# SUBSECTION: Collect Instances of Models to iterate over
-models = get_models(column_transformer, random_state=random_state)
-
 # Initialize Results with Baseline Model
 result_container = ResultContainer(
     model_names=["Mean Prediction"],
@@ -58,16 +55,21 @@ result_container = ResultContainer(
     val_mse_list=[baseline_mse],
     train_mae_list=[baseline_mae],
     val_mae_list=[baseline_mae],
-    grid_key_list=[None],
-    grid_value_list=[None],
+    hyperparam_keys=[None],
+    hyperparam_values=[None],
     num_features=[None],
     feature_selector=[None],
+    log_y=[False],
 )
 
 #%%
 # SUBSECTION: Fit Models
-result = fit_models(X, y, models, result_container, n_folds, n_iter, random_state)
-numeric_results = result.display_df()
+full_features_results = []
+for log_y in [True, False]:
+    models = get_models(column_transformer, random_state=random_state, log_y=log_y)
+    result = fit_models(
+        X, y, models, result_container, n_folds, n_iter, random_state, log_y=log_y
+    )
+    full_features_results.append(result.display_df())
 
-# save results
-numeric_results.to_pickle("full_features_results.pkl")
+pd.concat(full_features_results).to_pickle("full_features_results.pkl")
