@@ -1,4 +1,5 @@
 #%%
+import itertools
 from typing import Union
 from warnings import simplefilter
 
@@ -31,6 +32,7 @@ k_list = [10, 20, 30]
 pca_components_list = [10, 20, 30]
 rfe_components_list = [10, 20, 30]
 vt_threshold_list = [0.1, 0.2, 0.3]
+log_y_list = [True, False]
 
 #%%
 listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
@@ -108,45 +110,51 @@ for i, ratio in enumerate(variance_ratios, 1):
 #%%
 # SECTION: Fit Models
 # helper function for this file only, depends on global variables
-def try_feature_selectors(feature_selector: Union[PCA, SelectKBest]) -> pd.DataFrame:
+def try_feature_selectors(
+    feature_selector: Union[PCA, SelectKBest], log_y: bool = False
+) -> pd.DataFrame:
     column_transformer = get_column_transformer()
     preprocessor = get_preprocessor(column_transformer, feature_selector)
 
-    models = get_models(preprocessor, random_state=random_state)
+    models = get_models(preprocessor, random_state=random_state, log_y=log_y)
     result_container = ResultContainer()
 
-    result = fit_models(X, y, models, result_container, n_folds, n_iter, random_state)
+    result = fit_models(
+        X, y, models, result_container, n_folds, n_iter, random_state, log_y=log_y
+    )
     return result.display_df()
 
 
 #%%
 k_best_results = []
-for k in k_list:
+for (k, log_y) in itertools.product(k_list, log_y_list):
     k_best = get_feature_selector("k_best", k=k)
-    k_best_results.append(try_feature_selectors(k_best))
+    k_best_results.append(try_feature_selectors(k_best, log_y=log_y))
 
 pd.concat(k_best_results).to_pickle("k_best_results.pkl")
 
 #%%
 rfe_results = []
-for rfe_components in rfe_components_list:
+for (rfe_components, log_y) in itertools.product(rfe_components_list, log_y_list):
     rfe = RFE(SVR(kernel="linear"), n_features_to_select=rfe_components, step=0.5)
-    rfe_results.append(try_feature_selectors(rfe))
+    rfe_results.append(try_feature_selectors(rfe, log_y=log_y))
 
 pd.concat(rfe_results).to_pickle("rfe_results.pkl")
 
 #%%
 vt_results = []
-for vt_threshold in vt_threshold_list:
+for (vt_threshold, log_y) in itertools.product(vt_threshold_list, log_y_list):
     vt = VarianceThreshold(threshold=vt_threshold)
-    vt_results.append(try_feature_selectors(vt))
+    vt_results.append(try_feature_selectors(vt, log_y=log_y))
 
 pd.concat(vt_results).to_pickle("vt_results.pkl")
 
 #%%
 pca_results = []
-for pca_components in pca_components_list:
+for (pca_components, log_y) in itertools.product(pca_components_list, log_y_list):
     pca = get_feature_selector("pca", pca_components=pca_components)
-    pca_results.append(try_feature_selectors(pca))
+    pca_results.append(try_feature_selectors(pca, log_y=log_y))
 
 pd.concat(pca_results).to_pickle("pca_results.pkl")
+
+#%%

@@ -91,9 +91,9 @@ def print_data_shapes(
             _print_shape(x, layer)
 
 
-class LinearRegression(nn.Module):
+class MLP(nn.Module):
     def __init__(self, in_features, hidden_features_list, dropout_prob):
-        super(LinearRegression, self).__init__()
+        super(MLP, self).__init__()
 
         self.input_layer = nn.Sequential(
             nn.Linear(in_features, hidden_features_list[0], bias=False),

@@ -332,7 +332,8 @@ def fit_models(
             train_mse = -cv.cv_results_["mean_train_neg_mean_squared_error"][best_index]
             val_mse = -cv.cv_results_["mean_test_neg_mean_squared_error"][best_index]
 
-            hyperparam_key = [key.split("__")[1] for key in cv.best_params_]
+            split_index = 2 if log_y else 1
+            hyperparam_key = [key.split("__")[split_index] for key in cv.best_params_]
             hyperparam_value = [value for value in cv.best_params_.values()]
             num_features = cv.best_estimator_.named_steps["model"].n_features_in_
 

@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
+from sklearn.linear_model import LinearRegression
+from sklearn.compose import TransformedTargetRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import RFE
 from sklearn.metrics import mean_absolute_error, r2_score
@@ -13,7 +15,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVR
 from torch.utils.data import DataLoader, TensorDataset
 
-from pytorch_helpers import LinearRegression
+from pytorch_helpers import MLP
 from sklearn_helpers import get_column_transformer, get_preprocessor
 
 simplefilter(action="ignore", category=FutureWarning)
@@ -51,10 +53,17 @@ complete_results
 complete_results.sort_values("r2_val", ascending=False)
 
 #%%
+# stratified by log_y
+complete_results.groupby("log_y").apply(lambda x: x.nsmallest(3, "mae_val"))
+
+#%%
+complete_results.groupby("log_y").apply(lambda x: x.nlargest(3, "r2_val"))
+
+#%%
 plot_data = (
     complete_results.fillna({"feature_selector": "None"})
     .astype({"feature_selector": "category"})[
-        ["mae_val", "r2_val", "num_features", "feature_selector"]
+        ["mae_val", "r2_val", "num_features", "feature_selector", "log_y"]
     ]
     .loc[lambda x: x.index != "Mean Prediction"]
 )
@@ -66,11 +75,15 @@ g = sns.relplot(
     hue="num_features",
     col="feature_selector",
     col_wrap=3,
+    style="log_y",
+    markers=["s", "o"],
     s=70,
 ).set(xlabel="", ylabel="", xlim=(380, 550))
 
 g.fig.suptitle("Mean Average Error")
 g.fig.subplots_adjust(top=0.9)
+
+sns.move_legend(obj=g, loc="center", bbox_to_anchor=(1, 0.5), frameon=False)
 
 #%%
 plot_data = plot_data.sort_values("r2_val", ascending=False)
@@ -82,11 +95,15 @@ g = sns.relplot(
     hue="num_features",
     col="feature_selector",
     col_wrap=3,
+    style="log_y",
+    markers=["s", "o"],
     s=70,
-).set(xlabel="", ylabel="", xlim=(0.1, 0.3))
+).set(xlabel="", ylabel="", xlim=(0.1, 0.35))
 
-g.fig.suptitle("R^2")
+g.fig.suptitle(r"$R^2$")
 g.fig.subplots_adjust(top=0.9)
+
+sns.move_legend(obj=g, loc="center", bbox_to_anchor=(1, 0.5), frameon=False)
 
 #%%
 listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
@@ -104,13 +121,17 @@ plt.show()
 #%%
 # SUBSECTION: Fit and Predict with Best Classical Model
 column_transformer = get_column_transformer()
-rfe = RFE(SVR(kernel="linear"), n_features_to_select=10, step=0.5)
+rfe = RFE(SVR(kernel="linear"), n_features_to_select=30, step=0.5)
 preprocessor = get_preprocessor(column_transformer, rfe)
-best_model = RandomForestRegressor(n_estimators=6, min_samples_leaf=7, max_depth=4)
+
+# best_model = RandomForestRegressor(n_estimators=6, min_samples_leaf=7, max_depth=4)
+best_model = LinearRegression()
 
 pipeline = make_pipeline(preprocessor, best_model)
-pipeline.fit(X, y)
-y_hat_classic = pipeline.predict(X)
+log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
+
+log_transform.fit(X, y)
+y_hat_classic = log_transform.predict(X)
 
 mean_absolute_error(y, y_hat_classic), r2_score(y, y_hat_classic)
 
@@ -126,7 +147,7 @@ in_features = X_tensor.shape[1]
 hidden_features_list = [64, 128, 256, 512, 512, 256, 128, 64, 32, 16, 8]
 dropout_prob = 0.5
 
-model = LinearRegression(in_features, hidden_features_list, dropout_prob)
+model = MLP(in_features, hidden_features_list, dropout_prob)
 model.load_state_dict(torch.load("fully_connected_weights.pt"))
 model.eval()
 
@@ -137,8 +158,7 @@ with torch.no_grad():
 mean_absolute_error(y, y_hat_nn.detach()), r2_score(y, y_hat_nn.detach())
 
 #%%
-# BOOKMARK: Predictions vs. True Price
-
+# SUBSECTION: Plot Predictions vs. True Price
 sns.set_theme(style="whitegrid")
 fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(12, 6))
 
