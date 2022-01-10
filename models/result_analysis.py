@@ -108,6 +108,36 @@ X_test = pd.read_pickle("../data-clean/X_test.pkl")
 y_test = pd.read_pickle("../data-clean/y_test.pkl")
 
 #%%
+def show_coefficients(log_transform: TransformedTargetRegressor) -> pd.DataFrame:
+    """Display Coefficients of Linear Regression Model in Dataframe"""
+
+    encoded_features = log_transform.regressor_.named_steps["pipeline"][
+        "column_transformer"
+    ].get_feature_names_out()
+
+    selected_features = log_transform.regressor_.named_steps["pipeline"][
+        "feature_selector"
+    ].get_feature_names_out(encoded_features)
+
+    feature_names = [name.split("__")[1] for name in selected_features]
+
+    coefs = log_transform.regressor_.named_steps["linearregression"].coef_
+
+    return (
+        pd.DataFrame({"feature": feature_names, "coefficient": coefs})
+        .sort_values("coefficient", ascending=False)
+        .reset_index(drop=True)
+    )
+
+
+def print_metrics(y_true: float, y_hat: float):
+    print(
+        f"MAE: {mean_absolute_error(y_true, y_hat):.3f}\n"
+        f"R^2: {r2_score(y_true, y_hat):.3f}"
+    )
+
+
+#%%
 # SUBSECTION: Classical Model with lowest MAE on Validation Set
 column_transformer = get_column_transformer()
 rfe = RFE(SVR(kernel="linear"), n_features_to_select=30, step=0.5)
@@ -120,7 +150,9 @@ log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=n
 log_transform.fit(X_train_val, y_train_val)
 y_hat_mae = log_transform.predict(X_test)
 
-mean_absolute_error(y_test, y_hat_mae), r2_score(y_test, y_hat_mae)
+print_metrics(y_test, y_hat_mae)
+coefs_30 = show_coefficients(log_transform)
+coefs_30
 
 #%%
 # SUBSECTION: Classical Model with lowest R^2 on Validation Set
@@ -134,25 +166,25 @@ log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=n
 log_transform.fit(X_train_val, y_train_val)
 y_hat_r2 = log_transform.predict(X_test)
 
-mean_absolute_error(y_test, y_hat_r2), r2_score(y_test, y_hat_r2)
+print_metrics(y_test, y_hat_r2)
+show_coefficients(log_transform)
 
 #%%
-# SUBSECTION: Coefficients of Linear Regression Model
-encoded_features = log_transform.regressor_.named_steps["pipeline"][
-    "column_transformer"
-].get_feature_names_out()
+# Neighbourhood has the strongest influence
+listings_df = pd.read_pickle("../data-clean/listings_subset.pkl")
 
-selected_features = log_transform.regressor_.named_steps["pipeline"][
-    "feature_selector"
-].get_feature_names_out(encoded_features)
+fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(10, 14))
 
-feature_names = [name.split("__")[1] for name in selected_features]
-
-coefs = log_transform.regressor_.named_steps["linearregression"].coef_
-
-pd.DataFrame({"feature": feature_names, "coefficient": coefs}).sort_values(
-    "coefficient", ascending=False
+sns.stripplot(data=listings_df, x="price", y="neighbourhood", ax=ax1).set(
+    title="Price Distribution of Neighbourhoods", ylabel=""
 )
+
+sns.barplot(data=coefs_30, x="coefficient", y="feature", ax=ax2).set(
+    title="Estimated Coefficients of Linear Regression Model", ylabel=""
+)
+
+fig.tight_layout()
+plt.show()
 
 #%%
 # SUBSECTION: Neural Network Model
@@ -176,7 +208,7 @@ with torch.no_grad():
     X_nn, y_nn = next(iter(testloader))
     y_hat_nn = model(X_nn).squeeze()
 
-mean_absolute_error(y_test, y_hat_nn.detach()), r2_score(y_test, y_hat_nn.detach())
+print_metrics(y_test, y_hat_nn.detach())
 
 #%%
 # SUBSECTION: Plot Predictions vs. True Price
