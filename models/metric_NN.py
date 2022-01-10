@@ -17,11 +17,10 @@ from pytorch_helpers import (
 )
 from sklearn_helpers import get_column_transformer
 
-os.chdir("/Users/marei/airbnb-oslo")
 
 #%%
 # SECTION: PyTorch Training Test
-listings_subset = pd.read_pickle("data-clean/listings_subset.pkl")
+listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
 
 X = listings_subset.drop(columns="price")
 y = listings_subset["price"]
@@ -57,7 +56,9 @@ loss_function = nn.MSELoss(reduction="sum")
 #%%
 # BOOKMARK: Generate train-val split
 
-trainset, valset = generate_train_val_data_split(trainset, split_seed=42, val_frac=0.2)
+trainset, valset = generate_train_val_data_split(trainset,
+                                                 split_seed=42,
+                                                 val_frac=0.2)
 
 #%%
 # BOOKMARK: DataLoaders
