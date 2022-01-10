@@ -5,6 +5,7 @@ import ast
 # pip install gender-guesser, to add predicted gender of hosts based on their name
 import gender_guesser.detector as gender
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 #%%
 listings_df = pd.read_pickle("listings.pkl")
@@ -81,3 +82,17 @@ listings_subset = (
 )
 
 listings_subset.to_pickle("listings_subset.pkl")
+
+#%%
+# SUBSECTION: Split in Dataset for Model Training and separate Dataset for Evaluation
+X = listings_subset.drop(columns="price")
+y = listings_subset["price"]
+
+X_train_val, X_test, y_train_val, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=123, shuffle=True
+)
+
+X_train_val.to_pickle("X_train_val.pkl")
+X_test.to_pickle("X_test.pkl")
+y_train_val.to_pickle("y_train_val.pkl")
+y_test.to_pickle("y_test.pkl")

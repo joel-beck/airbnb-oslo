@@ -6,9 +6,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.compose import TransformedTargetRegressor
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import RFE
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.pipeline import make_pipeline
@@ -23,7 +22,7 @@ sns.set_theme(style="whitegrid")
 pd.set_option("precision", 3)
 
 #%%
-# SUBSECTION: Collect Results
+# SECTION: Analyze Performance on Validation Set during Training
 k_best_results = pd.read_pickle("k_best_results.pkl")
 rfe_results = pd.read_pickle("rfe_results.pkl")
 vt_results = pd.read_pickle("vt_results.pkl")
@@ -31,7 +30,6 @@ pca_results = pd.read_pickle("pca_results.pkl")
 full_features_results = pd.read_pickle("full_features_results.pkl")
 neural_network_results = pd.read_pickle("neural_network_results.pkl")
 
-#%%
 complete_results = pd.concat(
     [
         k_best_results,
@@ -60,13 +58,9 @@ complete_results.groupby("log_y").apply(lambda x: x.nsmallest(3, "mae_val"))
 complete_results.groupby("log_y").apply(lambda x: x.nlargest(3, "r2_val"))
 
 #%%
-plot_data = (
-    complete_results.fillna({"feature_selector": "None"})
-    .astype({"feature_selector": "category"})[
-        ["mae_val", "r2_val", "num_features", "feature_selector", "log_y"]
-    ]
-    .loc[lambda x: x.index != "Mean Prediction"]
-)
+plot_data = complete_results.fillna({"feature_selector": "None"}).astype(
+    {"feature_selector": "category"}
+)[["mae_val", "r2_val", "num_features", "feature_selector", "log_y"]]
 
 g = sns.relplot(
     data=plot_data,
@@ -106,44 +100,51 @@ g.fig.subplots_adjust(top=0.9)
 sns.move_legend(obj=g, loc="center", bbox_to_anchor=(1, 0.5), frameon=False)
 
 #%%
-listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
+# SECTION: Evaluate Performance of Best Models on Test Set
+X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
+y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
 
-X = listings_subset.drop(columns="price")
-y = listings_subset["price"]
-
-#%%
-# BOOKMARK: Price Distribution
-fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(10, 6))
-sns.histplot(y, ax=ax1).set(title="Original Scale")
-sns.histplot(y, log_scale=True, ax=ax2).set(title="Log Scale")
-plt.show()
+X_test = pd.read_pickle("../data-clean/X_test.pkl")
+y_test = pd.read_pickle("../data-clean/y_test.pkl")
 
 #%%
-# SUBSECTION: Fit and Predict with Best Classical Model
+# SUBSECTION: Classical Model with lowest MAE on Validation Set
 column_transformer = get_column_transformer()
 rfe = RFE(SVR(kernel="linear"), n_features_to_select=30, step=0.5)
 preprocessor = get_preprocessor(column_transformer, rfe)
 
-# best_model = RandomForestRegressor(n_estimators=6, min_samples_leaf=7, max_depth=4)
-best_model = LinearRegression()
-
-pipeline = make_pipeline(preprocessor, best_model)
+best_model_mae = LinearRegression()
+pipeline = make_pipeline(preprocessor, best_model_mae)
 log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
 
-log_transform.fit(X, y)
-y_hat_classic = log_transform.predict(X)
+log_transform.fit(X_train_val, y_train_val)
+y_hat_mae = log_transform.predict(X_test)
 
-mean_absolute_error(y, y_hat_classic), r2_score(y, y_hat_classic)
+mean_absolute_error(y_test, y_hat_mae), r2_score(y_test, y_hat_mae)
 
 #%%
-# SUBSECTION: Fit and Predict with Neural Network Model
-column_transformer = get_column_transformer()
-X_tensor = torch.tensor(column_transformer.fit_transform(X).astype(np.float32))
-y_tensor = torch.tensor(y.values.astype(np.float32))
-dataset = TensorDataset(X_tensor, y_tensor)
-dataloader = DataLoader(dataset, batch_size=X_tensor.shape[0])
+# SUBSECTION: Classical Model with lowest R^2 on Validation Set
+best_model_r2 = Ridge(alpha=10)
+# no feature selector
+pipeline = make_pipeline(column_transformer, best_model_r2)
+log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
 
-in_features = X_tensor.shape[1]
+log_transform.fit(X_train_val, y_train_val)
+y_hat_r2 = log_transform.predict(X_test)
+
+mean_absolute_error(y_test, y_hat_r2), r2_score(y_test, y_hat_r2)
+
+#%%
+# SUBSECTION: Neural Network Model
+column_transformer = get_column_transformer()
+column_transformer.fit(X_train_val)
+
+X_tensor_test = torch.tensor(column_transformer.transform(X_test).astype(np.float32))
+y_tensor_test = torch.tensor(y_test.values.astype(np.float32))
+testset = TensorDataset(X_tensor_test, y_tensor_test)
+testloader = DataLoader(testset, batch_size=X_tensor_test.shape[0])
+
+in_features = X_tensor_test.shape[1]
 hidden_features_list = [64, 128, 256, 512, 512, 256, 128, 64, 32, 16, 8]
 dropout_prob = 0.5
 
@@ -152,54 +153,76 @@ model.load_state_dict(torch.load("fully_connected_weights.pt"))
 model.eval()
 
 with torch.no_grad():
-    X_nn, y_nn = next(iter(dataloader))
+    X_nn, y_nn = next(iter(testloader))
     y_hat_nn = model(X_nn).squeeze()
 
-mean_absolute_error(y, y_hat_nn.detach()), r2_score(y, y_hat_nn.detach())
+mean_absolute_error(y_test, y_hat_nn.detach()), r2_score(y_test, y_hat_nn.detach())
 
 #%%
 # SUBSECTION: Plot Predictions vs. True Price
+best_model_mae_name = best_model_mae.__class__.__name__
+best_model_r2_name = best_model_r2.__class__.__name__
+size = 20
+
+range_original = [min(y_test), max(y_test)]
+range_log = [min(np.log(y_test)), max(np.log(y_test))]
+
 sns.set_theme(style="whitegrid")
-fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(12, 6))
+fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(8, 12))
+
+ax1, ax2, ax3, ax4, ax5, ax6 = axes.flat
 
 # identity line
-ax1.plot(
-    [min(y), max(y)],
-    [min(y), max(y)],
-    linestyle="dashed",
-    color="grey",
-)
-
 ax1.scatter(
-    y.values, y_hat_classic, label=f"{best_model.__class__.__name__}", alpha=0.5
-)
-ax1.scatter(y.values, y_hat_nn, label="Neural Network", alpha=0.5)
-ax1.set(title="Original Scale", xlabel="True Price", ylabel="Predictions")
-ax1.legend()
-
-# identity line
-ax2.plot(
-    [min(np.log(y)), max(np.log(y))],
-    [min(np.log(y)), max(np.log(y))],
-    linestyle="dashed",
-    color="grey",
+    y_test.values, y_hat_mae, label=f"{best_model_mae_name}", s=size, color="blue"
 )
 
 ax2.scatter(
-    np.log(y.values),
-    np.log(y_hat_classic),
-    label=f"{best_model.__class__.__name__}",
-    alpha=0.5,
+    np.log(y_test.values),
+    np.log(y_hat_mae),
+    label=f"{best_model_mae_name}",
+    s=size,
+    color="blue",
 )
-ax2.scatter(np.log(y.values), np.log(y_hat_nn), label="Neural Network", alpha=0.5)
-ax2.set(title="Log Scale", xlabel="True Price", ylabel="Predictions")
+
+ax3.scatter(
+    y_test.values, y_hat_r2, label=f"{best_model_r2_name}", s=size, color="green"
+)
+
+ax4.scatter(
+    np.log(y_test.values),
+    np.log(y_hat_r2),
+    label=f"{best_model_r2_name}",
+    s=size,
+    color="green",
+)
+
+ax5.scatter(y_test.values, y_hat_nn, label="Neural Network", s=size, color="orange")
+
+ax6.scatter(
+    np.log(y_test.values),
+    np.log(y_hat_nn),
+    label="Neural Network",
+    s=size,
+    color="orange",
+)
+
+for index, ax in enumerate(axes.flat):
+    if index % 2 == 0:
+        ax.set(ylabel="Predictions")
+        ax.legend()
+        # identity line
+        ax.plot(range_original, range_original, linestyle="dashed", color="grey")
+    else:
+        ax.plot(range_log, range_log, linestyle="dashed", color="grey")
+    if index == 0:
+        ax.set(title="Original Scale")
+    if index == 1:
+        ax.set(title="Log Scale")
+    if index in (4, 5):
+        ax.set(xlabel="True Price")
 
 fig.tight_layout()
-sns.move_legend(
-    obj=ax1, loc="upper center", bbox_to_anchor=(1.1, 1.2), ncol=2, frameon=False
-)
-
-sns.despine()
 plt.show()
 
 #%%
