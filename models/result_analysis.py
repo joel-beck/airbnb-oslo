@@ -124,15 +124,35 @@ mean_absolute_error(y_test, y_hat_mae), r2_score(y_test, y_hat_mae)
 
 #%%
 # SUBSECTION: Classical Model with lowest R^2 on Validation Set
-best_model_r2 = Ridge(alpha=10)
-# no feature selector
-pipeline = make_pipeline(column_transformer, best_model_r2)
+rfe = RFE(SVR(kernel="linear"), n_features_to_select=20, step=0.5)
+preprocessor = get_preprocessor(column_transformer, rfe)
+
+best_model_r2 = LinearRegression()
+pipeline = make_pipeline(preprocessor, best_model_r2)
 log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
 
 log_transform.fit(X_train_val, y_train_val)
 y_hat_r2 = log_transform.predict(X_test)
 
 mean_absolute_error(y_test, y_hat_r2), r2_score(y_test, y_hat_r2)
+
+#%%
+# SUBSECTION: Coefficients of Linear Regression Model
+encoded_features = log_transform.regressor_.named_steps["pipeline"][
+    "column_transformer"
+].get_feature_names_out()
+
+selected_features = log_transform.regressor_.named_steps["pipeline"][
+    "feature_selector"
+].get_feature_names_out(encoded_features)
+
+feature_names = [name.split("__")[1] for name in selected_features]
+
+coefs = log_transform.regressor_.named_steps["linearregression"].coef_
+
+pd.DataFrame({"feature": feature_names, "coefficient": coefs}).sort_values(
+    "coefficient", ascending=False
+)
 
 #%%
 # SUBSECTION: Neural Network Model
