@@ -226,7 +226,7 @@ def get_models(
         "ridge": ridge,
         "random_forest": random_forest,
         "gradient_boosting": gradient_boosting,
-        "ada_boost": ada_boost,
+        # "ada_boost": ada_boost,
         "bagging": bagging,
     }
 

@@ -37,10 +37,9 @@ log_y_list = [True, False]
 #%%
 listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
 
-# 18 columns in X
-X = listings_subset.drop(columns="price")
-# TODO: Use Log-Price to Fit the Models
-y = listings_subset["price"]
+# 18 columns before Encoding
+X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
+y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
 
 #%%
 # SECTION: Explore Selected Features during Model Fitting
@@ -50,7 +49,7 @@ column_transformer = get_column_transformer()
 # SUBSECTION: SelectKBest
 k_best = get_feature_selector("k_best", k=10)
 preprocessor = get_preprocessor(column_transformer, k_best)
-preprocessor.fit_transform(X, y)
+preprocessor.fit_transform(X_train_val, y_train_val)
 
 # 40 columns after One-Hot Encoding
 encoded_features = preprocessor.named_steps[
@@ -71,7 +70,7 @@ for feature in selected_features:
 # SUBSECTION: RFE
 rfe = RFE(SVR(kernel="linear"), n_features_to_select=10, step=0.5)
 preprocessor = get_preprocessor(column_transformer, rfe)
-preprocessor.fit_transform(X, y)
+preprocessor.fit_transform(X_train_val, y_train_val)
 
 selected_features = preprocessor.named_steps["feature_selector"].get_feature_names_out(
     encoded_features
@@ -85,7 +84,7 @@ for feature in selected_features:
 # SUBSECTION: VarianceThreshold
 vt = VarianceThreshold(threshold=0.3)
 preprocessor = get_preprocessor(column_transformer, vt)
-preprocessor.fit_transform(X, y)
+preprocessor.fit_transform(X_train_val, y_train_val)
 
 selected_features = preprocessor.named_steps["feature_selector"].get_feature_names_out(
     encoded_features
@@ -99,7 +98,7 @@ for feature in selected_features:
 # SUBSECTION: PCA
 pca = get_feature_selector("pca", pca_components=10)
 preprocessor = get_preprocessor(column_transformer, pca)
-preprocessor.fit_transform(X, y)
+preprocessor.fit_transform(X_train_val, y_train_val)
 
 variance_ratios = preprocessor.named_steps["feature_selector"].explained_variance_ratio_
 
@@ -120,7 +119,14 @@ def try_feature_selectors(
     result_container = ResultContainer()
 
     result = fit_models(
-        X, y, models, result_container, n_folds, n_iter, random_state, log_y=log_y
+        X_train_val,
+        y_train_val,
+        models,
+        result_container,
+        n_folds,
+        n_iter,
+        random_state,
+        log_y=log_y,
     )
     return result.display_df()
 

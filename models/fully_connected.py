@@ -18,13 +18,11 @@ from sklearn_helpers import ResultContainer, get_column_transformer
 
 #%%
 # SECTION: PyTorch Training Test
-listings_subset = pd.read_pickle("../data-clean/listings_subset.pkl")
-
-X = listings_subset.drop(columns="price")
-y = listings_subset["price"]
+X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
+y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
 
 X_train, X_val, y_train, y_val = train_test_split(
-    X, y, test_size=0.2, random_state=123, shuffle=True
+    X_train_val, y_train_val, test_size=0.2, random_state=123, shuffle=True
 )
 
 column_transformer = get_column_transformer()
@@ -93,6 +91,9 @@ for log_y in [True, False]:
     loss_function = nn.MSELoss()
     optimizer = optim.Adam(params=model.parameters(), lr=lr)
 
+    # save model weights only for log_y = False
+    save_path = None if log_y else "fully_connected_weights.pt"
+
     metrics, result_container = run_regression(
         model,
         optimizer,
@@ -105,7 +106,7 @@ for log_y in [True, False]:
         log_y=log_y,
         verbose=True,
         save_best=True,
-        # save_path="fully_connected_weights.pt",
+        save_path=save_path,
     )
 
     metrics.plot()
