@@ -6,16 +6,20 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
-from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.feature_selection import RFE
-from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVR
 from torch.utils.data import DataLoader, TensorDataset
 
 from pytorch_helpers import MLP
-from sklearn_helpers import get_column_transformer, get_preprocessor
+from sklearn_helpers import (
+    get_column_transformer,
+    get_preprocessor,
+    print_metrics,
+    show_coefficients,
+)
 
 simplefilter(action="ignore", category=FutureWarning)
 sns.set_theme(style="whitegrid")
@@ -106,42 +110,6 @@ y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
 
 X_test = pd.read_pickle("../data-clean/X_test.pkl")
 y_test = pd.read_pickle("../data-clean/y_test.pkl")
-
-#%%
-def show_coefficients(log_transform: TransformedTargetRegressor) -> pd.DataFrame:
-    """
-    Displays Estimated Coefficients of Linear Regression Model in Dataframe
-    """
-
-    encoded_features = log_transform.regressor_.named_steps["pipeline"][
-        "column_transformer"
-    ].get_feature_names_out()
-
-    selected_features = log_transform.regressor_.named_steps["pipeline"][
-        "feature_selector"
-    ].get_feature_names_out(encoded_features)
-
-    feature_names = [name.split("__")[1] for name in selected_features]
-
-    coefs = log_transform.regressor_.named_steps["linearregression"].coef_
-
-    return (
-        pd.DataFrame({"feature": feature_names, "coefficient": coefs})
-        .sort_values("coefficient", ascending=False)
-        .reset_index(drop=True)
-    )
-
-
-def print_metrics(y_true: float, y_hat: float):
-    """
-    Prints Mean Absolute Error and R^2 Value of Predictions y_hat
-    """
-
-    print(
-        f"MAE: {mean_absolute_error(y_true, y_hat):.3f}\n"
-        f"R^2: {r2_score(y_true, y_hat):.3f}"
-    )
-
 
 #%%
 # SUBSECTION: Classical Model with lowest MAE on Validation Set

@@ -27,6 +27,44 @@ listings_df = listings_df.assign(
 )
 
 #%%
+# SUBSECTION: Create Extended Dataset with ALL Variables
+# These columns cannot be transformed directly into categorical, numeric variables
+cols_to_exclude = [
+    "amenities",
+    "calendar_last_scraped",
+    "description",
+    "host_id",
+    "host_location",
+    "host_name",
+    "host_picture_url",
+    "host_since",
+    "host_thumbnail_url",
+    "host_url",
+    "host_verifications",
+    "last_scraped",
+    "latitude",
+    "listing_url",
+    "longitude",
+    "name",
+    "picture_url",
+    "scrape_id",
+]
+
+listings_extended = (
+    listings_df.join(reviews_features)
+    .drop(columns=cols_to_exclude)
+    .loc[lambda x: (x["price"] > 0) & (x["price"] < 80000)]
+)
+
+# Drop all variables with more than MAX_MISSING missing observations
+MAX_MISSING = 500
+
+incomplete_cols = listings_extended.isna().sum().loc[lambda x: x > MAX_MISSING].index
+listings_extended = listings_extended.drop(columns=incomplete_cols).dropna()
+
+listings_extended.to_pickle("listings_extended.pkl")
+
+#%%
 # NOTE: Criteria to INCLUDE variables
 # - makes theoretical / intuitive sense
 # - indicates correlation with price in marginal barplot/scatterplot
@@ -71,7 +109,7 @@ reviews_cols = [
     "median_review_length",
     "number_languages",
 ]
-
+listings_cols + reviews_cols
 # add numeric features from reviews dataframe to listings_subset,
 # join() merges by index
 listings_subset = (
