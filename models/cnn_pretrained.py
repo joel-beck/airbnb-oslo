@@ -51,6 +51,11 @@ device = torch.device(device="cuda" if torch.cuda.is_available() else "cpu")
 
 #%%
 class ListingsImages(Dataset):
+    """
+    Creates PyTorch Dataset from Pandas DataFrame containing (at least) one Column of Picture URLs and one additional Column of corresponding Prices.
+    The resulting Images are resized and normalized four-dimensional Tensors and serve, together with the returned Price Tensors, as Input to a PyTorch DataLoader object.
+    """
+
     def __init__(self, df, image_transforms=None):
         self.x = df["listing_url"]
         self.y = torch.tensor(df["price"].values, dtype=torch.float)

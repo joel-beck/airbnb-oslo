@@ -18,6 +18,10 @@ from sklearn_helpers import ResultContainer
 def generate_train_val_data_split(
     full_dataset: Dataset, split_seed: int = 123, val_frac: float = 0.2
 ) -> tuple[Dataset, Dataset]:
+    """
+    Splits the entire Dataset used for Model Training into a Training Set and Validation Set.
+    The relative Sizes of each Output Component can be specified with a fractional Value between 0 and 1.
+    """
     num_val_samples = np.ceil(val_frac * len(full_dataset)).astype(int)
     num_train_samples = len(full_dataset) - num_val_samples
     trainset, valset = random_split(
@@ -31,6 +35,12 @@ def generate_train_val_data_split(
 def generate_subsets(
     trainset: Dataset, valset: Dataset, subset_size: int
 ) -> tuple[Dataset, Dataset]:
+    """
+    Returns Training and Validation Sets of Reduced Size by randomly sampling observations from the original Training and Validation Sets.
+    The Sizes can be specified with an Integer Input Value.
+
+    This procedure is useful at early Stages of Model Construction for confirming a correct Model Setup as well as for Debugging on a CPU.
+    """
     train_indices = torch.randint(0, len(trainset) + 1, size=(subset_size,))
     trainset = Subset(dataset=trainset, indices=train_indices)
 
@@ -43,18 +53,20 @@ def generate_subsets(
 def init_data_loaders(
     trainset: Dataset, valset: Dataset, testset: Dataset, batch_size: int = 64
 ) -> tuple[DataLoader, DataLoader, DataLoader]:
-    trainloader = torch.utils.data.DataLoader(
-        trainset, batch_size=batch_size, shuffle=True
-    )
-    valloader = torch.utils.data.DataLoader(valset, batch_size=batch_size, shuffle=True)
-    testloader = torch.utils.data.DataLoader(
-        testset, batch_size=batch_size, shuffle=True
-    )
+    """
+    Returns PyTorch DataLoader Objects for the Training, Validation and Test Set
+    """
+    trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
+    valloader = DataLoader(valset, batch_size=batch_size, shuffle=True)
+    testloader = DataLoader(testset, batch_size=batch_size, shuffle=True)
 
     return trainloader, valloader, testloader
 
 
 def print_param_shapes(model: Any, col_widths: tuple[int, int] = (25, 8)):
+    """
+    Prints the Shape of the Weight Tensors between all Layers in a Neural Network as well as the total Number of Parameters trained during Model Fitting.
+    """
     for name, param in model.named_parameters():
         print(
             f"Name: {name:<{col_widths[0]}} | # Params: {param.numel():<{col_widths[1]}} | Shape: {list(param.shape)}"
@@ -63,6 +75,9 @@ def print_param_shapes(model: Any, col_widths: tuple[int, int] = (25, 8)):
 
 
 def _print_shape(input: torch.Tensor, layer: Optional[Any] = None, col_width: int = 25):
+    """
+    Prints the Shape of the Output Tensor for a single Layer in a Neural Network.
+    """
     if layer is None:
         print(f"{f'Input shape:':<{col_width}} {list(input.shape)}")
     else:
@@ -75,6 +90,10 @@ def print_data_shapes(
     input_shape: tuple[int, ...],
     exclude: Union[nn.Sequential, list] = nn.Sequential,
 ):
+    """
+    Prints the Shape of the Output Tensor for each Layer in a Neural Network.
+    This can be particularly helpful for specifiying the correct dimensions after flattening a four-dimensional Tensor in a Convolutional Network.
+    """
     x = torch.rand(size=input_shape, dtype=torch.float32).to(device=device)
     _print_shape(x)
 
@@ -92,6 +111,10 @@ def print_data_shapes(
 
 
 class MLP(nn.Module):
+    """
+    Architecture of Fully-Connected Neural Network for all numeric / metric Input Features
+    """
+
     def __init__(self, in_features, hidden_features_list, dropout_prob):
         super(MLP, self).__init__()
 
@@ -132,6 +155,11 @@ class MLP(nn.Module):
 
 @dataclass
 class NeuralNetMetrics:
+    """
+    Tracks Performance Metrics for all Epochs during Model Training.
+    This is particularly useful to plot Loss Curves of the Mean Squared Error, Mean Absolute Error and R^2 Value on Training and Validation Set after Training is completed.
+    """
+
     train_losses: list[str] = field(default_factory=list)
     val_losses: list[float] = field(default_factory=list)
     train_maes: list[float] = field(default_factory=list)
@@ -201,6 +229,10 @@ class NeuralNetMetrics:
 
 
 def init_weights(layer: nn.Module, mean: float = 0, std: float = 1):
+    """
+    Initializes Model Weights at the Start of Training.
+    Avoids negative predicted Prices during the first Epochs to take the Logarithm when training with Log-Prices.
+    """
     if isinstance(layer, nn.Linear):
         # avoid negative predicted prices at beginning of training to enable log transformation
         torch.nn.init.normal_(layer.weight, mean=mean, std=std)
@@ -214,6 +246,11 @@ def train_regression(
     device: torch.device,
     log_y: bool = False,
 ) -> tuple[float, float, float]:
+    """
+    Model Training and Weight Adjustment Step on the Training Set for a single Epoch.
+    Returns Mean Squared Error, Mean Absolute Error and R^2 Value for this Epoch on the Training Set.
+    """
+
     # calculate mean squared error, mean_absolute error and r2 with values of all batches to perform comparable computations as with classical models
     y_true_list = []
     y_pred_list = []
@@ -253,6 +290,11 @@ def train_regression(
 def validate_regression(
     dataloader: DataLoader, model: Any, device: torch.device
 ) -> tuple[float, float, float]:
+    """
+    Evaluation Step on the Validation Set for a single Epoch.
+    Returns Mean Squared Error, Mean Absolute Error and R^2 Value for this Epoch on the Validation Set.
+    """
+
     y_true_list = []
     y_pred_list = []
 
@@ -284,6 +326,9 @@ def print_epoch(
     epoch_train_r2: float,
     epoch_val_r2: float,
 ):
+    """
+    Prints Information about the Model Performance in Training and Validation Set of the current Epoch while the Model is trained.
+    """
     print(f"Epoch: {epoch} / {num_epochs}\n{'-' * 50}")
     print(
         f"Mean MSE Training: {epoch_train_mse:.3f} | Mean MSE Validation: {epoch_val_mse:.3f}\n"
@@ -298,6 +343,9 @@ def print_best(
     best_val_mae: float,
     best_val_mae_epoch: int,
 ):
+    """
+    Prints the lowest Mean Absolute Error of the Training and Validation Set encountered during Model Training after Training is completed.
+    """
     print(
         f"\nBest Mean MAE Training: {best_train_mae:.3f} (Epoch {best_train_mae_epoch})"
         f"\nBest Mean MAE Validation: {best_val_mae:.3f} (Epoch {best_val_mae_epoch})"
@@ -319,7 +367,13 @@ def run_regression(
     save_path: bool = None,
     verbose: bool = False,
 ) -> Union[tuple[NeuralNetMetrics, ResultContainer], NeuralNetMetrics]:
+    """
+    Trains a Neural Network Regression Model for a specified number of Epochs.
+    During Training Performance Information is displayed.
+    Optionally the State with the lowest Mean Absolute Error can be tracked and saved.
 
+    Returns a NeuralNetMetrics Object for plotting Loss Curves and optionally a ResultContainer Object to collect the Results in a Pandas DataFrame for Comparison with the Classical Statistical Models.
+    """
     start_time = time.perf_counter()
 
     result_container.log_y.append(log_y)
@@ -421,6 +475,7 @@ def run_regression(
     return metrics, result_container
 
 
+# NOTE: The Classification Functions below are currently not used, but kept for optionally using some of their components in the corresponding Regression Functions
 def accuracy(correct: int, total: int) -> float:
     return np.round(correct / total, decimals=3)
 

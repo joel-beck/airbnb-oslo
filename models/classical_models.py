@@ -38,6 +38,10 @@ column_transformer = get_column_transformer()
 # Baseline Model - Mean Price
 # calculated here for all observations, not evaluated on separate test set
 def initialize_with_baseline(y_train_val: pd.Series, log_y: bool) -> ResultContainer:
+    """
+    Creates a new ResultContainer Object and adds Metrics of a Mean-Prediction Baseline Model
+    """
+
     # first log, then average, then transform back to original scale
     mean_price = np.exp(np.mean(np.log(y_train_val))) if log_y else y_train_val.mean()
     baseline_pred = np.full(shape=y_train_val.shape, fill_value=mean_price)

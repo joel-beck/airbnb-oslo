@@ -16,6 +16,9 @@ reviews = pd.read_pickle("reviews.pkl")
 
 #%%
 def detect_language(review):
+    """
+    Identifies Language of a single Review, returns missing Value when Identification is not possible
+    """
     try:
         language = detect(review)
     except:

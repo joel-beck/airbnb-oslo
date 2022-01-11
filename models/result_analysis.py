@@ -109,7 +109,9 @@ y_test = pd.read_pickle("../data-clean/y_test.pkl")
 
 #%%
 def show_coefficients(log_transform: TransformedTargetRegressor) -> pd.DataFrame:
-    """Display Coefficients of Linear Regression Model in Dataframe"""
+    """
+    Displays Estimated Coefficients of Linear Regression Model in Dataframe
+    """
 
     encoded_features = log_transform.regressor_.named_steps["pipeline"][
         "column_transformer"
@@ -131,6 +133,9 @@ def show_coefficients(log_transform: TransformedTargetRegressor) -> pd.DataFrame
 
 
 def print_metrics(y_true: float, y_hat: float):
+    """
+    Prints Mean Absolute Error and R^2 Value of Predictions y_hat
+    """
     print(
         f"MAE: {mean_absolute_error(y_true, y_hat):.3f}\n"
         f"R^2: {r2_score(y_true, y_hat):.3f}"
