@@ -21,11 +21,13 @@ from sklearn_helpers import (
 simplefilter(action="ignore", category=FutureWarning)
 pd.set_option("precision", 3)
 
+
 #%%
 # NOTE: For Experimentation we train model on the entire data set without splitting in training and test set
 listings_extended = pd.read_pickle("../data-clean/listings_extended.pkl")
 X = listings_extended.drop(columns="price")
 y = listings_extended["price"]
+
 
 #%%
 # BOOKMARK: Hyperparameters
@@ -34,10 +36,13 @@ n_folds = 10
 log_y = True
 
 # 131 total encoded features in listings_extended
-num_features_list = [10, 20, 50, 100, 131]
+# using all 131 features leads to error
+num_features_list = [10, 20, 50, 100]
+
 
 #%%
 column_transformer = get_column_transformer()
+
 
 #%%
 # SUBSECTION: Analyze Performance for different values of num_features
@@ -63,8 +68,10 @@ for num_features in num_features_list:
 
 collected_results = pd.concat(result_list)
 
+
 #%%
-collected_results
+collected_results.sort_values("mae_val")
+
 
 #%%
 # SUBSECTION: Analyze Coefficients for different values of num_features
