@@ -28,6 +28,7 @@ def get_column_transformer() -> ColumnTransformer:
     """
     Returns ColumnTransformer Object which standardizes all numeric Variables and transforms all categorical Variables to Dummy Variables with entries 0 and 1.
     """
+
     return make_column_transformer(
         (StandardScaler(), make_column_selector(dtype_include=np.number)),
         (OneHotEncoder(dtype=int), make_column_selector(dtype_exclude=np.number)),
@@ -43,6 +44,7 @@ def get_feature_selector(
     Returns either a PCA or a SelectKBest Object.
     The number of resulting dimensions after application can be specified with input parameters.
     """
+
     feature_selectors = {"pca": PCA(pca_components), "k_best": SelectKBest(k=k)}
     return feature_selectors[feature_selector]
 
@@ -53,6 +55,7 @@ def get_preprocessor(
     """
     Creates Pipeline Object that first standardizes all numeric Variables and encodes categorical Variables as Dummy Variables and then reduces the Dimensionality of the Feature Space.
     """
+
     return Pipeline(
         [
             ("column_transformer", column_transformer),
@@ -66,6 +69,7 @@ def update_dict_keys(d: dict, prefix: bool = False, replace: bool = False):
     Returns a new Dictionary with the same Values but different Keys as the Input Dictionary.
     Makes it possible that Hyperparameters can later be specified with their original Name instead of the adjusted Name inside of Pipeline Objects.
     """
+
     if prefix:
         new_dict = {"model__" + key: value for key, value in d.items()}
     if replace:
@@ -266,6 +270,7 @@ def get_model_name(model: ModelContainer, log_y: bool):
     """
     Extracts Class Name of a Regression Model contained in a ModelContainer Object
     """
+
     if log_y:
         return model.model.regressor.__class__.__name__
     else:
@@ -276,6 +281,7 @@ def get_feature_selector_name(model_container: ModelContainer) -> Optional[str]:
     """
     Extracts Class Name of a Dimensionality Reduction Procedure contained in a ModelContainer Object
     """
+
     try:
         return model_container.preprocessor.named_steps[
             "feature_selector"
@@ -300,6 +306,7 @@ def fit_models(
     Returns Mean Squared Error, Mean Absolute Error and R^2 Value of Training and Validation Set.
     These Metrics are given by the Mean Value across all Folds of the Cross Validation.
     """
+
     start = perf_counter()
 
     for model in models:

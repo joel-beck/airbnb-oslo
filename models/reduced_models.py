@@ -116,6 +116,7 @@ def try_feature_selectors(
     Reduces Dimensionality of Feature Space with a given Feature Selector, fits all Models including Hyperparameter Tuning and returns a Pandas DataFrame with the Results.
     This function is used to concatenate the Results for all Feature Selectors to compare their effectiveness.
     """
+
     column_transformer = get_column_transformer()
     preprocessor = get_preprocessor(column_transformer, feature_selector)
 

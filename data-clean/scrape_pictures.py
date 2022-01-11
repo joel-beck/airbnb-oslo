@@ -28,6 +28,7 @@ def get_url(picture: str) -> str:
     """
     Extracts URL from the first Picture on an Apartment's Front Page
     """
+
     return picture.find(class_="_6tbg2q")["src"]
 
 
@@ -35,6 +36,7 @@ def get_url_list(apartment_url: str) -> list[str]:
     """
     Collects URLs of all Pictures on an Apartment's Front Page in a List
     """
+
     response = requests.get(apartment_url)
     soup = BeautifulSoup(response.text, "html.parser")
     pictures = soup.find_all("picture")
@@ -71,6 +73,7 @@ def add_photos(url: str) -> str:
     """
     returns URL of the Webpage containing all Pictures (not only the first 5) of an Apartment
     """
+
     return url + "/photos"
 
 

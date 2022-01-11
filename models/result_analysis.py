@@ -136,6 +136,7 @@ def print_metrics(y_true: float, y_hat: float):
     """
     Prints Mean Absolute Error and R^2 Value of Predictions y_hat
     """
+
     print(
         f"MAE: {mean_absolute_error(y_true, y_hat):.3f}\n"
         f"R^2: {r2_score(y_true, y_hat):.3f}"

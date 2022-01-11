@@ -22,6 +22,7 @@ def generate_train_val_data_split(
     Splits the entire Dataset used for Model Training into a Training Set and Validation Set.
     The relative Sizes of each Output Component can be specified with a fractional Value between 0 and 1.
     """
+
     num_val_samples = np.ceil(val_frac * len(full_dataset)).astype(int)
     num_train_samples = len(full_dataset) - num_val_samples
     trainset, valset = random_split(
@@ -41,6 +42,7 @@ def generate_subsets(
 
     This procedure is useful at early Stages of Model Construction for confirming a correct Model Setup as well as for Debugging on a CPU.
     """
+
     train_indices = torch.randint(0, len(trainset) + 1, size=(subset_size,))
     trainset = Subset(dataset=trainset, indices=train_indices)
 
@@ -56,6 +58,7 @@ def init_data_loaders(
     """
     Returns PyTorch DataLoader Objects for the Training, Validation and Test Set
     """
+
     trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
     valloader = DataLoader(valset, batch_size=batch_size, shuffle=True)
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=True)
@@ -67,6 +70,7 @@ def print_param_shapes(model: Any, col_widths: tuple[int, int] = (25, 8)):
     """
     Prints the Shape of the Weight Tensors between all Layers in a Neural Network as well as the total Number of Parameters trained during Model Fitting.
     """
+
     for name, param in model.named_parameters():
         print(
             f"Name: {name:<{col_widths[0]}} | # Params: {param.numel():<{col_widths[1]}} | Shape: {list(param.shape)}"
@@ -78,6 +82,7 @@ def _print_shape(input: torch.Tensor, layer: Optional[Any] = None, col_width: in
     """
     Prints the Shape of the Output Tensor for a single Layer in a Neural Network.
     """
+
     if layer is None:
         print(f"{f'Input shape:':<{col_width}} {list(input.shape)}")
     else:
@@ -94,6 +99,7 @@ def print_data_shapes(
     Prints the Shape of the Output Tensor for each Layer in a Neural Network.
     This can be particularly helpful for specifiying the correct dimensions after flattening a four-dimensional Tensor in a Convolutional Network.
     """
+
     x = torch.rand(size=input_shape, dtype=torch.float32).to(device=device)
     _print_shape(x)
 
@@ -233,6 +239,7 @@ def init_weights(layer: nn.Module, mean: float = 0, std: float = 1):
     Initializes Model Weights at the Start of Training.
     Avoids negative predicted Prices during the first Epochs to take the Logarithm when training with Log-Prices.
     """
+
     if isinstance(layer, nn.Linear):
         # avoid negative predicted prices at beginning of training to enable log transformation
         torch.nn.init.normal_(layer.weight, mean=mean, std=std)
@@ -329,6 +336,7 @@ def print_epoch(
     """
     Prints Information about the Model Performance in Training and Validation Set of the current Epoch while the Model is trained.
     """
+
     print(f"Epoch: {epoch} / {num_epochs}\n{'-' * 50}")
     print(
         f"Mean MSE Training: {epoch_train_mse:.3f} | Mean MSE Validation: {epoch_val_mse:.3f}\n"
@@ -346,6 +354,7 @@ def print_best(
     """
     Prints the lowest Mean Absolute Error of the Training and Validation Set encountered during Model Training after Training is completed.
     """
+
     print(
         f"\nBest Mean MAE Training: {best_train_mae:.3f} (Epoch {best_train_mae_epoch})"
         f"\nBest Mean MAE Validation: {best_val_mae:.3f} (Epoch {best_val_mae_epoch})"
@@ -374,6 +383,7 @@ def run_regression(
 
     Returns a NeuralNetMetrics Object for plotting Loss Curves and optionally a ResultContainer Object to collect the Results in a Pandas DataFrame for Comparison with the Classical Statistical Models.
     """
+
     start_time = time.perf_counter()
 
     result_container.log_y.append(log_y)
