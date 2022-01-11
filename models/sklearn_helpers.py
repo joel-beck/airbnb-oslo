@@ -25,6 +25,10 @@ from sklearn.linear_model import Lasso, LinearRegression, Ridge
 
 
 def get_column_transformer() -> ColumnTransformer:
+    """
+    Returns ColumnTransformer Object which standardizes all numeric Variables and transforms all categorical Variables to Dummy Variables with entries 0 and 1.
+    """
+
     return make_column_transformer(
         (StandardScaler(), make_column_selector(dtype_include=np.number)),
         (OneHotEncoder(dtype=int), make_column_selector(dtype_exclude=np.number)),
@@ -36,6 +40,10 @@ def get_feature_selector(
     pca_components: Optional[int] = None,
     k: int = 10,
 ) -> Union[PCA, SelectKBest]:
+    """
+    Returns either a PCA or a SelectKBest Object.
+    The number of resulting dimensions after application can be specified with input parameters.
+    """
 
     feature_selectors = {"pca": PCA(pca_components), "k_best": SelectKBest(k=k)}
     return feature_selectors[feature_selector]
@@ -44,6 +52,10 @@ def get_feature_selector(
 def get_preprocessor(
     column_transformer: ColumnTransformer, feature_selector: Union[PCA, SelectKBest]
 ) -> Pipeline:
+    """
+    Creates Pipeline Object that first standardizes all numeric Variables and encodes categorical Variables as Dummy Variables and then reduces the Dimensionality of the Feature Space.
+    """
+
     return Pipeline(
         [
             ("column_transformer", column_transformer),
@@ -53,6 +65,11 @@ def get_preprocessor(
 
 
 def update_dict_keys(d: dict, prefix: bool = False, replace: bool = False):
+    """
+    Returns a new Dictionary with the same Values but different Keys as the Input Dictionary.
+    Makes it possible that Hyperparameters can later be specified with their original Name instead of the adjusted Name inside of Pipeline Objects.
+    """
+
     if prefix:
         new_dict = {"model__" + key: value for key, value in d.items()}
     if replace:
@@ -65,6 +82,10 @@ def update_dict_keys(d: dict, prefix: bool = False, replace: bool = False):
 
 @dataclass
 class ModelContainer:
+    """
+    Collects all Information about a single Regression Model including the applied Preprocessing Steps and the Hyperparameters before the Model Fitting Step.
+    """
+
     model: Any
     preprocessor: Union[ColumnTransformer, Pipeline]
     param_grid: Optional[dict] = None
@@ -93,6 +114,10 @@ class ModelContainer:
 
 @dataclass
 class ResultContainer:
+    """
+    Collects all Results of Interest after the Model Fitting Step in a single Object and displays them in a Pandas DataFrame
+    """
+
     model_names: list[str] = field(default_factory=list)
     train_mae_list: list[float] = field(default_factory=list)
     val_mae_list: list[float] = field(default_factory=list)
@@ -159,6 +184,11 @@ def get_models(
     random_state: Optional[int] = None,
     log_y: bool = False,
 ) -> list[ModelContainer]:
+    """
+    Returns a List of ModelContainer Objects for all specified Regression Algorithms.
+    If the 'models' Parameter is None, all Models are included.
+    This is the only Place where the Hyperparameters for each Model as well as their Value Ranges are selected.
+    """
 
     linear = ModelContainer(LinearRegression(), preprocessor, log_y=log_y)
     lasso = ModelContainer(
@@ -237,6 +267,10 @@ def get_models(
 
 
 def get_model_name(model: ModelContainer, log_y: bool):
+    """
+    Extracts Class Name of a Regression Model contained in a ModelContainer Object
+    """
+
     if log_y:
         return model.model.regressor.__class__.__name__
     else:
@@ -244,6 +278,10 @@ def get_model_name(model: ModelContainer, log_y: bool):
 
 
 def get_feature_selector_name(model_container: ModelContainer) -> Optional[str]:
+    """
+    Extracts Class Name of a Dimensionality Reduction Procedure contained in a ModelContainer Object
+    """
+
     try:
         return model_container.preprocessor.named_steps[
             "feature_selector"
@@ -263,6 +301,12 @@ def fit_models(
     random_state: Optional[int] = None,
     log_y: bool = False,
 ) -> ResultContainer:
+    """
+    Fits all specified Models either with Simple Cross Validation, if no Hyperparameters are involved, or with Cross Validation using a Randomized Hyperparameter Search to find a close to optimal Hyperparameter Combination for each Model.
+    Returns Mean Squared Error, Mean Absolute Error and R^2 Value of Training and Validation Set.
+    These Metrics are given by the Mean Value across all Folds of the Cross Validation.
+    """
+
     start = perf_counter()
 
     for model in models:
