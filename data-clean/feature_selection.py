@@ -31,6 +31,8 @@ listings_df = listings_df.assign(
 # These columns cannot be transformed directly into categorical, numeric variables
 cols_to_exclude = [
     "amenities",
+    # identical informatin in number_bathrooms + shared_bathrooms
+    "bathrooms_text",
     "calendar_last_scraped",
     "description",
     "host_id",
