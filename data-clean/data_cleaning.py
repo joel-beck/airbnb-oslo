@@ -12,7 +12,7 @@ nbhood_1 = pd.read_csv("../data-raw/neighbourhoods.csv")
 nbhood_2 = gpd.read_file("../data-raw/neighbourhoods.geojson")
 
 neighbourhoods_df = pd.merge(
-    nbhood_1.drop(columns=["neighbourhood_group"]),
+    nbhood_1,
     nbhood_2.drop(columns=["neighbourhood_group"]),
     how="left",
 )
@@ -84,30 +84,34 @@ calendar_df = calendar_df.convert_dtypes().assign(
     .astype("float"),
 )
 
-listings_df = listings_df.assign(
-    first_review=pd.to_datetime(listings_df["first_review"]),
-    last_review=pd.to_datetime(listings_df["last_review"]),
-    price=listings_df["price"].astype("float"),
-    host_is_superhost=listings_df["host_is_superhost"].astype("category"),
-    # bathrooms_text column
-    bathrooms_text=listings_df["bathrooms_text"].replace(
-        {"Half-bath": "0.5 baths", "Shared half-bath": "0.5 shared"}
-    ),
-    # number_bathrooms column
-    number_bathrooms=lambda x: x["bathrooms_text"]
-    .str.split(expand=True)
-    .iloc[:, 0]
-    .apply(pd.to_numeric),
-    # shared_bathrooms column
-    shared_bathrooms=lambda x: x["bathrooms_text"].str.contains(
-        "shared", case=False, regex=False
-    ),
-    # host_acceptance_rate column
-    host_acceptance_rate=listings_df["host_acceptance_rate"]
-    .str.replace("%", "")
-    .astype("float")
-    / 100,
-).convert_dtypes()
+listings_df = (
+    listings_df.assign(
+        first_review=pd.to_datetime(listings_df["first_review"]),
+        last_review=pd.to_datetime(listings_df["last_review"]),
+        price=listings_df["price"].astype("float"),
+        host_is_superhost=listings_df["host_is_superhost"].astype("category"),
+        # bathrooms_text column
+        bathrooms_text=listings_df["bathrooms_text"].replace(
+            {"Half-bath": "0.5 baths", "Shared half-bath": "0.5 shared"}
+        ),
+        # number_bathrooms column
+        number_bathrooms=lambda x: x["bathrooms_text"]
+        .str.split(expand=True)
+        .iloc[:, 0]
+        .apply(pd.to_numeric),
+        # shared_bathrooms column
+        shared_bathrooms=lambda x: x["bathrooms_text"].str.contains(
+            "shared", case=False, regex=False
+        ),
+        # host_acceptance_rate column
+        host_acceptance_rate=listings_df["host_acceptance_rate"]
+        .str.replace("%", "")
+        .astype("float")
+        / 100,
+    )
+    .rename({"bedrooms": "number_bedrooms"})
+    .convert_dtypes()
+)
 
 #%%
 # Write clean Datasets to file

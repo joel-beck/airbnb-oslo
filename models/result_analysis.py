@@ -6,20 +6,26 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
-from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.feature_selection import RFE
-from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVR
 from torch.utils.data import DataLoader, TensorDataset
 
 from pytorch_helpers import MLP
-from sklearn_helpers import get_column_transformer, get_preprocessor
+from sklearn_helpers import (
+    get_column_transformer,
+    get_preprocessor,
+    print_metrics,
+    show_coefficients,
+)
 
 simplefilter(action="ignore", category=FutureWarning)
 sns.set_theme(style="whitegrid")
 pd.set_option("precision", 3)
+pd.set_option("display.max_columns", 100)
+
 
 #%%
 # SECTION: Analyze Performance on Validation Set during Training
@@ -43,19 +49,28 @@ complete_results = pd.concat(
 
 complete_results.to_pickle("complete_results.pkl")
 
+
 #%%
 # SUBSECTION: Analyze Results
 complete_results
 
+
+#%%
+# Baseline Performance
+complete_results.loc["Mean Prediction"]
+
 #%%
 complete_results.sort_values("r2_val", ascending=False)
+
 
 #%%
 # stratified by log_y
 complete_results.groupby("log_y").apply(lambda x: x.nsmallest(3, "mae_val"))
 
+
 #%%
 complete_results.groupby("log_y").apply(lambda x: x.nlargest(3, "r2_val"))
+
 
 #%%
 plot_data = complete_results.fillna({"feature_selector": "None"}).astype(
@@ -79,6 +94,7 @@ g.fig.subplots_adjust(top=0.9)
 
 sns.move_legend(obj=g, loc="center", bbox_to_anchor=(1, 0.5), frameon=False)
 
+
 #%%
 plot_data = plot_data.sort_values("r2_val", ascending=False)
 
@@ -99,6 +115,7 @@ g.fig.subplots_adjust(top=0.9)
 
 sns.move_legend(obj=g, loc="center", bbox_to_anchor=(1, 0.5), frameon=False)
 
+
 #%%
 # SECTION: Evaluate Performance of Best Models on Test Set
 X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
@@ -106,41 +123,6 @@ y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
 
 X_test = pd.read_pickle("../data-clean/X_test.pkl")
 y_test = pd.read_pickle("../data-clean/y_test.pkl")
-
-#%%
-def show_coefficients(log_transform: TransformedTargetRegressor) -> pd.DataFrame:
-    """
-    Displays Estimated Coefficients of Linear Regression Model in Dataframe
-    """
-
-    encoded_features = log_transform.regressor_.named_steps["pipeline"][
-        "column_transformer"
-    ].get_feature_names_out()
-
-    selected_features = log_transform.regressor_.named_steps["pipeline"][
-        "feature_selector"
-    ].get_feature_names_out(encoded_features)
-
-    feature_names = [name.split("__")[1] for name in selected_features]
-
-    coefs = log_transform.regressor_.named_steps["linearregression"].coef_
-
-    return (
-        pd.DataFrame({"feature": feature_names, "coefficient": coefs})
-        .sort_values("coefficient", ascending=False)
-        .reset_index(drop=True)
-    )
-
-
-def print_metrics(y_true: float, y_hat: float):
-    """
-    Prints Mean Absolute Error and R^2 Value of Predictions y_hat
-    """
-
-    print(
-        f"MAE: {mean_absolute_error(y_true, y_hat):.3f}\n"
-        f"R^2: {r2_score(y_true, y_hat):.3f}"
-    )
 
 
 #%%
@@ -160,6 +142,7 @@ print_metrics(y_test, y_hat_mae)
 coefs_30 = show_coefficients(log_transform)
 coefs_30
 
+
 #%%
 # SUBSECTION: Classical Model with lowest R^2 on Validation Set
 rfe = RFE(SVR(kernel="linear"), n_features_to_select=20, step=0.5)
@@ -174,6 +157,7 @@ y_hat_r2 = log_transform.predict(X_test)
 
 print_metrics(y_test, y_hat_r2)
 show_coefficients(log_transform)
+
 
 #%%
 # Neighbourhood has the strongest influence
@@ -191,6 +175,7 @@ sns.barplot(data=coefs_30, x="coefficient", y="feature", ax=ax2).set(
 
 fig.tight_layout()
 plt.show()
+
 
 #%%
 # SUBSECTION: Neural Network Model
@@ -216,6 +201,7 @@ with torch.no_grad():
 
 print_metrics(y_test, y_hat_nn.detach())
 
+
 #%%
 # SUBSECTION: Plot Predictions vs. True Price
 best_model_mae_name = best_model_mae.__class__.__name__
@@ -225,7 +211,6 @@ size = 20
 range_original = [min(y_test), max(y_test)]
 range_log = [min(np.log(y_test)), max(np.log(y_test))]
 
-sns.set_theme(style="whitegrid")
 fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(8, 12))
 
 ax1, ax2, ax3, ax4, ax5, ax6 = axes.flat
@@ -282,5 +267,3 @@ for index, ax in enumerate(axes.flat):
 
 fig.tight_layout()
 plt.show()
-
-#%%

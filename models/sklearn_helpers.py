@@ -4,24 +4,17 @@ from typing import Any, Optional, Union
 
 import numpy as np
 import pandas as pd
-from sklearn.compose import (
-    ColumnTransformer,
-    TransformedTargetRegressor,
-    make_column_selector,
-    make_column_transformer,
-)
+from sklearn.compose import (ColumnTransformer, TransformedTargetRegressor,
+                             make_column_selector, make_column_transformer)
 from sklearn.decomposition import PCA
+from sklearn.ensemble import (AdaBoostRegressor, BaggingRegressor,
+                              GradientBoostingRegressor, RandomForestRegressor)
 from sklearn.feature_selection import SelectKBest
+from sklearn.linear_model import Lasso, LinearRegression, Ridge
+from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import RandomizedSearchCV, cross_validate
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.ensemble import (
-    AdaBoostRegressor,
-    BaggingRegressor,
-    GradientBoostingRegressor,
-    RandomForestRegressor,
-)
-from sklearn.linear_model import Lasso, LinearRegression, Ridge
 
 
 def get_column_transformer() -> ColumnTransformer:
@@ -31,7 +24,7 @@ def get_column_transformer() -> ColumnTransformer:
 
     return make_column_transformer(
         (StandardScaler(), make_column_selector(dtype_include=np.number)),
-        (OneHotEncoder(dtype=int), make_column_selector(dtype_exclude=np.number)),
+        (OneHotEncoder(dtype=int, handle_unknown="ignore"), make_column_selector(dtype_exclude=np.number)),
     )
 
 
@@ -401,3 +394,37 @@ def fit_models(
     print(f"Finished training in {perf_counter() - start:.2f} seconds")
 
     return result_container
+
+def show_coefficients(log_transform: TransformedTargetRegressor) -> pd.DataFrame:
+    """
+    Displays Estimated Coefficients of Linear Regression Model in Dataframe
+    """
+
+    encoded_features = log_transform.regressor_.named_steps["pipeline"][
+        "column_transformer"
+    ].get_feature_names_out()
+
+    selected_features = log_transform.regressor_.named_steps["pipeline"][
+        "feature_selector"
+    ].get_feature_names_out(encoded_features)
+
+    feature_names = [name.split("__")[1] for name in selected_features]
+
+    coefs = log_transform.regressor_.named_steps["linearregression"].coef_
+
+    return (
+        pd.DataFrame({"feature": feature_names, "coefficient": coefs})
+        .sort_values("coefficient", ascending=False)
+        .reset_index(drop=True)
+    )
+
+
+def print_metrics(y_true: float, y_hat: float):
+    """
+    Prints Mean Absolute Error and R^2 Value of Predictions y_hat
+    """
+
+    print(
+        f"MAE: {mean_absolute_error(y_true, y_hat):.3f}\n"
+        f"R^2: {r2_score(y_true, y_hat):.3f}"
+    )
