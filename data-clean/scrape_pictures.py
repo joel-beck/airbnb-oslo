@@ -76,7 +76,6 @@ front_page_urls.groupby(front_page_urls.index).count().value_counts()
 def get_response(url: str) -> Image:
     try:
         response = requests.get(url)
-        # img = Image.open(BytesIO(response.content))
     except:
         response = pd.NA
     return response
@@ -86,9 +85,7 @@ def get_response(url: str) -> Image:
 if GET_RESPONSES:
     # takes about 1 hour on my cpu
     front_page_responses = front_page_urls.progress_apply(get_response)
-
-#%%
-front_page_responses.to_pickle("front_page_responses.pkl")
+    front_page_responses.to_pickle("front_page_responses.pkl")
 
 #%%
 # SECTION: Get Pictures from extended picture page when clicking "Alle Fotos anzeigen"

@@ -10,10 +10,10 @@ from sklearn.model_selection import train_test_split
 #%%
 listings_df = pd.read_pickle("listings.pkl")
 reviews_features = pd.read_pickle("reviews_features.pkl")
-front_page_pictures = pd.read_pickle("front_page_pictures.pkl")
+front_page_urls = pd.read_pickle("front_page_urls.pkl")
 
 #%%
-# SUBSECTION: Add Predicted Host Gender, Number of listed Amenities and Number of Front Page Pictures
+# SUBSECTION: Add Predicted Host Gender, Number of listed Amenities and Number of Front Page URLs
 d = gender.Detector()
 
 listings_df = listings_df.assign(
@@ -21,9 +21,7 @@ listings_df = listings_df.assign(
     .apply(d.get_gender)
     .replace({"mostly_male": "male", "mostly_female": "female", "andy": "unknown"}),
     number_amenities=listings_df["amenities"].apply(lambda x: len(ast.literal_eval(x))),
-    number_front_page_pictures=front_page_pictures.groupby(
-        front_page_pictures.index
-    ).count(),
+    number_front_page_pictures=front_page_urls.groupby(front_page_urls.index).count(),
 )
 
 #%%
@@ -32,8 +30,6 @@ cnn_predictions = pd.read_pickle("cnn_predictions.pkl")
 listings_df = listings_df.assign(
     cnn_predictions=cnn_predictions.groupby(cnn_predictions.index).mean()
 )
-
-# listings_df.cnn_predictions
 
 #%%
 # SUBSECTION: Create Extended Dataset with ALL Variables
@@ -99,7 +95,7 @@ listings_extended.to_pickle("listings_extended.pkl")
 listings_cols = [
     "availability_365",
     "bedrooms",
-    # "cnn_predictions",
+    "cnn_predictions",
     "host_gender",
     "host_identity_verified",
     "host_is_superhost",
@@ -146,3 +142,5 @@ X_train_val.to_pickle("X_train_val.pkl")
 X_test.to_pickle("X_test.pkl")
 y_train_val.to_pickle("y_train_val.pkl")
 y_test.to_pickle("y_test.pkl")
+
+#%%

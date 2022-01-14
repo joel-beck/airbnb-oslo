@@ -2,7 +2,6 @@
 from io import BytesIO
 
 import pandas as pd
-import requests
 import torch
 import torch.nn as nn
 from PIL import Image
@@ -20,17 +19,16 @@ from pytorch_helpers import (
 )
 
 #%%
-front_page_pictures = pd.read_pickle("../data-clean/front_page_pictures.pkl")
+front_page_responses = pd.read_pickle("../data-clean/front_page_responses.pkl")
 listings_df = pd.read_pickle("../data-clean/listings.pkl")
-listings_df = listings_df.iloc[:10]
 
 #%%
 # drop prices of 0, largest price (outlier) and missing images
 picture_price_df = (
     pd.merge(
-        front_page_pictures, listings_df["price"], left_index=True, right_index=True
+        front_page_responses, listings_df["price"], left_index=True, right_index=True
     )
-    .rename(columns={"listing_url": "front_page_pictures"})
+    .rename(columns={"listing_url": "front_page_responses"})
     .loc[lambda x: (x["price"] > 0) & (x["price"] < 80000)]
     .dropna()
 )
@@ -59,12 +57,13 @@ class ListingsImages(Dataset):
     """
 
     def __init__(self, df, image_transforms=None):
-        self.x = df["front_page_pictures"]
+        self.x = df["front_page_responses"]
         self.y = torch.tensor(df["price"].values, dtype=torch.float)
         self.image_transforms = image_transforms
 
     def __getitem__(self, index):
-        img = self.x.iloc[index]
+        response = self.x.iloc[index]
+        img = Image.open(BytesIO(response.content))
         label = self.y[index]
 
         if self.image_transforms is not None:
@@ -82,7 +81,7 @@ full_dataset = ListingsImages(picture_price_df, image_transforms)
 trainset, valset = generate_train_val_data_split(full_dataset)
 
 # comment out to train on full dataset
-# trainset, valset = generate_subsets(trainset, valset, subset_size=batch_size)
+trainset, valset = generate_subsets(trainset, valset, subset_size=batch_size)
 
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 valloader = DataLoader(valset, batch_size=batch_size, shuffle=True)
@@ -108,7 +107,7 @@ print("Parameters to train:", sum(param.numel() for param in params_to_update))
 
 #%%
 lr = 0.01
-num_epochs = 30
+num_epochs = 5
 # use only parameters with requires_grad = True in optimizer
 optimizer = optim.Adam(params_to_update, lr=lr)
 
