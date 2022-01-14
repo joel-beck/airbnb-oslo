@@ -388,10 +388,6 @@ def run_regression(
     """
 
     start_time = time.perf_counter()
-
-    if result_container is not None:
-        result_container.log_y.append(log_y)
-
     metrics = NeuralNetMetrics()
 
     if save_best:
@@ -466,6 +462,8 @@ def run_regression(
 
     if result_container is None:
         return metrics
+
+    result_container.log_y.append(log_y)
 
     if save_best:
         # if save_best=True save results from epoch with best validation mae (starts at epoch=1)

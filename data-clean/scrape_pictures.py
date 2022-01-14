@@ -21,7 +21,7 @@ listings = pd.read_pickle("listings.pkl")
 listings = pd.DataFrame(listings)
 
 GET_FRONT_URLS = False
-TRANSFORM_TO_IMAGES = True
+GET_RESPONSES = True
 GET_ALL_URLS = False
 
 #%%
@@ -73,22 +73,22 @@ front_page_urls = pd.read_pickle("front_page_urls.pkl")
 front_page_urls.groupby(front_page_urls.index).count().value_counts()
 
 #%%
-def url_to_image(url: str) -> Image:
+def get_response(url: str) -> Image:
     try:
         response = requests.get(url)
-        img = Image.open(BytesIO(response.content))
+        # img = Image.open(BytesIO(response.content))
     except:
-        img = pd.NA
-    return img
+        response = pd.NA
+    return response
 
 
 #%%
-if TRANSFORM_TO_IMAGES:
-    front_page_pictures = front_page_urls.progress_apply(url_to_image)
-    front_page_pictures.to_pickle("front_page_pictures.pkl")
+if GET_RESPONSES:
+    # takes about 1 hour on my cpu
+    front_page_responses = front_page_urls.progress_apply(get_response)
 
 #%%
-front_page_pictures.isna().sum()
+front_page_responses.to_pickle("front_page_responses.pkl")
 
 #%%
 # SECTION: Get Pictures from extended picture page when clicking "Alle Fotos anzeigen"
@@ -117,15 +117,15 @@ if GET_ALL_URLS:
 
     asession = AsyncHTMLSession()
 
-    r = await asession.get(
-        "https://www.airbnb.de/rooms/42932/photos?_set_bev_on_new_domain=1638088059_YzdiYWU0ZmVmNjBk&source_impression_id=p3_1640558986_v9VqTe%2B8Ep%2FDNpjX"
-    )
+    # r = await asession.get(
+    #     "https://www.airbnb.de/rooms/42932/photos?_set_bev_on_new_domain=1638088059_YzdiYWU0ZmVmNjBk&source_impression_id=p3_1640558986_v9VqTe%2B8Ep%2FDNpjX"
+    # )
 
-    await r.html.arender()
+    # await r.html.arender()
 
-    pictures = r.html.find("img")
+    # pictures = r.html.find("img")
 
     # still only finds first 5 images
-    for picture in pictures:
-        print(picture.attrs["src"])
-        print()
+    # for picture in pictures:
+    #     print(picture.attrs["src"])
+    #     print()
