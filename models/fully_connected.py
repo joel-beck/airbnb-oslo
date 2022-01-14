@@ -28,7 +28,9 @@ X_train, X_val, y_train, y_val = train_test_split(
 column_transformer = get_column_transformer()
 
 #%%
-X_train_tensor = torch.tensor(column_transformer.fit_transform(X_train).astype(np.float32))
+X_train_tensor = torch.tensor(
+    column_transformer.fit_transform(X_train).astype(np.float32)
+)
 y_train_tensor = torch.tensor(y_train.values.astype(np.float32))
 trainset = TensorDataset(X_train_tensor, y_train_tensor)
 
@@ -91,6 +93,7 @@ for log_y in [True, False]:
 
     loss_function = nn.MSELoss()
     optimizer = optim.Adam(params=model.parameters(), lr=lr, weight_decay=weight_decay)
+
     if scheduler:
         scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)
     else:

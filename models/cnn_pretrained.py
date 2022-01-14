@@ -15,7 +15,6 @@ from torchvision.models import resnet18
 from pytorch_helpers import (
     generate_subsets,
     generate_train_val_data_split,
-    plot_regression,
     print_param_shapes,
     run_regression,
 )
@@ -23,6 +22,7 @@ from pytorch_helpers import (
 #%%
 front_page_pictures = pd.read_pickle("../data-clean/front_page_pictures.pkl")
 listings_df = pd.read_pickle("../data-clean/listings.pkl")
+listings_df = listings_df.iloc[:10]
 
 #%%
 # drop prices of 0, largest price (outlier) and missing images
@@ -30,13 +30,14 @@ picture_price_df = (
     pd.merge(
         front_page_pictures, listings_df["price"], left_index=True, right_index=True
     )
+    .rename(columns={"listing_url": "front_page_pictures"})
     .loc[lambda x: (x["price"] > 0) & (x["price"] < 80000)]
     .dropna()
 )
 
 #%%
 IMAGE_SIZE = [224, 224]
-batch_size = 8
+batch_size = 10
 
 image_transforms = transforms.Compose(
     [transforms.Resize(size=IMAGE_SIZE), transforms.PILToTensor()]
@@ -58,14 +59,12 @@ class ListingsImages(Dataset):
     """
 
     def __init__(self, df, image_transforms=None):
-        self.x = df["listing_url"]
+        self.x = df["front_page_pictures"]
         self.y = torch.tensor(df["price"].values, dtype=torch.float)
         self.image_transforms = image_transforms
 
     def __getitem__(self, index):
-        url = self.x.iloc[index]
-        response = requests.get(url)
-        img = Image.open(BytesIO(response.content))
+        img = self.x.iloc[index]
         label = self.y[index]
 
         if self.image_transforms is not None:
@@ -83,13 +82,13 @@ full_dataset = ListingsImages(picture_price_df, image_transforms)
 trainset, valset = generate_train_val_data_split(full_dataset)
 
 # comment out to train on full dataset
-trainset, valset = generate_subsets(trainset, valset, subset_size=batch_size)
+# trainset, valset = generate_subsets(trainset, valset, subset_size=batch_size)
 
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 valloader = DataLoader(valset, batch_size=batch_size, shuffle=True)
 
 #%%
-model = resnet18(pretrained=True).to(device=device)
+model = resnet18(pretrained=True)
 
 # freeze weights
 for param in model.parameters():
@@ -99,6 +98,8 @@ for param in model.parameters():
 in_features = model.fc.in_features
 model.fc = nn.Linear(in_features, 1)
 
+model.to(device=device)
+
 print_param_shapes(model)
 
 #%%
@@ -107,12 +108,12 @@ print("Parameters to train:", sum(param.numel() for param in params_to_update))
 
 #%%
 lr = 0.01
-num_epochs = 5
+num_epochs = 30
 # use only parameters with requires_grad = True in optimizer
 optimizer = optim.Adam(params_to_update, lr=lr)
 
 loss_function = nn.MSELoss()
-train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s = run_regression(
+metrics = run_regression(
     model,
     optimizer,
     loss_function,
@@ -124,4 +125,6 @@ train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s = run_regress
     save_best=True,
 )
 
-plot_regression(train_losses, val_losses, train_maes, val_maes, train_r2s, val_r2s)
+metrics.plot()
+
+#%%

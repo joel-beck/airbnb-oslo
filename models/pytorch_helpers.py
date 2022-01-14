@@ -196,8 +196,8 @@ class NeuralNetMetrics:
 
         epochs = range(1, len(self.train_losses) + 1)
 
-        ax1.plot(epochs, self.train_losses, label="Training") #, marker="o")
-        ax1.plot(epochs, self.val_losses, label="Validation") #, marker="o")
+        ax1.plot(epochs, self.train_losses, label="Training")  # , marker="o")
+        ax1.plot(epochs, self.val_losses, label="Validation")  # , marker="o")
         ax1.set(
             title="Mean Squared Error",
             xlabel="",
@@ -209,16 +209,16 @@ class NeuralNetMetrics:
         ax1.yaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
         ax1.set_yticklabels(["{:,}".format(int(x)) for x in ticks_loc])
 
-        ax2.plot(epochs, self.train_maes, label="Training")#, marker="o")
-        ax2.plot(epochs, self.val_maes, label="Validation")#, marker="o")
+        ax2.plot(epochs, self.train_maes, label="Training")  # , marker="o")
+        ax2.plot(epochs, self.val_maes, label="Validation")  # , marker="o")
         ax2.set(
             title="Mean Absolute Error",
             xlabel="",
             ylabel="",
         )
 
-        ax3.plot(epochs, self.train_r2s, label="Training")#, marker="o")
-        ax3.plot(epochs, self.val_r2s, label="Validation")#, marker="o")
+        ax3.plot(epochs, self.train_r2s, label="Training")  # , marker="o")
+        ax3.plot(epochs, self.val_r2s, label="Validation")  # , marker="o")
         ax3.set(
             title="R2",
             xlabel="Epoch",
@@ -389,7 +389,9 @@ def run_regression(
 
     start_time = time.perf_counter()
 
-    result_container.log_y.append(log_y)
+    if result_container is not None:
+        result_container.log_y.append(log_y)
+
     metrics = NeuralNetMetrics()
 
     if save_best:
