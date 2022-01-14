@@ -48,7 +48,7 @@ num_epochs = 500
 dropout_prob = 0.5
 lr = 0.01
 log_y = False
-scheduler = False
+scheduler = False  # set scheduler later with optimizer in line 94
 weight_decay = 1e-2  # L2 penalty; no weight decay: set value to 0
 
 #%%
