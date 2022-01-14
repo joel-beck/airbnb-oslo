@@ -7,11 +7,10 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-os.chdir("/Users/marei/airbnb-oslo")
 
 #%%
 
-listings_df = pd.read_pickle("data-clean/listings.pkl")
+listings_df = pd.read_pickle("../data-clean/listings.pkl")
 #%%
 
 amenities = np.array(listings_df['amenities'])

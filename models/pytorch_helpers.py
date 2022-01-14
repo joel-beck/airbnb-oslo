@@ -196,8 +196,8 @@ class NeuralNetMetrics:
 
         epochs = range(1, len(self.train_losses) + 1)
 
-        ax1.plot(epochs, self.train_losses, label="Training", marker="o")
-        ax1.plot(epochs, self.val_losses, label="Validation", marker="o")
+        ax1.plot(epochs, self.train_losses, label="Training") #, marker="o")
+        ax1.plot(epochs, self.val_losses, label="Validation") #, marker="o")
         ax1.set(
             title="Mean Squared Error",
             xlabel="",
@@ -209,16 +209,16 @@ class NeuralNetMetrics:
         ax1.yaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
         ax1.set_yticklabels(["{:,}".format(int(x)) for x in ticks_loc])
 
-        ax2.plot(epochs, self.train_maes, label="Training", marker="o")
-        ax2.plot(epochs, self.val_maes, label="Validation", marker="o")
+        ax2.plot(epochs, self.train_maes, label="Training")#, marker="o")
+        ax2.plot(epochs, self.val_maes, label="Validation")#, marker="o")
         ax2.set(
             title="Mean Absolute Error",
             xlabel="",
             ylabel="",
         )
 
-        ax3.plot(epochs, self.train_r2s, label="Training", marker="o")
-        ax3.plot(epochs, self.val_r2s, label="Validation", marker="o")
+        ax3.plot(epochs, self.train_r2s, label="Training")#, marker="o")
+        ax3.plot(epochs, self.val_r2s, label="Validation")#, marker="o")
         ax3.set(
             title="R2",
             xlabel="Epoch",
@@ -332,12 +332,15 @@ def print_epoch(
     epoch_val_mae: float,
     epoch_train_r2: float,
     epoch_val_r2: float,
+    scheduler: Optional[Any] = None,
 ):
     """
     Prints Information about the Model Performance in Training and Validation Set of the current Epoch while the Model is trained.
     """
 
     print(f"Epoch: {epoch} / {num_epochs}\n{'-' * 50}")
+    if scheduler is not None:
+        print(f"Learning Rate: {scheduler.state_dict()['_last_lr'][0]:.1e}")
     print(
         f"Mean MSE Training: {epoch_train_mse:.3f} | Mean MSE Validation: {epoch_val_mse:.3f}\n"
         f"Mean MAE Training: {epoch_train_mae:.3f} | Mean MAE Validation: {epoch_val_mae:.3f}\n"
@@ -447,6 +450,7 @@ def run_regression(
                     epoch_val_mae,
                     epoch_train_r2,
                     epoch_val_r2,
+                    scheduler,
                 )
 
     time_elapsed = np.round(time.perf_counter() - start_time, 0).astype(int)
