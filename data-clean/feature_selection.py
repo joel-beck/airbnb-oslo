@@ -25,6 +25,12 @@ listings_df = listings_df.assign(
 )
 
 #%%
+# SUBSECTION: Add processed property type
+# all property types with N <= 10 sum up in value property_type : "Others"
+props = list(listings_df["property_type"].value_counts().loc[lambda x: x <= 10].index)
+listings_df["property_type"] = listings_df["property_type"].replace(props, "Others")
+
+#%%
 # SUBSECTION: Add Mean Price Prediction for each Apartment from CNN
 cnn_predictions = pd.read_pickle("cnn_predictions.pkl")
 listings_df = listings_df.assign(
@@ -36,7 +42,7 @@ listings_df = listings_df.assign(
 # These columns cannot be transformed directly into categorical, numeric variables
 cols_to_exclude = [
     "amenities",
-    # identical informatin in number_bathrooms + shared_bathrooms
+    # identical information in number_bathrooms + shared_bathrooms
     "bathrooms_text",
     "calendar_last_scraped",
     "description",
@@ -109,6 +115,7 @@ listings_cols = [
     "review_scores_rating",
     "reviews_per_month",
     "room_type",
+    "property_type", # added property_type because of overall feature selection
     "shared_bathrooms",
 ]
 
