@@ -3,16 +3,15 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-import torch.optim as optim
 from sklearn.model_selection import train_test_split
+from torch.optim import Adam
+from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import DataLoader, TensorDataset
 
 from pytorch_helpers import (
     MLP,
-    print_data_shapes,
     print_param_shapes,
     run_regression,
-    init_weights,
 )
 from sklearn_helpers import ResultContainer, get_column_transformer
 
@@ -46,12 +45,12 @@ in_features = len(trainset[0][0])
 hidden_features_list = [64, 128, 256, 512, 512, 256, 128, 64, 32, 16, 8]
 
 batch_size = 128
-num_epochs = 500
+num_epochs = 200
 dropout_prob = 0.5
-lr = 0.01
 log_y = False
-scheduler = False  # set scheduler later with optimizer in line 94
-weight_decay = 1e-2  # L2 penalty; no weight decay: set value to 0
+scheduler_rate = 0.5
+step_size = int(num_epochs / 5)
+weight_decay = 0  # L2 penalty; no weight decay: set value to 0
 
 #%%
 # BOOKMARK: DataLoaders
@@ -65,9 +64,6 @@ model
 
 #%%
 print_param_shapes(model)
-
-#%%
-# print_data_shapes(model, device, input_shape=(1, in_features))
 
 #%%
 # SECTION: Model Training
@@ -87,17 +83,10 @@ for log_y in [True, False]:
 
     model = MLP(in_features, hidden_features_list, dropout_prob).to(device)
 
-    # avoid negative predicted prices at beginning of training to enable log transformation
-    if log_y:
-        model.apply(lambda x: init_weights(x, mean=50))
-
     loss_function = nn.MSELoss()
-    optimizer = optim.Adam(params=model.parameters(), lr=lr, weight_decay=weight_decay)
-
-    if scheduler:
-        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)
-    else:
-        scheduler = None
+    lr = 0.1 if log_y else 0.01
+    optimizer = Adam(params=model.parameters(), lr=lr, weight_decay=weight_decay)
+    scheduler = StepLR(optimizer, step_size=step_size, gamma=scheduler_rate)
 
     # save model weights only for log_y = False
     save_path = None if log_y else "fully_connected_weights.pt"
@@ -112,13 +101,15 @@ for log_y in [True, False]:
         valloader,
         result_container,
         log_y=log_y,
-        scheduler=scheduler,
+        # scheduler=scheduler,
         verbose=True,
         save_best=True,
-        save_path=None,
+        # save_path=save_path,
     )
 
     metrics.plot()
     neural_network_results.append(result_container.display_df())
 
-pd.concat(neural_network_results).to_pickle("neural_network_results_regularized.pkl")
+pd.concat(
+    neural_network_results
+)  # .to_pickle("neural_network_results_regularized.pkl")

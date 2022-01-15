@@ -273,7 +273,12 @@ def train_regression(
         # train model / backpropagate loss on log scale
         if log_y:
             y = torch.log(y)
-            y_pred = torch.log(y_pred)
+            # handle negative predictions in early epochs by thresholding at zero
+            y_pred = torch.where(
+                y_pred > 0,
+                torch.log(y_pred),
+                torch.tensor(0, dtype=y_pred.dtype, requires_grad=True),
+            )
 
         loss = loss_function(y_pred, y)
         loss.backward()
