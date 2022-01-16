@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
+from sklearn import set_config
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LinearRegression, Ridge
@@ -25,6 +26,8 @@ simplefilter(action="ignore", category=FutureWarning)
 sns.set_theme(style="whitegrid")
 pd.set_option("precision", 3)
 pd.set_option("display.max_columns", 100)
+# default value is "text"
+set_config(display="diagram")
 
 
 #%%
@@ -133,15 +136,18 @@ preprocessor = get_preprocessor(column_transformer, rfe)
 
 best_model_mae = LinearRegression()
 pipeline = make_pipeline(preprocessor, best_model_mae)
-log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
 
+# sklearn.set_config(display="diagram") creates nice visual display of pipelines
+pipeline
+
+#%%
+log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
 log_transform.fit(X_train_val, y_train_val)
 y_hat_mae = log_transform.predict(X_test)
 
 print_metrics(y_test, y_hat_mae)
 coefs_30 = show_coefficients(log_transform)
 coefs_30
-
 
 #%%
 # SUBSECTION: Classical Model with lowest R^2 on Validation Set
@@ -267,3 +273,5 @@ for index, ax in enumerate(axes.flat):
 
 fig.tight_layout()
 plt.show()
+
+#%%

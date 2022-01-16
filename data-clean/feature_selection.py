@@ -39,11 +39,10 @@ listings_df = listings_df.assign(
 
 #%%
 # SUBSECTION: Create Extended Dataset with ALL Variables
-# These columns cannot be transformed directly into categorical, numeric variables
+# These columns cannot be transformed directly into categorical or numeric variables
 cols_to_exclude = [
     "amenities",
-    # identical information in number_bathrooms + shared_bathrooms
-    "bathrooms_text",
+    "bathrooms_text",  # identical information in number_bathrooms + shared_bathrooms
     "calendar_last_scraped",
     "description",
     "host_id",
@@ -112,10 +111,10 @@ listings_cols = [
     "number_front_page_pictures",
     "number_of_reviews",
     "price",
+    "property_type",  # added property_type because of overall feature selection
     "review_scores_rating",
     "reviews_per_month",
     "room_type",
-    "property_type", # added property_type because of overall feature selection
     "shared_bathrooms",
 ]
 
@@ -124,7 +123,7 @@ reviews_cols = [
     "median_review_length",
     "number_languages",
 ]
-listings_cols + reviews_cols
+
 # add numeric features from reviews dataframe to listings_subset,
 # join() merges by index
 listings_subset = (

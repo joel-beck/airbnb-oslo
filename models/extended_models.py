@@ -1,8 +1,10 @@
 #%%
 from warnings import simplefilter
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LinearRegression
@@ -21,7 +23,7 @@ from sklearn_helpers import (
 simplefilter(action="ignore", category=FutureWarning)
 pd.set_option("precision", 3)
 pd.set_option("display.max_columns", 100)
-
+sns.set_theme(style="whitegrid")
 
 #%%
 # NOTE: For Experimentation we train model on the entire data set without splitting in training and test set
@@ -30,6 +32,24 @@ X = listings_extended.drop(columns="price")
 y = listings_extended["price"]
 
 X.shape
+
+#%%
+# SUBSECTION: Exploration of CNN Price Predictions
+sns.histplot(X["cnn_predictions"]).set(title="Price Predictions of Convolutional Net")
+
+# Correlation of price predictions and true price pretty much zero
+cor = y.astype("float").corr(X["cnn_predictions"])
+price_range = [y.min(), y.max()]
+
+fig, ax = plt.subplots(figsize=(6, 6))
+ax.scatter(y, X["cnn_predictions"])
+ax.plot(price_range, price_range, linestyle="dashed", color="grey")
+ax.set(
+    xlabel="True Price",
+    ylabel="Predictions",
+    title=f"Correlation Coefficient with true Price: {cor:.3f}",
+)
+plt.show()
 
 #%%
 # BOOKMARK: Hyperparameters
@@ -91,11 +111,3 @@ log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=n
 
 log_transform.fit(X, y)
 show_coefficients(log_transform)
-
-
-#%%
-X["property_type"].value_counts()
-
-
-#%%
-listings_extended.loc[listings_extended["property_type"] == "Houseboat"]

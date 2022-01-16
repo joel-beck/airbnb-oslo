@@ -114,6 +114,23 @@ listings_df = (
 )
 
 #%%
+# SUBSECTION: Create 'Other' Category for Categorical Variables
+# all categories of property type with less than min_obs_property_type observation are
+# grouped together to 'Other' category
+min_obs_property_type = 10
+rare_categories = (
+    listings_df["property_type"]
+    .value_counts()
+    .loc[lambda x: x < min_obs_property_type]
+    .index
+)
+
+listings_df["property_type"] = listings_df["property_type"].replace(
+    dict.fromkeys(rare_categories, "Other")
+)
+
+
+#%%
 # Write clean Datasets to file
 listings_df.to_pickle(path="listings.pkl")
 reviews_df.to_pickle(path="reviews.pkl")
