@@ -6,7 +6,15 @@ from warnings import simplefilter
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
-from sklearn.feature_selection import RFE, SelectKBest, VarianceThreshold
+from sklearn.feature_selection import (
+    RFE,
+    SelectFromModel,
+    SelectKBest,
+    SequentialFeatureSelector,
+    VarianceThreshold,
+)
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVR
 
 from sklearn_helpers import (
@@ -31,6 +39,10 @@ n_iter = 10
 k_list = [10, 20, 30]
 pca_components_list = [10, 20, 30]
 rfe_components_list = [10, 20, 30]
+sfm_threshold_list = [
+    str(num) + "*mean" if num != 1 else "mean" for num in [0.5, 1, 1.5]
+]
+sfs_components_list = [10, 20, 30]
 vt_threshold_list = [0.1, 0.2, 0.3]
 log_y_list = [True, False]
 
@@ -77,6 +89,34 @@ selected_features = preprocessor.named_steps["feature_selector"].get_feature_nam
 )
 
 print("Selected Features from RFE:")
+for feature in selected_features:
+    print(feature.split("__")[1])
+
+#%%
+# SUBSECTION: SelectFromModel
+sfm = SelectFromModel(SVR(kernel="linear"), threshold="1.5*mean")
+preprocessor = get_preprocessor(column_transformer, sfm)
+preprocessor.fit_transform(X_train_val, y_train_val)
+
+selected_features = preprocessor.named_steps["feature_selector"].get_feature_names_out(
+    encoded_features
+)
+
+print("Selected Features from SelectFromModel:")
+for feature in selected_features:
+    print(feature.split("__")[1])
+
+#%%
+# SUBSECTION: SequentialFeatureSelector
+sfs = SequentialFeatureSelector(estimator=LogisticRegression(), n_features_to_select=10)
+preprocessor = get_preprocessor(column_transformer, sfm)
+preprocessor.fit_transform(X_train_val, y_train_val)
+
+selected_features = preprocessor.named_steps["feature_selector"].get_feature_names_out(
+    encoded_features
+)
+
+print("Selected Features from SequentialFeatureSelector:")
 for feature in selected_features:
     print(feature.split("__")[1])
 
@@ -151,6 +191,24 @@ for (rfe_components, log_y) in itertools.product(rfe_components_list, log_y_list
     rfe_results.append(try_feature_selectors(rfe, log_y=log_y))
 
 pd.concat(rfe_results).to_pickle("rfe_results.pkl")
+
+#%%
+sfm_results = []
+for (sfm_threshold, log_y) in itertools.product(sfm_threshold_list, log_y_list):
+    sfm = SelectFromModel(SVR(kernel="linear"), threshold=sfm_threshold)
+    sfm_results.append(try_feature_selectors(sfm, log_y=log_y))
+
+pd.concat(sfm_results).to_pickle("sfm_results.pkl")
+
+#%%
+sfs_results = []
+for (sfs_components, log_y) in itertools.product(sfs_components_list, log_y_list):
+    sfs = SequentialFeatureSelector(
+        SVR(kernel="linear"), n_features_to_select=sfs_components
+    )
+    sfs_results.append(try_feature_selectors(sfs, log_y=log_y))
+
+pd.concat(sfs_results).to_pickle("sfs_results.pkl")
 
 #%%
 vt_results = []
