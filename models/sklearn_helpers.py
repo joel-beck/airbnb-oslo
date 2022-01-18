@@ -4,15 +4,27 @@ from typing import Any, Optional, Union
 
 import numpy as np
 import pandas as pd
-from sklearn.compose import (ColumnTransformer, TransformedTargetRegressor,
-                             make_column_selector, make_column_transformer)
+from sklearn.compose import (
+    ColumnTransformer,
+    TransformedTargetRegressor,
+    make_column_selector,
+    make_column_transformer,
+)
 from sklearn.decomposition import PCA
-from sklearn.ensemble import (AdaBoostRegressor, BaggingRegressor,
-                              GradientBoostingRegressor, RandomForestRegressor)
+from sklearn.ensemble import (
+    AdaBoostRegressor,
+    BaggingRegressor,
+    GradientBoostingRegressor,
+    HistGradientBoostingRegressor,
+    RandomForestRegressor,
+)
 from sklearn.feature_selection import SelectKBest
 from sklearn.linear_model import Lasso, LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.model_selection import RandomizedSearchCV, cross_validate
+from sklearn.model_selection import (
+    RandomizedSearchCV,
+    cross_validate,
+)
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
@@ -24,7 +36,10 @@ def get_column_transformer() -> ColumnTransformer:
 
     return make_column_transformer(
         (StandardScaler(), make_column_selector(dtype_include=np.number)),
-        (OneHotEncoder(dtype=int, handle_unknown="ignore"), make_column_selector(dtype_exclude=np.number)),
+        (
+            OneHotEncoder(dtype=int, handle_unknown="ignore"),
+            make_column_selector(dtype_exclude=np.number),
+        ),
     )
 
 
@@ -243,6 +258,19 @@ def get_models(
         log_y=log_y,
     )
 
+    hist_gradient_boosting = ModelContainer(
+        HistGradientBoostingRegressor(random_state=random_state),
+        preprocessor,
+        {
+            "learning_rate": np.arange(0.01, 0.1, 0.01),
+            "max_depth": np.arange(3, 30, 3),
+            "max_iter": np.arange(10, 100, 10),
+            "max_leaf_nodes": np.arange(5, 50, 5),
+            "min_samples_leaf": np.arange(2, 20, 2),
+        },
+        log_y=log_y,
+    )
+
     model_choice = {
         "linear": linear,
         "lasso": lasso,
@@ -251,6 +279,7 @@ def get_models(
         "gradient_boosting": gradient_boosting,
         # "ada_boost": ada_boost,
         "bagging": bagging,
+        "hist_gradient_boosting": hist_gradient_boosting,
     }
 
     if models is None:
@@ -394,6 +423,7 @@ def fit_models(
     print(f"Finished training in {perf_counter() - start:.2f} seconds")
 
     return result_container
+
 
 def show_coefficients(log_transform: TransformedTargetRegressor) -> pd.DataFrame:
     """

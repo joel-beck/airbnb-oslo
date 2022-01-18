@@ -101,7 +101,7 @@ collected_results.sort_values("mae_val")
 
 #%%
 # SUBSECTION: Analyze Coefficients for different values of num_features
-num_features = 25
+num_features = 75
 rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
 preprocessor = get_preprocessor(column_transformer, rfe)
 model = LinearRegression()
@@ -110,4 +110,11 @@ pipeline = make_pipeline(preprocessor, model)
 log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
 
 log_transform.fit(X, y)
-show_coefficients(log_transform)
+coefs = show_coefficients(log_transform)
+coefs
+
+#%%
+# at least some correlation with true price in new model
+coefs.loc[coefs["feature"] == "cnn_predictions"]
+
+#%%

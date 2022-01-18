@@ -34,6 +34,7 @@ set_config(display="diagram")
 # SECTION: Analyze Performance on Validation Set during Training
 k_best_results = pd.read_pickle("k_best_results.pkl")
 rfe_results = pd.read_pickle("rfe_results.pkl")
+sfm_results = pd.read_pickle("sfm_results.pkl")
 vt_results = pd.read_pickle("vt_results.pkl")
 pca_results = pd.read_pickle("pca_results.pkl")
 full_features_results = pd.read_pickle("full_features_results.pkl")
@@ -43,6 +44,7 @@ complete_results = pd.concat(
     [
         k_best_results,
         rfe_results,
+        sfm_results,
         vt_results,
         pca_results,
         full_features_results,

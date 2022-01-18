@@ -201,14 +201,15 @@ for (sfm_threshold, log_y) in itertools.product(sfm_threshold_list, log_y_list):
 pd.concat(sfm_results).to_pickle("sfm_results.pkl")
 
 #%%
-sfs_results = []
-for (sfs_components, log_y) in itertools.product(sfs_components_list, log_y_list):
-    sfs = SequentialFeatureSelector(
-        SVR(kernel="linear"), n_features_to_select=sfs_components
-    )
-    sfs_results.append(try_feature_selectors(sfs, log_y=log_y))
+# takes way to much time, maybe fit with a single combination of log_y and sfs_components
+# sfs_results = []
+# for (sfs_components, log_y) in itertools.product(sfs_components_list, log_y_list):
+#     sfs = SequentialFeatureSelector(
+#         SVR(kernel="linear"), n_features_to_select=sfs_components
+#     )
+#     sfs_results.append(try_feature_selectors(sfs, log_y=log_y))
 
-pd.concat(sfs_results).to_pickle("sfs_results.pkl")
+# pd.concat(sfs_results).to_pickle("sfs_results.pkl")
 
 #%%
 vt_results = []

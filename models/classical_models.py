@@ -86,3 +86,5 @@ for log_y in [True, False]:
     full_features_results.append(result.display_df())
 
 pd.concat(full_features_results).to_pickle("full_features_results.pkl")
+
+#%%
