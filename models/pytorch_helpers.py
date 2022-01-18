@@ -411,14 +411,20 @@ def run_regression(
             log_y=log_y,
         )
 
-        if scheduler is not None:
-            scheduler.step()
-
         epoch_val_mse, epoch_val_mae, epoch_val_r2 = validate_regression(
             dataloader=val_dataloader,
             model=model,
             device=device,
         )
+
+        if scheduler is not None:
+            schedulers = {
+                "StepLR": [],
+                "ExponentialLR": [],
+                "ReduceLROnPlateau": [epoch_val_mae],
+            }
+            params = schedulers[scheduler.__class__.__name__]
+            scheduler.step(*params)
 
         metrics.append(
             epoch_train_mse,
@@ -469,6 +475,24 @@ def run_regression(
         return metrics
 
     result_container.log_y.append(log_y)
+
+    result_container.hyperparam_keys[0].append("learning_rate")
+    result_container.hyperparam_values[0].append(optimizer.param_groups[0]["lr"])
+
+    result_container.hyperparam_keys[0].append("scheduler")
+    scheduler_name = scheduler.__class__.__name__ if scheduler is not None else None
+    result_container.hyperparam_values[0].append(scheduler_name)
+
+    try:
+        result_container.hyperparam_keys[0].append("weight_decay")
+        result_container.hyperparam_values[0].append(
+            optimizer.param_groups[0]["weight_decay"]
+        )
+    except:
+        pass
+
+    # parameters of scheduler can be appended to DataFrame with the scheduler.state_dict()
+    # dictionary
 
     if save_best:
         # if save_best=True save results from epoch with best validation mae (starts at epoch=1)

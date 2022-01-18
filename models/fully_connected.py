@@ -1,18 +1,16 @@
 #%%
+import itertools
+
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 from sklearn.model_selection import train_test_split
 from torch.optim import Adam
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torch.utils.data import DataLoader, TensorDataset
 
-from pytorch_helpers import (
-    MLP,
-    print_param_shapes,
-    run_regression,
-)
+from pytorch_helpers import MLP, print_param_shapes, run_regression
 from sklearn_helpers import ResultContainer, get_column_transformer
 
 #%%
@@ -45,12 +43,13 @@ in_features = len(trainset[0][0])
 hidden_features_list = [64, 128, 256, 512, 512, 256, 128, 64, 32, 16, 8]
 
 batch_size = 128
-num_epochs = 200
+num_epochs = 5
 dropout_prob = 0.5
-log_y = False
 scheduler_rate = 0.5
-step_size = int(num_epochs / 5)
-weight_decay = 0  # L2 penalty; no weight decay: set value to 0
+scheduler_patience = int(num_epochs / 5)
+
+log_y_list = [True, False]
+weight_decay_list = [0, 0.01, 0.1, 1]  # L2 penalty; no weight decay: set value to 0
 
 #%%
 # BOOKMARK: DataLoaders
@@ -69,47 +68,59 @@ print_param_shapes(model)
 # SECTION: Model Training
 neural_network_results = []
 
-for log_y in [True, False]:
-    result_container = ResultContainer(
-        model_names=["NeuralNetwork"], feature_selector=[None]
-    )
-    result_container.num_features.append(X_train_tensor.shape[1])
-    result_container.hyperparam_keys.append(
-        ["batch_size", "num_epochs", "learning_rate", "dropout_probability"]
-    )
-    result_container.hyperparam_values.append(
-        [batch_size, num_epochs, lr, dropout_prob]
-    )
-
+for (log_y, weight_decay) in itertools.product(log_y_list, weight_decay_list):
     model = MLP(in_features, hidden_features_list, dropout_prob).to(device)
 
     loss_function = nn.MSELoss()
     lr = 0.1 if log_y else 0.01
     optimizer = Adam(params=model.parameters(), lr=lr, weight_decay=weight_decay)
-    scheduler = StepLR(optimizer, step_size=step_size, gamma=scheduler_rate)
 
-    # save model weights only for log_y = False
-    save_path = None if log_y else "fully_connected_weights.pt"
-
-    metrics, result_container = run_regression(
-        model,
-        optimizer,
-        loss_function,
-        device,
-        num_epochs,
-        trainloader,
-        valloader,
-        result_container,
-        log_y=log_y,
-        # scheduler=scheduler,
-        verbose=True,
-        save_best=True,
-        # save_path=save_path,
+    # try different learning rate schedulers
+    # cannot be defined on top, since they depend on the optimizer in this iteration
+    step_lr = StepLR(optimizer, step_size=scheduler_patience, gamma=scheduler_rate)
+    reduce_plateau = ReduceLROnPlateau(
+        optimizer, mode="min", factor=scheduler_rate, patience=scheduler_patience
     )
+    scheduler_list = [None, step_lr, reduce_plateau]
 
-    metrics.plot()
-    neural_network_results.append(result_container.display_df())
+    for scheduler in scheduler_list:
+        # initialize result container in each iteration
+        result_container = ResultContainer(
+            model_names=["NeuralNetwork"], feature_selector=[None]
+        )
+        result_container.num_features.append(X_train_tensor.shape[1])
+        result_container.hyperparam_keys.append(
+            ["batch_size", "num_epochs", "dropout_probability"]
+        )
+        result_container.hyperparam_values.append(
+            [batch_size, num_epochs, dropout_prob]
+        )
+
+        # save model weights only for log_y = False
+        # save_path = None if log_y else "fully_connected_weights.pt"
+
+        metrics, result_container = run_regression(
+            model,
+            optimizer,
+            loss_function,
+            device,
+            num_epochs,
+            trainloader,
+            valloader,
+            result_container,
+            log_y=log_y,
+            scheduler=scheduler,
+            verbose=True,
+            save_best=True,
+            # save_path=save_path,
+        )
+
+        metrics.plot()
+        neural_network_results.append(result_container.display_df())
 
 pd.concat(
     neural_network_results
 )  # .to_pickle("neural_network_results_regularized.pkl")
+
+#%%
+pd.concat(neural_network_results)["hyperparam_keys"].iloc[0]
