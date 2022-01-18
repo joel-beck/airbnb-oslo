@@ -39,6 +39,9 @@ vt_results = pd.read_pickle("vt_results.pkl")
 pca_results = pd.read_pickle("pca_results.pkl")
 full_features_results = pd.read_pickle("full_features_results.pkl")
 neural_network_results = pd.read_pickle("neural_network_results.pkl")
+neural_network_results_regularized = pd.read_pickle(
+    "neural_network_results_regularized.pkl"
+)
 
 complete_results = pd.concat(
     [
@@ -49,6 +52,7 @@ complete_results = pd.concat(
         pca_results,
         full_features_results,
         neural_network_results,
+        neural_network_results_regularized,
     ]
 ).sort_values("mae_val")
 
