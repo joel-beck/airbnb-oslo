@@ -35,7 +35,28 @@ X.shape
 
 #%%
 # SUBSECTION: Exploration of CNN Price Predictions
-sns.histplot(X["cnn_predictions"]).set(title="Price Predictions of Convolutional Net")
+
+# Pretrained CNN
+sns.histplot(X["cnn_pretrained_predictions"]).set(
+    title="Price Predictions of Pretrained CNN"
+)
+
+# Correlation of price predictions and true price pretty much zero
+cor = y.astype("float").corr(X["cnn_pretrained_predictions"])
+price_range = [y.min(), y.max()]
+
+fig, ax = plt.subplots(figsize=(6, 6))
+ax.scatter(y, X["cnn_pretrained_predictions"])
+ax.plot(price_range, price_range, linestyle="dashed", color="grey")
+ax.set(
+    xlabel="True Price",
+    ylabel="Predictions",
+    title=f"Pretrained CNN: Correlation Coefficient with true Price: {cor:.3f}",
+)
+plt.show()
+
+# Custom CNN
+sns.histplot(X["cnn_predictions"]).set(title="Price Predictions of Custom CNN")
 
 # Correlation of price predictions and true price pretty much zero
 cor = y.astype("float").corr(X["cnn_predictions"])
@@ -47,7 +68,7 @@ ax.plot(price_range, price_range, linestyle="dashed", color="grey")
 ax.set(
     xlabel="True Price",
     ylabel="Predictions",
-    title=f"Correlation Coefficient with true Price: {cor:.3f}",
+    title=f"Custom CNN: Correlation Coefficient with true Price: {cor:.3f}",
 )
 plt.show()
 
@@ -61,10 +82,8 @@ log_y = True
 # fitting with all 112 features leads to error of evaluating metrics
 num_features_list = [10, 25, 50, 75]
 
-
 #%%
 column_transformer = get_column_transformer()
-
 
 #%%
 # SUBSECTION: Analyze Performance for different values of num_features
@@ -116,5 +135,6 @@ coefs
 #%%
 # at least some correlation with true price in new model
 coefs.loc[coefs["feature"] == "cnn_predictions"]
+coefs.loc[coefs["feature"] == "cnn_pretrained_predictions"]
 
 #%%

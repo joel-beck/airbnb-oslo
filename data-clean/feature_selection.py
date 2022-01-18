@@ -32,11 +32,14 @@ listings_df["property_type"] = listings_df["property_type"].replace(props, "Othe
 
 #%%
 # SUBSECTION: Add Mean Price Prediction for each Apartment from CNN
+cnn_predictions = pd.read_pickle("cnn_predictions.pkl")
 cnn_pretrained_predictions = pd.read_pickle("cnn_pretrained_predictions.pkl")
+
 listings_df = listings_df.assign(
+    cnn_predictions=cnn_predictions.groupby(cnn_predictions.index).mean(),
     cnn_pretrained_predictions=cnn_pretrained_predictions.groupby(
         cnn_pretrained_predictions.index
-    ).mean()
+    ).mean(),
 )
 
 #%%
@@ -102,6 +105,7 @@ listings_extended.to_pickle("listings_extended.pkl")
 listings_cols = [
     "availability_365",
     "bedrooms",
+    "cnn_predictions",
     "cnn_pretrained_predictions",
     "host_gender",
     "host_identity_verified",
