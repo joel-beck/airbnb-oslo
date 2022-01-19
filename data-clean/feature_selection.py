@@ -63,6 +63,7 @@ cols_to_exclude = [
     "listing_url",
     "longitude",
     "name",
+    "neighbourhood_cleansed",  # duplicate of neighbourhood
     "picture_url",
     "scrape_id",
 ]
@@ -103,21 +104,22 @@ listings_extended.to_pickle("listings_extended.pkl")
 # SUBSECTION: Choose Subset with most important columns and drop invalid/missing values
 
 listings_cols = [
-    "availability_365",
+    "accomodates",  # added because of overall feature selection
+    "availability_30",  # added because of overall feature selection
     "bedrooms",
-    "cnn_predictions",
+    # "cnn_predictions",
     "cnn_pretrained_predictions",
     "host_gender",
     "host_identity_verified",
     "host_is_superhost",
-    "minimum_nights",
     "neighbourhood",
+    "minimum_nights_avg_ntm",  # added because of overall feature selection
     "number_amenities",
     "number_bathrooms",
     "number_front_page_pictures",
     "number_of_reviews",
     "price",
-    "property_type",  # added property_type because of overall feature selection
+    "property_type",  # added because of overall feature selection
     "review_scores_rating",
     "reviews_per_month",
     "room_type",

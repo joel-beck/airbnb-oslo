@@ -8,6 +8,7 @@ import seaborn as sns
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVR
 
@@ -43,6 +44,7 @@ sns.histplot(X["cnn_pretrained_predictions"]).set(
 
 # Correlation of price predictions and true price pretty much zero
 cor = y.astype("float").corr(X["cnn_pretrained_predictions"])
+mae = mean_absolute_error(y, X["cnn_pretrained_predictions"])
 price_range = [y.min(), y.max()]
 
 fig, ax = plt.subplots(figsize=(6, 6))
@@ -51,7 +53,7 @@ ax.plot(price_range, price_range, linestyle="dashed", color="grey")
 ax.set(
     xlabel="True Price",
     ylabel="Predictions",
-    title=f"Pretrained CNN: Correlation Coefficient with true Price: {cor:.3f}",
+    title=f"Pretrained CNN:\nCorrelation Coefficient with true Price: {cor:.3f}\nMean Absolute Error: {mae:.1f}",
 )
 plt.show()
 
@@ -60,6 +62,7 @@ sns.histplot(X["cnn_predictions"]).set(title="Price Predictions of Custom CNN")
 
 # Correlation of price predictions and true price pretty much zero
 cor = y.astype("float").corr(X["cnn_predictions"])
+mae = mean_absolute_error(y, X["cnn_predictions"])
 price_range = [y.min(), y.max()]
 
 fig, ax = plt.subplots(figsize=(6, 6))
@@ -68,9 +71,31 @@ ax.plot(price_range, price_range, linestyle="dashed", color="grey")
 ax.set(
     xlabel="True Price",
     ylabel="Predictions",
-    title=f"Custom CNN: Correlation Coefficient with true Price: {cor:.3f}",
+    title=f"Custom CNN:\nCorrelation Coefficient with true Price: {cor:.3f}\nMean Absolute Error: {mae:.1f}",
 )
 plt.show()
+
+#%%
+column_transformer = get_column_transformer()
+
+#%%
+# SUBSECTION: Analyze Coefficients for different values of num_features
+num_features = 25
+rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
+preprocessor = get_preprocessor(column_transformer, rfe)
+model = LinearRegression()
+
+pipeline = make_pipeline(preprocessor, model)
+log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
+
+log_transform.fit(X, y)
+coefs = show_coefficients(log_transform)
+coefs
+
+#%%
+# at least some correlation with true price in new model
+# coefs.loc[coefs["feature"] == "cnn_predictions"]
+coefs.loc[coefs["feature"] == "cnn_pretrained_predictions"]
 
 #%%
 # BOOKMARK: Hyperparameters
@@ -81,9 +106,6 @@ log_y = True
 # 112 total encoded features in listings_extended
 # fitting with all 112 features leads to error of evaluating metrics
 num_features_list = [10, 25, 50, 75]
-
-#%%
-column_transformer = get_column_transformer()
 
 #%%
 # SUBSECTION: Analyze Performance for different values of num_features
@@ -116,25 +138,5 @@ collected_results = pd.concat(result_list)
 
 #%%
 collected_results.sort_values("mae_val")
-
-
-#%%
-# SUBSECTION: Analyze Coefficients for different values of num_features
-num_features = 75
-rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
-preprocessor = get_preprocessor(column_transformer, rfe)
-model = LinearRegression()
-
-pipeline = make_pipeline(preprocessor, model)
-log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
-
-log_transform.fit(X, y)
-coefs = show_coefficients(log_transform)
-coefs
-
-#%%
-# at least some correlation with true price in new model
-coefs.loc[coefs["feature"] == "cnn_predictions"]
-coefs.loc[coefs["feature"] == "cnn_pretrained_predictions"]
 
 #%%
