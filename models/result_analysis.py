@@ -32,13 +32,13 @@ set_config(display="diagram")
 
 #%%
 # SECTION: Analyze Performance on Validation Set during Training
-k_best_results = pd.read_pickle("k_best_results.pkl")
-rfe_results = pd.read_pickle("rfe_results.pkl")
-sfm_results = pd.read_pickle("sfm_results.pkl")
-vt_results = pd.read_pickle("vt_results.pkl")
-pca_results = pd.read_pickle("pca_results.pkl")
-full_features_results = pd.read_pickle("full_features_results.pkl")
-neural_network_results = pd.read_pickle("neural_network_results.pkl")
+k_best_results = pd.read_pickle("../results-pickle/k_best_results.pkl")
+rfe_results = pd.read_pickle("../results-pickle/rfe_results.pkl")
+sfm_results = pd.read_pickle("../results-pickle/sfm_results.pkl")
+vt_results = pd.read_pickle("../results-pickle/vt_results.pkl")
+pca_results = pd.read_pickle("../results-pickle/pca_results.pkl")
+full_features_results = pd.read_pickle("../results-pickle/full_features_results.pkl")
+neural_network_results = pd.read_pickle("../results-pickle/neural_network_results.pkl")
 
 complete_results = pd.concat(
     [
@@ -52,7 +52,7 @@ complete_results = pd.concat(
     ]
 ).sort_values("mae_val")
 
-complete_results.to_pickle("complete_results.pkl")
+complete_results.to_pickle("../results-pickle/complete_results.pkl")
 
 
 #%%

@@ -170,6 +170,8 @@ for log_y in log_y_list:
     metrics.plot()
     neural_network_results.append(result_container.display_df())
 
-pd.concat(neural_network_results).to_pickle("neural_network_results.pkl")
+pd.concat(neural_network_results).to_pickle(
+    "../results-pickle/neural_network_results.pkl"
+)
 
 #%%

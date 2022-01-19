@@ -182,7 +182,7 @@ for (k, log_y) in itertools.product(k_list, log_y_list):
     k_best = get_feature_selector("k_best", k=k)
     k_best_results.append(try_feature_selectors(k_best, log_y=log_y))
 
-pd.concat(k_best_results).to_pickle("k_best_results.pkl")
+pd.concat(k_best_results).to_pickle("../results-pickle/k_best_results.pkl")
 
 #%%
 rfe_results = []
@@ -190,7 +190,7 @@ for (rfe_components, log_y) in itertools.product(rfe_components_list, log_y_list
     rfe = RFE(SVR(kernel="linear"), n_features_to_select=rfe_components, step=0.5)
     rfe_results.append(try_feature_selectors(rfe, log_y=log_y))
 
-pd.concat(rfe_results).to_pickle("rfe_results.pkl")
+pd.concat(rfe_results).to_pickle("../results-pickle/rfe_results.pkl")
 
 #%%
 sfm_results = []
@@ -198,7 +198,7 @@ for (sfm_threshold, log_y) in itertools.product(sfm_threshold_list, log_y_list):
     sfm = SelectFromModel(SVR(kernel="linear"), threshold=sfm_threshold)
     sfm_results.append(try_feature_selectors(sfm, log_y=log_y))
 
-pd.concat(sfm_results).to_pickle("sfm_results.pkl")
+pd.concat(sfm_results).to_pickle("../results-pickle/sfm_results.pkl")
 
 #%%
 # takes way to much time, maybe fit with a single combination of log_y and sfs_components
@@ -217,7 +217,7 @@ for (vt_threshold, log_y) in itertools.product(vt_threshold_list, log_y_list):
     vt = VarianceThreshold(threshold=vt_threshold)
     vt_results.append(try_feature_selectors(vt, log_y=log_y))
 
-pd.concat(vt_results).to_pickle("vt_results.pkl")
+pd.concat(vt_results).to_pickle("../results-pickle/vt_results.pkl")
 
 #%%
 pca_results = []
@@ -225,6 +225,6 @@ for (pca_components, log_y) in itertools.product(pca_components_list, log_y_list
     pca = get_feature_selector("pca", pca_components=pca_components)
     pca_results.append(try_feature_selectors(pca, log_y=log_y))
 
-pd.concat(pca_results).to_pickle("pca_results.pkl")
+pd.concat(pca_results).to_pickle("../results-pickle/pca_results.pkl")
 
 #%%
