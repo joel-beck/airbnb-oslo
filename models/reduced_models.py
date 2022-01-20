@@ -14,7 +14,6 @@ from sklearn.feature_selection import (
     VarianceThreshold,
 )
 from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVR
 
 from sklearn_helpers import (
@@ -42,7 +41,7 @@ rfe_components_list = [10, 20, 30]
 sfm_threshold_list = [
     str(num) + "*mean" if num != 1 else "mean" for num in [0.5, 1, 1.5]
 ]
-sfs_components_list = [10, 20, 30]
+sfs_components_list = [10, 20, 30]  # currently not used
 vt_threshold_list = [0.1, 0.2, 0.3]
 log_y_list = [True, False]
 
