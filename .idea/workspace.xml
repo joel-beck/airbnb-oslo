@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ba3cf542-0aa8-45c3-a12b-73670ff92cbd" name="Changes" comment="added some comments" />
+    <list default="true" id="ba3cf542-0aa8-45c3-a12b-73670ff92cbd" name="Changes" comment="added some comments">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/OverallFeatureSelection.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/overall_feature_selection.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/extended_models.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/models/extended_models.ipynb" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -14,11 +22,19 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="Jupyter Notebook" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/models/pytorch_helpers.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/models/sklearn_helpers.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/models/reduced_models.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/data-clean/feature_selection.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/models/extended_models.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="228oarY7JECksvTqyYxQ2ft76k4" />
   <component name="ProjectLevelVcsManager">
@@ -30,20 +46,23 @@
   </component>
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
+    <property name="settings.editor.selected.configurable" value="PyConsoleConfigurable.Python Console" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
-      <console-settings>
+      <console-settings sdk-home="$PROJECT_DIR$/../anaconda3/envs/airbnb-oslo/bin/python">
         <option name="useSoftWraps" value="true" />
+        <option name="mySdkHome" value="$PROJECT_DIR$/../anaconda3/envs/airbnb-oslo/bin/python" />
       </console-settings>
     </option>
   </component>
@@ -53,7 +72,29 @@
       <recent name="$PROJECT_DIR$/exploratory" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.feature_selection">
+  <component name="RunManager" selected="Python.OverallFeatureSelection">
+    <configuration name="OverallFeatureSelection" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/../anaconda3/envs/airbnb-oslo/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/models" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/models/OverallFeatureSelection.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="classical_models" type="PythonConfigurationType" factoryName="Python">
       <module name="airbnb-oslo" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -209,13 +250,14 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.eda_listings" />
       <item itemvalue="Python.classical_models" />
-      <item itemvalue="Python.pytorch_helpers" />
-      <item itemvalue="Python.metric_NN" />
-      <item itemvalue="Python.result_analysis" />
-      <item itemvalue="Python.fully_connected" />
+      <item itemvalue="Python.eda_listings" />
       <item itemvalue="Python.feature_selection" />
+      <item itemvalue="Python.OverallFeatureSelection" />
+      <item itemvalue="Python.fully_connected" />
+      <item itemvalue="Python.metric_NN" />
+      <item itemvalue="Python.pytorch_helpers" />
+      <item itemvalue="Python.result_analysis" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -239,7 +281,16 @@
       <workItem from="1641890856436" duration="5267000" />
       <workItem from="1642077374189" duration="4303000" />
       <workItem from="1642154592923" duration="6632000" />
-      <workItem from="1642251585600" duration="2973000" />
+      <workItem from="1642251585600" duration="3683000" />
+      <workItem from="1642405894287" duration="2470000" />
+      <workItem from="1642425261361" duration="599000" />
+      <workItem from="1642450588456" duration="1000" />
+      <workItem from="1642665737225" duration="660000" />
+      <workItem from="1642669482466" duration="3164000" />
+      <workItem from="1642680440803" duration="51000" />
+      <workItem from="1642681068670" duration="187000" />
+      <workItem from="1642681278522" duration="170000" />
+      <workItem from="1642681456877" duration="1054000" />
     </task>
     <task id="LOCAL-00001" summary="text processing">
       <created>1639245833768</created>
@@ -340,7 +391,9 @@
     <SUITE FILE_PATH="coverage/airbnb_oslo$result_analysis.coverage" NAME="result_analysis Coverage Results" MODIFIED="1641918329621" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
     <SUITE FILE_PATH="coverage/airbnb_oslo$pytorch_helpers.coverage" NAME="pytorch_helpers Coverage Results" MODIFIED="1641380705251" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
     <SUITE FILE_PATH="coverage/airbnb_oslo$fully_connected.coverage" NAME="fully_connected Coverage Results" MODIFIED="1642165192701" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
+    <SUITE FILE_PATH="coverage/airbnb_oslo$OverallFeatureSelection.coverage" NAME="OverallFeatureSelection Coverage Results" MODIFIED="1642682258374" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
     <SUITE FILE_PATH="coverage/airbnb_oslo$eda_listings.coverage" NAME="eda_listings Coverage Results" MODIFIED="1639384501930" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/exploratory" />
+    <SUITE FILE_PATH="coverage/airbnb_oslo$feature_selection.coverage" NAME="feature_selection Coverage Results" MODIFIED="1642263418159" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data-clean" />
     <SUITE FILE_PATH="coverage/airbnb_oslo$metric_NN.coverage" NAME="metric_NN Coverage Results" MODIFIED="1641553264808" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
     <SUITE FILE_PATH="coverage/airbnb_oslo$classical_models.coverage" NAME="classical_models Coverage Results" MODIFIED="1641200740198" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
   </component>
