@@ -1,0 +1,121 @@
+\documentclass[ngerman,inputenc]{beamer}
+
+\usepackage{appendix}
+\usepackage{pstricks}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\definecolor{darkblue}{cmyk}{1.0,0.3,0,0.5}
+\definecolor{darkred}{cmyk}{0.25,1,0.1,0.1}
+\definecolor{uniblau}{cmyk}{1.0,0.7,0.1,0.6}
+\definecolor{unihellblau}{cmyk}{0.2,0.14,0,0}
+\definecolor{unihellhellblau}{cmyk}{0.05,0.035,0,0}
+\definecolor{darkerblue}{cmyk}{1.0,0.3,0,0.7}
+\setbeamertemplate{headline}{
+\setbeamercolor{author in head/foot}{fg=white,bg=uniblau!80}
+ \hbox{%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=1ex,left]{author in head/foot}%
+    \usebeamerfont{author in head/foot} \hspace{3pt} \insertsection%
+  \end{beamercolorbox}
+
+  }
+  }
+
+\setbeamertemplate{frametitle}
+{
+    \setbeamercolor{frametitle}{fg=white,bg=uniblau}
+    \vspace{-0.1em}
+  \begin{beamercolorbox}[wd=\paperwidth,ht=3ex,dp=2ex,left]{frametitle}%
+    \usebeamerfont{frametitle}\hspace{0.7em} \textbf{\insertframetitle}% 
+  \end{beamercolorbox}%
+
+}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+   \hspace{-1em}
+  \hbox{%
+    \setbeamercolor{author in head/foot}{fg=white,bg=uniblau!60}
+  \begin{beamercolorbox}[wd=.42\paperwidth,ht=2.25ex,dp=1	ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor~~(\insertshortinstitute)
+  \end{beamercolorbox}%
+  \hspace{-1em}
+\setbeamercolor{title in head/foot}{fg=white,bg=uniblau!80}
+  \begin{beamercolorbox}[wd=.35\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle
+  \end{beamercolorbox}%
+  \hspace{-1em}
+  \setbeamercolor{date in head/foot}{fg=white,bg=uniblau}
+  \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+    \usebeamerfont{date in head/foot}\insertshortdate{}\hspace*{1em}
+    \insertframenumber{} /
+    \inserttotalframenumber\hspace*{2ex}
+  \end{beamercolorbox}}%
+  \vskip0pt%
+} 
+
+\let\ueberschrift=\frametitle
+\renewcommand\frametitle[1]{%
+\ueberschrift{
+\rput[l](0,0){#1}
+}
+}
+   \usecolortheme[named=uniblau]{structure}
+\title[Titel kurz]{Titel lang}
+\date{\today}
+\author[nachname1, nachname2]{name1, name2}
+\institute[University Göttingen]{Georg-August-Universität Göttingen}
+
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Table of Contents}
+    \tableofcontents
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 1 %%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\begin{frame}
+Aims of \dots
+    \begin{itemize}
+        \item 
+    \end{itemize}
+\end{frame}
+    
+
+
+\section{1.Intro}
+
+
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{Slide1}
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 2 %%%%%%%%%%%%%%%%%%%%%%%%% 
+
+
+\section{2. blub}
+
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{Slide2}
+    
+\end{frame}
+
+\end{document}
+%
