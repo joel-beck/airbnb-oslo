@@ -56,3 +56,34 @@ reviews_features = (
 )
 
 reviews_features.to_pickle(path="reviews_features.pkl")
+
+#%%
+# add results of sentiment analysis
+# decided to add number of negative reviews
+
+sentiment_analysis = pd.read_pickle("../exploratory/reviews_sentimentA.pkl")
+language = pd.read_pickle("review_languages.pkl")
+
+#%%
+reviews_features = pd.DataFrame(
+    data={"language": language, "review_length": reviews["comments"].str.len(), "label": sentiment_analysis["label"]}
+).reset_index()
+
+#%%
+# SUBSECTION: Drop reviews with unrecognized languages (e.g. only one character long) and save Summary Statistics
+reviews_features = (
+    reviews_features.dropna(subset=["language"])
+    .groupby("listing_id")
+    .agg(
+        number_reviews=("language", lambda x: x.size),
+        median_review_length=("review_length", lambda x: np.median(x)),
+        number_languages=("language", lambda x: x.nunique()),
+        frac_english=("language", lambda x: (x == "en").mean()),
+        frac_norwegian=("language", lambda x: (x == "no").mean()),
+        frac_missing=("language", lambda x: x.isna().mean()),
+        language_list=("language", lambda x: x.unique()),
+        num_neg_reviews=("label", lambda x: (x=="NEGATIVE").sum())
+    )
+)
+
+reviews_features.to_pickle(path="reviews_features_extended.pkl")
