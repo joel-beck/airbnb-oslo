@@ -1,0 +1,42 @@
+\section{Methods}
+
+Describe the architecture of your net, the training and validation process, regularisation methods you used, ...
+
+Beispiel des von uns gewünschten Pseudo-Code Layouts:
+
+\begin{algorithm}[H]
+\caption{Major Iteration: Bound-Constraint Lagrangian}
+\begin{algorithmic} 
+\REQUIRE initial weights $ \boldsymbol w_{0} \in \mathbb{R}^{K} $, multipliers $\lambda^{0} $, inital value penality parameter $\gamma_{0}>0$ and given total convergence tolerances for $\eta_{*}$ and $\omega_{*}$ 
+% \ENSURE $y = x^n$
+\FOR{k = 1,2,\dots}
+
+    \STATE Using SQP finding an approximate solution for $w_{0}$ of the subproblem
+        \begin{equation*}
+          \left\| \boldsymbol w_{k}-P\left( \boldsymbol w_{k}-\nabla_{ \boldsymbol w} \mathcal{L}_{A}\left( \boldsymbol w_{k}, \lambda^{k} ; \gamma_{k}\right), l, u\right)\right\| \leq \omega_{k}
+        \end{equation*}
+
+    \IF{$\left\|c\left( \boldsymbol w_{k}\right)\right\|\leq\eta_{k}$}
+        \STATE{testing for convergence of given subproblem}
+
+        \IF{$\left\|c\left( \boldsymbol w_{*}\right)\right\|\leq \eta_{*} \land q_{k}( \boldsymbol w)\leq\omega_{*}$}
+            \STATE{\textbf{stop} approximate solution of $w_{k}$ found}
+            
+        \ENDIF{ solution holds}
+            \STATE{Update the underlying multipliers \\
+            $\boldsymbol{\lambda}^{k+1}=\boldsymbol{\lambda}^{k}-\gamma_{k} c\left(x_{k}\right)$ \\
+            $\gamma_{k+1}=\gamma_{k}$
+            } 
+        
+        \ELSE
+            \STATE{If no valid solution was found and increase the penalties  \\
+            $\boldsymbol{\lambda}^{k+1}=\boldsymbol{\lambda}^{k}$ \\
+            $\gamma_{k+1}=100\gamma_{k}$}
+    
+    \ENDIF
+
+
+\ENDFOR
+
+\end{algorithmic}
+\end{algorithm}
