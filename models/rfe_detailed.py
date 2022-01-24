@@ -1,5 +1,5 @@
 #%%
-import itertools
+from warnings import simplefilter
 
 import numpy as np
 import pandas as pd
@@ -12,13 +12,29 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader, TensorDataset
 
 from pytorch_helpers import MLP, run_regression
-from sklearn_helpers import ResultContainer, get_column_transformer, get_preprocessor
+from sklearn_helpers import (
+    ResultContainer,
+    fit_models,
+    get_column_transformer,
+    get_models,
+    get_preprocessor,
+)
+
+simplefilter(action="ignore", category=FutureWarning)
+pd.set_option("precision", 3)
 
 #%%
+X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
+y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+#%%
+# SECTION: Neural Network
 def get_data_subset(
     X_train_val: pd.DataFrame, y_train_val: pd.DataFrame, num_features: int
 ) -> tuple[TensorDataset, TensorDataset]:
-    # 58 transformed columns
+    # currently 58 transformed columns
     column_transformer = get_column_transformer()
     rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
     preprocessor = get_preprocessor(column_transformer, rfe)
@@ -37,15 +53,8 @@ def get_data_subset(
     y_val_tensor = torch.tensor(y_val.values.astype(np.float32))
     valset = TensorDataset(X_val_tensor, y_val_tensor)
 
-    return trainset, valset
+    return trainset, valset, preprocessor
 
-
-#%%
-# SECTION: PyTorch Training Test
-X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
-y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #%%
 # BOOKMARK: Hyperparameters
@@ -54,16 +63,19 @@ hidden_features_list = [64, 128, 256, 512, 512, 256, 128, 64, 32, 16, 8]
 batch_size = 128
 num_epochs = 200
 dropout_prob = 0.5
+lr = 0.01
+log_y = False
 
-log_y_list = [True, False]
 num_features_list = [1, 2, 5, 10, 25, 50]
 
 #%%
-log_y = False
+# SUBSECTION: Fit Neural Network
 neural_network_results = []
 
 for num_features in num_features_list:
-    trainset, valset = get_data_subset(X_train_val, y_train_val, num_features)
+    trainset, valset, preprocessor = get_data_subset(
+        X_train_val, y_train_val, num_features
+    )
     in_features = len(trainset[0][0])
 
     trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
@@ -71,7 +83,6 @@ for num_features in num_features_list:
     model = MLP(in_features, hidden_features_list, dropout_prob).to(device)
 
     loss_function = nn.MSELoss()
-    lr = 0.1 if log_y else 0.01
     optimizer = Adam(params=model.parameters(), lr=lr)
 
     result_container = ResultContainer(
@@ -79,13 +90,13 @@ for num_features in num_features_list:
     )
     # append actual number of observed features
     result_container.num_features.append(in_features)
+    result_container.selected_features.append(
+        [feature.split("__")[1] for feature in preprocessor.get_feature_names_out()]
+    )
     result_container.hyperparam_keys.append(
         ["batch_size", "num_epochs", "dropout_probability"]
     )
     result_container.hyperparam_values.append([batch_size, num_epochs, dropout_prob])
-
-    # save model weights only for log_y = False
-    save_path = None if log_y else "fully_connected_weights.pt"
 
     metrics, result_container = run_regression(
         model,
@@ -99,33 +110,60 @@ for num_features in num_features_list:
         log_y=log_y,
         verbose=True,
         save_best=True,
-        # save_path=save_path,
     )
 
     metrics.plot()
     neural_network_results.append(result_container.display_df())
 
 pd.concat(neural_network_results).sort_values("mae_val").to_pickle(
-    "../results-pickle/neural_network_subsets.pkl"
+    "../results-pickle/neural_network_rfe_results.pkl"
 )
 
 #%%
-# already good performance for the following 10 included features:
+# SECTION: Classical Models
+
+# BOOKMARK: Hyperparameters
+random_state = 42
+log_y = True
+n_folds = 10
+n_iter = 10
+
+num_features_list = [1, 2, 5, 10, 25, 50]
+
+#%%
+# SUBSECTION: Fit Classical Models
 column_transformer = get_column_transformer()
-rfe = RFE(SVR(kernel="linear"), n_features_to_select=10, step=0.5)
-preprocessor = get_preprocessor(column_transformer, rfe)
-preprocessor.fit_transform(X_train_val, y_train_val)
+classical_model_results = []
 
-encoded_features = preprocessor.named_steps[
-    "column_transformer"
-].get_feature_names_out()
+for num_features in num_features_list:
+    rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
+    preprocessor = get_preprocessor(column_transformer, rfe)
 
-selected_features = preprocessor.named_steps["feature_selector"].get_feature_names_out(
-    encoded_features
+    models = get_models(
+        preprocessor,
+        models=["linear", "lasso", "ridge", "random_forest", "hist_gradient_boosting"],
+        random_state=random_state,
+        log_y=log_y,
+    )
+
+    result_container = ResultContainer()
+
+    result = fit_models(
+        X_train_val,
+        y_train_val,
+        models,
+        result_container,
+        n_folds,
+        n_iter,
+        random_state,
+        log_y=log_y,
+    )
+
+    classical_model_results.append(result.display_df())
+
+pd.concat(classical_model_results).sort_values("mae_val").to_pickle(
+    "../results-pickle/classical_models_rfe_results.pkl"
 )
 
-print("Selected Features from RFE:")
-for feature in selected_features:
-    print(feature.split("__")[1])
 
 #%%

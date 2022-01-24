@@ -135,9 +135,10 @@ class ResultContainer:
     val_mse_list: list[float] = field(default_factory=list)
     hyperparam_keys: list[str] = field(default_factory=list)
     hyperparam_values: list[float] = field(default_factory=list)
-    num_features: list[float] = field(default_factory=list)
-    feature_selector: list[float] = field(default_factory=list)
     log_y: list[bool] = field(default_factory=list)
+    feature_selector: list[float] = field(default_factory=list)
+    num_features: list[float] = field(default_factory=list)
+    selected_features: list[str] = field(default_factory=list)
 
     def append(
         self,
@@ -150,6 +151,7 @@ class ResultContainer:
         hyperparam_key: Optional[Union[str, list[str]]] = None,
         hyperparam_value: Optional[Union[str, float, list[float]]] = None,
         num_features: Optional[int] = None,
+        selected_features: Optional[list[str]] = None,
     ):
         self.train_mae_list.append(train_mae)
         self.val_mae_list.append(val_mae)
@@ -164,6 +166,8 @@ class ResultContainer:
             self.hyperparam_values.append(hyperparam_value)
         if num_features is not None:
             self.num_features.append(num_features)
+        if selected_features is not None:
+            self.selected_features.append(selected_features)
 
     def display_df(self) -> pd.DataFrame:
         metrics_df = pd.DataFrame(
@@ -176,9 +180,10 @@ class ResultContainer:
                 "mse_val": self.val_mse_list,
                 "hyperparam_keys": self.hyperparam_keys,
                 "hyperparam_values": self.hyperparam_values,
-                "num_features": self.num_features,
-                "feature_selector": self.feature_selector,
                 "log_y": self.log_y,
+                "feature_selector": self.feature_selector,
+                "num_features": self.num_features,
+                "selected_features": self.selected_features,
             },
             index=self.model_names,
         )
@@ -313,6 +318,26 @@ def get_feature_selector_name(model_container: ModelContainer) -> Optional[str]:
         return None
 
 
+def get_selected_features(pipeline: Pipeline) -> list[str]:
+    """
+    Collects original Variable Names of all Transformed and Selected Features in a List.
+    Has to be applied AFTER the Model Pipeline is fitted.
+    """
+    feature_names = pipeline["preprocessor"][
+        "column_transformer"
+    ].get_feature_names_out()
+
+    try:
+        feature_names = pipeline["preprocessor"][
+            "feature_selector"
+        ].get_feature_names_out(feature_names)
+    # if no feature_selector was used, return names after encoding
+    except (KeyError, AttributeError):
+        pass
+
+    return [feature.split("__")[1] for feature in feature_names]
+
+
 def fit_models(
     X: pd.DataFrame,
     y: pd.Series,
@@ -371,6 +396,8 @@ def fit_models(
                 else estimator.n_features_in_
             )
 
+            selected_features = get_selected_features(scores["estimator"][0])
+
         # if model has hyperparameters
         else:
             cv = RandomizedSearchCV(
@@ -401,7 +428,10 @@ def fit_models(
             split_index = 2 if log_y else 1
             hyperparam_key = [key.split("__")[split_index] for key in cv.best_params_]
             hyperparam_value = [value for value in cv.best_params_.values()]
+
+            # number of features after encoding by column_transformer
             num_features = cv.best_estimator_.named_steps["model"].n_features_in_
+            selected_features = get_selected_features(cv.best_estimator_)
 
             # display scalars in DataFrame instead of one-element lists
             if len(model.param_grid) == 1:
@@ -418,6 +448,7 @@ def fit_models(
             hyperparam_key,
             hyperparam_value,
             num_features,
+            selected_features,
         )
 
     print(f"Finished training in {perf_counter() - start:.2f} seconds")
