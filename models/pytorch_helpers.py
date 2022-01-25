@@ -143,12 +143,10 @@ class LinearBlock(nn.Module):
         self.fc2 = nn.Linear(out_features, out_features, bias=False)
         self.bn2 = nn.BatchNorm1d(out_features)
 
-        self.fc_skip = nn.Linear(in_features, out_features)
+        self.fc_skip = nn.Linear(in_features, out_features, bias=False)
 
     def forward(self, x):
         identity = x
-        if self.in_features != self.out_features:
-            identity = self.fc_skip(identity)
 
         out = self.fc1(x)
         out = self.bn1(out)
@@ -158,6 +156,9 @@ class LinearBlock(nn.Module):
         out = self.fc2(out)
 
         if self.use_skip_connections:
+            if self.in_features != self.out_features:
+                identity = self.fc_skip(identity)
+
             out = out + identity
 
         out = self.bn2(out)
