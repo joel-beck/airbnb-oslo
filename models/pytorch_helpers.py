@@ -5,6 +5,7 @@ from typing import Any, Optional, Union
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
+import pandas as pd
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -516,6 +517,30 @@ def run_regression(
         )
 
     return metrics, result_container
+
+
+def show_images(
+    images: pd.Series,
+    true_prices: pd.Series,
+    predicted_prices: pd.Series,
+    nrows: int = 4,
+    ncols: int = 4,
+):
+    """
+    Displays Grid of Apartment Images with their true Prices and their predicted Prices from the Preatrained Convolutional Neural Network.
+    The predicted Price is the mean of all predicted Prices for one specific Apartment.
+    """
+
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(16, 16))
+
+    for ax, image, true_price, predicted_price in zip(
+        axes.flat, images, true_prices, predicted_prices
+    ):
+        ax.set_title(
+            f"True Price: {true_price}\n" f"Predicted Price: {predicted_price:.0f}"
+        )
+        ax.axis("off")
+        ax.imshow(image)
 
 
 # NOTE: The Classification Functions below are currently not used, but kept for optionally using some of their components in the corresponding Regression Functions
