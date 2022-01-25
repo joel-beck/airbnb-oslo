@@ -58,15 +58,19 @@ def get_data_subset(
 
 #%%
 # BOOKMARK: Hyperparameters
-hidden_features_list = [64, 128, 256, 512, 512, 256, 128, 64, 32, 16, 8]
+# hidden_features_list = [64, 128, 256, 512, 512, 256, 128, 64, 32, 16, 8]
+hidden_features_list = [64, 256, 1024, 256, 64, 6]
 
 batch_size = 128
-num_epochs = 200
+num_epochs = 100
 dropout_prob = 0.5
-lr = 0.01
+lr = 0.05
 log_y = False
 
-num_features_list = [1, 2, 5, 10, 25, 50]
+# num_features_list = [1, 2, 5, 10, 25, 50]
+
+num_features_list = [50]
+# num_epochs = 50
 
 #%%
 # SUBSECTION: Fit Neural Network
@@ -86,7 +90,7 @@ for num_features in num_features_list:
     optimizer = Adam(params=model.parameters(), lr=lr)
 
     result_container = ResultContainer(
-        model_names=["NeuralNetwork"], feature_selector=["rfe"]
+        model_names=["NeuralNetwork"], feature_selector=["RFE"]
     )
     # append actual number of observed features
     result_container.num_features.append(in_features)
@@ -115,9 +119,9 @@ for num_features in num_features_list:
     metrics.plot()
     neural_network_results.append(result_container.display_df())
 
-pd.concat(neural_network_results).sort_values("mae_val").to_pickle(
-    "../results-pickle/neural_network_rfe_results.pkl"
-)
+pd.concat(neural_network_results).sort_values("mae_val")  # .to_pickle(
+#     "../results-pickle/neural_network_rfe_results.pkl"
+# )
 
 #%%
 # SECTION: Classical Models

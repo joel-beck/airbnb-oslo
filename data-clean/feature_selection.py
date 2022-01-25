@@ -127,6 +127,7 @@ listings_cols = [
 ]
 
 reviews_cols = [
+    "frac_negative",
     "frac_norwegian",
     "median_review_length",
     "number_languages",
