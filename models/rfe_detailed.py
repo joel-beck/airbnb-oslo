@@ -7,12 +7,13 @@ import torch
 import torch.nn as nn
 from sklearn.feature_selection import RFE
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
 from sklearn.svm import SVR
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader, TensorDataset
 
-from pytorch_helpers import MLP, run_regression, print_param_shapes
+from pytorch_helpers import MLP, print_param_shapes, run_regression
 from sklearn_helpers import (
     ResultContainer,
     fit_models,
@@ -37,8 +38,12 @@ def get_data_subset(
 ) -> tuple[TensorDataset, TensorDataset]:
     # currently 59 transformed columns
     column_transformer = get_column_transformer()
-    rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
-    preprocessor = get_preprocessor(column_transformer, rfe)
+
+    if num_features is not None:
+        rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
+        preprocessor = get_preprocessor(column_transformer, rfe)
+    else:
+        preprocessor = column_transformer
 
     X_train, X_val, y_train, y_val = train_test_split(
         X_train_val, y_train_val, test_size=0.2, random_state=123, shuffle=True
@@ -71,11 +76,9 @@ use_skip_connections = True
 lr = 0.01
 scheduler_rate = 0.5
 scheduler_patience = int(num_epochs / 10)
-
 log_y = False
 
-# num_features_list = [1, 2, 5, 10, 25, 50]
-num_features_list = [50]
+num_features_list = [None, 50, 25, 10, 5, 2, 1]
 
 #%%
 # SUBSECTION: Fit Neural Network
@@ -133,20 +136,20 @@ for i, num_features in enumerate(num_features_list):
     metrics.plot()
     neural_network_results.append(result_container.display_df())
 
-pd.concat(neural_network_results).sort_values("mae_val")  # .to_pickle(
-#     "../results-pickle/neural_network_rfe_results.pkl"
-# )
+pd.concat(neural_network_results).sort_values("mae_val").to_pickle(
+    "../results-pickle/neural_network_rfe_results.pkl"
+)
 
 #%%
 # SECTION: Classical Models
 
 # BOOKMARK: Hyperparameters
 random_state = 42
-log_y = True
 n_folds = 10
 n_iter = 10
+log_y = True
 
-num_features_list = [1, 2, 5, 10, 25, 50]
+num_features_list = [None, 50, 25, 10, 5, 2, 1]
 
 #%%
 # SUBSECTION: Fit Classical Models
@@ -154,8 +157,12 @@ column_transformer = get_column_transformer()
 classical_model_results = []
 
 for num_features in num_features_list:
-    rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
-    preprocessor = get_preprocessor(column_transformer, rfe)
+
+    if num_features is not None:
+        rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
+        preprocessor = get_preprocessor(column_transformer, rfe)
+    else:
+        preprocessor = Pipeline([("column_transformer", column_transformer)])
 
     models = get_models(
         preprocessor,
