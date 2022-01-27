@@ -63,10 +63,11 @@ reviews_features.to_pickle(path="reviews_features.pkl")
 
 sentiment_analysis = pd.read_pickle("../exploratory/reviews_sentimentA.pkl")
 language = pd.read_pickle("review_languages.pkl")
+reviews = pd.read_pickle("reviews.pkl")
 
 #%%
 reviews_features = pd.DataFrame(
-    data={"language": language, "review_length": reviews["comments"].str.len()} #, "label": sentiment_analysis["label"]}
+    data={"language": language, "review_length": reviews["comments"].str.len(), "label": sentiment_analysis["label"]}
 ).reset_index()
 
 #%%
@@ -82,8 +83,10 @@ reviews_features = (
         frac_norwegian=("language", lambda x: (x == "no").mean()),
         frac_missing=("language", lambda x: x.isna().mean()),
         language_list=("language", lambda x: x.unique()),
-        # num_neg_reviews=("label", lambda x: (x=="NEGATIVE").sum()) # tried to add number of negative reviews from sentiment analysis
+        num_neg_reviews=("label", lambda x: (x=="NEGATIVE").mean()) # tried to add fraction of negative reviews from sentiment analysis
     )
 )
 
 reviews_features.to_pickle(path="reviews_features_extended.pkl")
+
+# %%
