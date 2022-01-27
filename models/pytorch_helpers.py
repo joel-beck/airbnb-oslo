@@ -117,44 +117,107 @@ def print_data_shapes(
             _print_shape(x, layer)
 
 
+class LinearBlock(nn.Module):
+    """
+    Introduces Skip-Connection into Fully Connected Neural Network
+    """
+
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        dropout_prob: float,
+        use_skip_connections: bool,
+    ):
+        super(LinearBlock, self).__init__()
+
+        self.in_features = in_features
+        self.out_features = out_features
+        self.use_skip_connections = use_skip_connections
+
+        self.fc1 = nn.Linear(in_features, out_features, bias=False)
+        self.bn1 = nn.BatchNorm1d(out_features)
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(p=dropout_prob)
+
+        self.fc2 = nn.Linear(out_features, out_features, bias=False)
+        self.bn2 = nn.BatchNorm1d(out_features)
+
+        self.fc_skip = nn.Linear(in_features, out_features, bias=False)
+
+    def forward(self, x):
+        identity = x
+
+        out = self.fc1(x)
+        out = self.bn1(out)
+        out = self.relu(out)
+        out = self.dropout(out)
+
+        out = self.fc2(out)
+
+        if self.use_skip_connections:
+            if self.in_features != self.out_features:
+                identity = self.fc_skip(identity)
+
+            out = out + identity
+
+        out = self.bn2(out)
+        out = self.relu(out)
+        out = self.dropout(out)
+
+        return out
+
+
 class MLP(nn.Module):
     """
     Architecture of Fully-Connected Neural Network for all numeric / metric Input Features
     """
 
-    def __init__(self, in_features, hidden_features_list, dropout_prob):
+    def __init__(
+        self,
+        in_features: int,
+        hidden_features_list: list[int],
+        dropout_prob: float = 0.5,
+        use_skip_connections: bool = True,
+    ):
         super(MLP, self).__init__()
 
-        self.input_layer = nn.Sequential(
-            nn.Linear(in_features, hidden_features_list[0], bias=False),
-            nn.BatchNorm1d(hidden_features_list[0]),
-            nn.ReLU(),
-            nn.Dropout(dropout_prob),
+        self.input_layer = LinearBlock(
+            in_features, hidden_features_list[0], dropout_prob, use_skip_connections
         )
 
         self.hidden_layers = self.hidden_block(
             in_features=hidden_features_list[0],
             out_features_list=hidden_features_list[1:],
             dropout_prob=dropout_prob,
+            use_skip_connections=use_skip_connections,
         )
 
         self.output_layer = nn.Linear(
             in_features=hidden_features_list[-1], out_features=1
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.input_layer(x)
         x = self.hidden_layers(x)
         x = self.output_layer(x)
         return x
 
-    def hidden_block(self, in_features, out_features_list, dropout_prob):
+    def hidden_block(
+        self,
+        in_features: int,
+        out_features_list: list[int],
+        dropout_prob: float,
+        use_skip_connections: bool,
+    ) -> nn.Sequential:
         layers = []
+
         for out_features in out_features_list:
-            layers.append(nn.Linear(in_features, out_features, bias=False))
-            layers.append(nn.BatchNorm1d(out_features))
-            layers.append(nn.ReLU())
-            layers.append(nn.Dropout(p=dropout_prob))
+            layers.append(
+                LinearBlock(
+                    in_features, out_features, dropout_prob, use_skip_connections
+                )
+            )
             in_features = out_features
 
         return nn.Sequential(*layers)

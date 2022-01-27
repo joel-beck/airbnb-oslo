@@ -214,7 +214,7 @@ def get_models(
     ridge = ModelContainer(
         Ridge(random_state=random_state),
         preprocessor,
-        {"alpha": np.arange(10, 1000, 10)},
+        {"alpha": np.arange(1, 50)},
         log_y=log_y,
     )
 

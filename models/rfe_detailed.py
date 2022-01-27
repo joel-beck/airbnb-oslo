@@ -7,11 +7,13 @@ import torch
 import torch.nn as nn
 from sklearn.feature_selection import RFE
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
 from sklearn.svm import SVR
 from torch.optim import Adam
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader, TensorDataset
 
-from pytorch_helpers import MLP, run_regression
+from pytorch_helpers import MLP, print_param_shapes, run_regression
 from sklearn_helpers import (
     ResultContainer,
     fit_models,
@@ -34,10 +36,14 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def get_data_subset(
     X_train_val: pd.DataFrame, y_train_val: pd.DataFrame, num_features: int
 ) -> tuple[TensorDataset, TensorDataset]:
-    # currently 58 transformed columns
+    # currently 59 transformed columns
     column_transformer = get_column_transformer()
-    rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
-    preprocessor = get_preprocessor(column_transformer, rfe)
+
+    if num_features is not None:
+        rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
+        preprocessor = get_preprocessor(column_transformer, rfe)
+    else:
+        preprocessor = column_transformer
 
     X_train, X_val, y_train, y_val = train_test_split(
         X_train_val, y_train_val, test_size=0.2, random_state=123, shuffle=True
@@ -58,21 +64,27 @@ def get_data_subset(
 
 #%%
 # BOOKMARK: Hyperparameters
-hidden_features_list = [64, 128, 256, 512, 512, 256, 128, 64, 32, 16, 8]
+
+# hidden_features_list = [64, 256, 1024, 256, 64, 8]
+hidden_features_list = [64, 128, 256, 128, 64, 8]
 
 batch_size = 128
 num_epochs = 200
 dropout_prob = 0.5
+use_skip_connections = True
+
 lr = 0.01
+scheduler_rate = 0.5
+scheduler_patience = int(num_epochs / 10)
 log_y = False
 
-num_features_list = [1, 2, 5, 10, 25, 50]
+num_features_list = [None, 50, 25, 10, 5, 2, 1]
 
 #%%
 # SUBSECTION: Fit Neural Network
 neural_network_results = []
 
-for num_features in num_features_list:
+for i, num_features in enumerate(num_features_list):
     trainset, valset, preprocessor = get_data_subset(
         X_train_val, y_train_val, num_features
     )
@@ -80,13 +92,21 @@ for num_features in num_features_list:
 
     trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
     valloader = DataLoader(valset, batch_size=batch_size, shuffle=True)
-    model = MLP(in_features, hidden_features_list, dropout_prob).to(device)
+    model = MLP(
+        in_features, hidden_features_list, dropout_prob, use_skip_connections
+    ).to(device)
+
+    if i == 0:
+        print_param_shapes(model)
 
     loss_function = nn.MSELoss()
     optimizer = Adam(params=model.parameters(), lr=lr)
+    scheduler = ReduceLROnPlateau(
+        optimizer, mode="min", factor=scheduler_rate, patience=scheduler_patience
+    )
 
     result_container = ResultContainer(
-        model_names=["NeuralNetwork"], feature_selector=["rfe"]
+        model_names=["NeuralNetwork"], feature_selector=["RFE"]
     )
     # append actual number of observed features
     result_container.num_features.append(in_features)
@@ -108,6 +128,7 @@ for num_features in num_features_list:
         valloader,
         result_container,
         log_y=log_y,
+        # scheduler=scheduler,
         verbose=True,
         save_best=True,
     )
@@ -124,11 +145,11 @@ pd.concat(neural_network_results).sort_values("mae_val").to_pickle(
 
 # BOOKMARK: Hyperparameters
 random_state = 42
-log_y = True
 n_folds = 10
 n_iter = 10
+log_y = True
 
-num_features_list = [1, 2, 5, 10, 25, 50]
+num_features_list = [None, 50, 25, 10, 5, 2, 1]
 
 #%%
 # SUBSECTION: Fit Classical Models
@@ -136,8 +157,12 @@ column_transformer = get_column_transformer()
 classical_model_results = []
 
 for num_features in num_features_list:
-    rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
-    preprocessor = get_preprocessor(column_transformer, rfe)
+
+    if num_features is not None:
+        rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
+        preprocessor = get_preprocessor(column_transformer, rfe)
+    else:
+        preprocessor = Pipeline([("column_transformer", column_transformer)])
 
     models = get_models(
         preprocessor,
