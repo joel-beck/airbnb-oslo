@@ -230,8 +230,8 @@ class NeuralNetMetrics:
     This is particularly useful to plot Loss Curves of the Mean Squared Error, Mean Absolute Error and R^2 Value on Training and Validation Set after Training is completed.
     """
 
-    train_losses: list[str] = field(default_factory=list)
-    val_losses: list[float] = field(default_factory=list)
+    train_mses: list[str] = field(default_factory=list)
+    val_mses: list[float] = field(default_factory=list)
     train_maes: list[float] = field(default_factory=list)
     val_maes: list[float] = field(default_factory=list)
     train_r2s: list[float] = field(default_factory=list)
@@ -246,8 +246,8 @@ class NeuralNetMetrics:
         train_r2: float,
         val_r2: float,
     ):
-        self.train_losses.append(train_loss)
-        self.val_losses.append(val_loss)
+        self.train_mses.append(train_loss)
+        self.val_mses.append(val_loss)
         self.train_maes.append(train_mae)
         self.val_maes.append(val_mae)
         self.train_r2s.append(train_r2)
@@ -258,10 +258,10 @@ class NeuralNetMetrics:
 
         fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, figsize=(9, 9))
 
-        epochs = range(1, len(self.train_losses) + 1)
+        epochs = range(1, len(self.train_mses) + 1)
 
-        ax1.plot(epochs, self.train_losses, label="Training")  # , marker="o")
-        ax1.plot(epochs, self.val_losses, label="Validation")  # , marker="o")
+        ax1.plot(epochs, self.train_mses, label="Training")  # , marker="o")
+        ax1.plot(epochs, self.val_mses, label="Validation")  # , marker="o")
         ax1.set(
             title="Mean Squared Error",
             xlabel="",
@@ -565,8 +565,8 @@ def run_regression(
             metrics.val_maes[best_val_mae_epoch - 1],
             metrics.train_r2s[best_val_mae_epoch - 1],
             metrics.val_r2s[best_val_mae_epoch - 1],
-            metrics.train_losses[best_val_mae_epoch - 1],
-            metrics.val_losses[best_val_mae_epoch - 1],
+            metrics.train_mses[best_val_mae_epoch - 1],
+            metrics.val_mses[best_val_mae_epoch - 1],
         )
     else:
         # if save_best=False save result from last epoch (starts at epoch=1)
@@ -575,8 +575,8 @@ def run_regression(
             metrics.val_maes[epoch - 1],
             metrics.train_r2s[epoch - 1],
             metrics.val_r2s[epoch - 1],
-            metrics.train_losses[epoch - 1],
-            metrics.val_losses[epoch - 1],
+            metrics.train_mses[epoch - 1],
+            metrics.val_mses[epoch - 1],
         )
 
     return metrics, result_container
