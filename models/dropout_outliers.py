@@ -60,7 +60,7 @@ def get_data(
 hidden_features_list = [64, 128, 256, 128, 64, 8]
 
 batch_size = 128
-num_epochs = 10
+num_epochs = 200
 use_skip_connections = True
 lr = 0.01
 log_y = False
