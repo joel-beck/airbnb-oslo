@@ -2,26 +2,14 @@
 import numpy as np
 import pandas as pd
 import torch
-import seaborn as sns
-
 import torch.nn as nn
-from sklearn.feature_selection import RFE
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVR
 from torch.optim import Adam
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader, TensorDataset
 
-from pytorch_helpers import MLP, print_param_shapes, run_regression
-from sklearn_helpers import (
-    ResultContainer,
-    fit_models,
-    get_column_transformer,
-    get_models,
-    get_preprocessor,
-)
+from pytorch_helpers import MLP, run_regression
+from sklearn_helpers import ResultContainer, get_column_transformer
 
-sns.set_theme(style="whitegrid")
 pd.set_option("precision", 3)
 
 #%%
@@ -31,10 +19,17 @@ y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #%%
-# SECTION: Neural Network
 def get_data(
-    X_train_val: pd.DataFrame, y_train_val: pd.DataFrame
+    X_train_val: pd.DataFrame, y_train_val: pd.DataFrame, quantile_threshold: float
 ) -> tuple[TensorDataset, TensorDataset]:
+    # drop all observations above certain quantile in price distribution
+    keep_index = y_train_val.loc[
+        y_train_val <= y_train_val.quantile(1 - (quantile_threshold / 100))
+    ].index
+
+    y_train_val = y_train_val.loc[keep_index]
+    X_train_val = X_train_val.loc[keep_index]
+
     # currently 59 transformed columns
     column_transformer = get_column_transformer()
 
@@ -61,18 +56,21 @@ hidden_features_list = [64, 128, 256, 128, 64, 8]
 
 batch_size = 128
 num_epochs = 200
+dropout_prob = 0.5
 use_skip_connections = True
 lr = 0.01
 log_y = False
 
-dropout_prob_list = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+quantile_threshold_list = [0, 1, 2.5, 5, 10]
 
 #%%
 # SUBSECTION: Fit Neural Network
-neural_network_metrics = []
+quantile_threshold_results = []
 
-for dropout_prob in dropout_prob_list:
-    trainset, valset, column_transformer = get_data(X_train_val, y_train_val)
+for quantile_threshold in quantile_threshold_list:
+    trainset, valset, column_transformer = get_data(
+        X_train_val, y_train_val, quantile_threshold
+    )
     in_features = len(trainset[0][0])
 
     trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
@@ -100,7 +98,7 @@ for dropout_prob in dropout_prob_list:
     )
     result_container.hyperparam_values.append([batch_size, num_epochs, dropout_prob])
 
-    print(f"Dropout Probability: {dropout_prob}\n")
+    print(f"Quantile Threshold: {quantile_threshold}\n")
 
     metrics, result_container = run_regression(
         model,
@@ -118,57 +116,15 @@ for dropout_prob in dropout_prob_list:
 
     metrics.plot()
 
-    current_metrics_df = pd.DataFrame(
-        data={
-            "dropout_probability": dropout_prob,
-            "epochs": range(1, num_epochs + 1),
-            "train_mses": metrics.train_mses,
-            "val_mses": metrics.val_mses,
-            "train_maes": metrics.train_maes,
-            "val_maes": metrics.val_maes,
-            "train_r2s": metrics.train_r2s,
-            "val_r2s": metrics.val_r2s,
-        }
-    )
+    df = result_container.display_df().assign(quantile_threshold=quantile_threshold)
+    quantile_threshold_results.append(df)
 
-    neural_network_metrics.append(current_metrics_df)
-
-metrics_df = pd.concat(neural_network_metrics)
+output_df = pd.concat(quantile_threshold_results).sort_values("mae_val")
 
 
 #%%
-plot_df = pd.melt(
-    metrics_df.rename(
-        columns={
-            "dropout_probability": "Dropout Probability",
-            "epochs": "Epoch",
-            "train_maes": "Training MAE",
-            "val_maes": "Validation MAE",
-            "train_r2s": "Training R2",
-            "val_r2s": "Validation R2",
-        }
-    ),
-    id_vars=["Dropout Probability", "Epoch"],
-    value_vars=["Training MAE", "Validation MAE", "Training R2", "Validation R2"],
-)
+cols = list(output_df.columns)
+cols = [cols[-1]] + cols[:-1]
+output_df = output_df[cols]
 
-g = sns.relplot(
-    data=plot_df,
-    kind="line",
-    x="Epoch",
-    y="value",
-    hue="Dropout Probability",
-    col="variable",
-    col_wrap=2,
-    legend="full",
-    facet_kws=dict(sharey=False),
-)
-
-g.set_titles("{col_name}").set_ylabels("")
-
-g.fig.suptitle(
-    "Training and Validation Performance for different Dropout Probabilities"
-)
-g.fig.subplots_adjust(top=0.9)
-
-g.fig.savefig("../term-paper/images/dropout_performance.png")
+output_df.to_pickle("../results-pickle/neural_network_outliers.pkl")
