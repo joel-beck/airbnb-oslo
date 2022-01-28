@@ -1,4 +1,5 @@
 #%%
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -125,38 +126,67 @@ metrics_df = pd.concat(neural_network_metrics)
 
 
 #%%
-plot_df = pd.melt(
-    metrics_df.rename(
-        columns={
-            "dropout_probability": "Dropout Probability",
-            "epochs": "Epoch",
-            "train_maes": "Training MAE",
-            "val_maes": "Validation MAE",
-            "train_r2s": "Training R2",
-            "val_r2s": "Validation R2",
-        }
-    ),
-    id_vars=["Dropout Probability", "Epoch"],
-    value_vars=["Training MAE", "Validation MAE", "Training R2", "Validation R2"],
-)
+plot_df = metrics_df.rename(
+    columns={
+        "dropout_probability": "Dropout Probability",
+        "epochs": "Epoch",
+        "train_maes": "Training MAE",
+        "val_maes": "Validation MAE",
+        "train_r2s": "Training R2",
+        "val_r2s": "Validation R2",
+    }
+).reset_index(drop=True)
 
-g = sns.relplot(
-    data=plot_df,
-    kind="line",
+fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12), sharey="row", sharex=True)
+ax1, ax2, ax3, ax4 = axes.flat
+
+sns.lineplot(
     x="Epoch",
-    y="value",
+    y="Training MAE",
     hue="Dropout Probability",
-    col="variable",
-    col_wrap=2,
+    data=plot_df,
+    ax=ax1,
+    legend=False,
+).set(ylabel="", title="Training MAE")
+
+sns.lineplot(
+    x="Epoch",
+    y="Validation MAE",
+    hue="Dropout Probability",
+    data=plot_df,
+    ax=ax2,
     legend="full",
-    facet_kws=dict(sharey=False),
-)
+    # legend=False,
+).set(ylabel="", title="Validation MAE")
 
-g.set_titles("{col_name}").set_ylabels("")
+lgd = ax2.legend(title="Dropout Probability", bbox_to_anchor=(1.4, 0.2), frameon=False)
 
-g.fig.suptitle(
+sns.lineplot(
+    x="Epoch",
+    y="Training R2",
+    hue="Dropout Probability",
+    data=plot_df,
+    ax=ax3,
+    legend=False,
+).set(ylabel="", title=r"Training $R^2$")
+
+sns.lineplot(
+    x="Epoch",
+    y="Validation R2",
+    hue="Dropout Probability",
+    data=plot_df,
+    ax=ax4,
+    legend=False,
+).set(ylabel="", title=r"Validation $R^2$")
+
+sup = fig.suptitle(
     "Training and Validation Performance for different Dropout Probabilities"
 )
-g.fig.subplots_adjust(top=0.9)
+fig.subplots_adjust(top=0.92)
 
-g.fig.savefig("../term-paper/images/dropout_performance.png")
+# NOTE: For displaying elements outside of the figure window (i.e. suptitle and legend) in Latex Document, assign them to a variable and add them to the 'bbox_extra_artists' argument in 'fig.savefig()'. Further, use the 'bbox_inches' argument in 'fig.savefig()' instead of the 'fig.tight_layout()' command. The figure might be displayed differently in Notebook than in Latex pdf Document.
+fig.savefig(
+    "../term-paper/images/dropout_performance.png",
+    bbox_extra_artists=(lgd, sup),
+    bbox_inches="tight",
+)

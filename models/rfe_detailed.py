@@ -64,8 +64,6 @@ def get_data_subset(
 
 #%%
 # BOOKMARK: Hyperparameters
-
-# hidden_features_list = [64, 256, 1024, 256, 64, 8]
 hidden_features_list = [64, 128, 256, 128, 64, 8]
 
 batch_size = 128
@@ -128,7 +126,6 @@ for i, num_features in enumerate(num_features_list):
         valloader,
         result_container,
         log_y=log_y,
-        # scheduler=scheduler,
         verbose=True,
         save_best=True,
     )
