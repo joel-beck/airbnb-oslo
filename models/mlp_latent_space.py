@@ -93,9 +93,6 @@ class VAE(nn.Module):
         self.dec_fc3 = nn.Linear(16, 32)
         self.dec_fc4 = nn.Linear(32, in_features)
 
-        self.data_means = data_means
-        self.data_stds = data_stds
-
     def encode(self, x):
         # input shape: (N, 59)
         x = self.enc_fc1(x)  # shape: (N, 32)
@@ -277,17 +274,29 @@ train_losses, val_losses = run_training(
 plot(train_losses, val_losses)
 
 #%%
-example = torch.rand(size=(32, 59))
-encoding = model.encode(example)
-z = model.reparameterize(*encoding)
-model.decode(z)
+# check if each step gives reasonable result
+with torch.no_grad():
+    example = torch.rand(size=(32, 59))
+    encoding = model.encode(example)
+    z = model.reparameterize(*encoding)
+    model.decode(z)
 
 #%%
 # SECTION: Plot Latent Space Representation
-# SUBSECTION: Encode entire Training Set
-trainloader = DataLoader(trainset, batch_size=len(trainset), shuffle=False)
+# SUBSECTION: Encode entire Dataset
+X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
+y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
+y_categories = pd.cut(y_train_val, bins, labels=tensor_labels, include_lowest=True)
 
-x, y = next(iter(trainloader))
+X_tensor = torch.tensor(
+    column_transformer.fit_transform(X_train_val).astype(np.float32)
+)
+y_tensor = torch.tensor(y_categories.values.astype(np.float32))
+
+dataset = TensorDataset(X_tensor, y_tensor)
+dataloader = DataLoader(dataset, batch_size=len(dataset), shuffle=False)
+
+x, y = next(iter(dataloader))
 x = x.to(device=device)
 
 with torch.no_grad():
@@ -311,12 +320,12 @@ g = sns.relplot(
     sizes=[30, 30, 30, 200],
     height=10,
     aspect=1,
-).set(xlabel="Latent Dimension 1", ylabel="Latent Dimension 2", xlim=[-4, 4], ylim=[-4, 4])
+).set(
+    xlabel="Latent Dimension 1", ylabel="Latent Dimension 2", xlim=[-4, 4], ylim=[-4, 4]
+)
 
 g.fig.subplots_adjust(top=0.9)
 g.fig.suptitle("Feature Representation in 2-Dimensional Latent Space")
 g.fig.savefig("../term-paper/images/latent_representation.png")
 
 sns.move_legend(g, loc="upper center", ncol=4, bbox_to_anchor=(0.5, 0.95))
-
-#%%
