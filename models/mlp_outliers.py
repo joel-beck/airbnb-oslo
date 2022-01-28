@@ -23,7 +23,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # look into outliers (here largest quantile of prices)
 y_train_val.loc[y_train_val > y_train_val.quantile(1 - (1 / 100))]
 X_train_val.loc[y_train_val > y_train_val.quantile(1 - (1 / 100))]
-y_train_val.nlargest(10)
 
 #%%
 def get_data(
@@ -135,3 +134,7 @@ cols = [cols[-1]] + cols[:-1]
 output_df = output_df[cols]
 
 output_df.to_pickle("../results-pickle/neural_network_outliers.pkl")
+
+#%%
+output_df = pd.read_pickle("../results-pickle/neural_network_outliers.pkl")
+output_df
