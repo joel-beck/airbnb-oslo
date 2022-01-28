@@ -11,12 +11,19 @@ from pytorch_helpers import MLP, run_regression
 from sklearn_helpers import ResultContainer, get_column_transformer
 
 pd.set_option("precision", 3)
+pd.set_option("display.max_columns", 100)
 
 #%%
 X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
 y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+#%%
+# look into outliers (here largest quantile of prices)
+y_train_val.loc[y_train_val > y_train_val.quantile(1 - (1 / 100))]
+X_train_val.loc[y_train_val > y_train_val.quantile(1 - (1 / 100))]
+y_train_val.nlargest(10)
 
 #%%
 def get_data(
