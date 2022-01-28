@@ -311,12 +311,12 @@ g = sns.relplot(
     sizes=[30, 30, 30, 200],
     height=10,
     aspect=1,
-).set(xlabel="Latent Dimension 1", ylabel="Latent Dimension 2")
+).set(xlabel="Latent Dimension 1", ylabel="Latent Dimension 2", xlim=[-4, 4], ylim=[-4, 4])
 
 g.fig.subplots_adjust(top=0.9)
 g.fig.suptitle("Feature Representation in 2-Dimensional Latent Space")
 g.fig.savefig("../term-paper/images/latent_representation.png")
 
-sns.move_legend(g, loc="upper center", ncol=6, bbox_to_anchor=(0.5, 0.95))
+sns.move_legend(g, loc="upper center", ncol=4, bbox_to_anchor=(0.5, 0.95))
 
 #%%

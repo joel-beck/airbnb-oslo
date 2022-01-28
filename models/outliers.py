@@ -1,15 +1,25 @@
 #%%
+from warnings import simplefilter
+
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
 from torch.optim import Adam
 from torch.utils.data import DataLoader, TensorDataset
 
 from pytorch_helpers import MLP, run_regression
-from sklearn_helpers import ResultContainer, get_column_transformer
+from sklearn_helpers import (
+    ResultContainer,
+    fit_models,
+    get_column_transformer,
+    get_models,
+)
 
+simplefilter(action="ignore", category=FutureWarning)
 pd.set_option("precision", 3)
 pd.set_option("display.max_columns", 100)
 
@@ -17,17 +27,18 @@ pd.set_option("display.max_columns", 100)
 X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
 y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-#%%
 # look into outliers (here largest quantile of prices)
 y_train_val.loc[y_train_val > y_train_val.quantile(1 - (1 / 100))]
 X_train_val.loc[y_train_val > y_train_val.quantile(1 - (1 / 100))]
 
 #%%
-def get_data(
-    X_train_val: pd.DataFrame, y_train_val: pd.DataFrame, quantile_threshold: float
-) -> tuple[TensorDataset, TensorDataset]:
+# SECTION: Neural Network
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+#%%
+def get_mlp_data(
+    X_train_val: pd.DataFrame, y_train_val: pd.Series, quantile_threshold: float
+) -> tuple[TensorDataset, TensorDataset, ColumnTransformer]:
     # drop all observations above certain quantile in price distribution
     keep_index = y_train_val.loc[
         y_train_val <= y_train_val.quantile(1 - (quantile_threshold / 100))
@@ -74,7 +85,7 @@ quantile_threshold_list = [0, 1, 2.5, 5, 10]
 quantile_threshold_results = []
 
 for quantile_threshold in quantile_threshold_list:
-    trainset, valset, column_transformer = get_data(
+    trainset, valset, column_transformer = get_mlp_data(
         X_train_val, y_train_val, quantile_threshold
     )
     in_features = len(trainset[0][0])
@@ -125,16 +136,97 @@ for quantile_threshold in quantile_threshold_list:
     df = result_container.display_df().assign(quantile_threshold=quantile_threshold)
     quantile_threshold_results.append(df)
 
-output_df = pd.concat(quantile_threshold_results).sort_values("mae_val")
+mlp_results = pd.concat(quantile_threshold_results).sort_values("mae_val")
 
 
 #%%
-cols = list(output_df.columns)
+cols = list(mlp_results.columns)
 cols = [cols[-1]] + cols[:-1]
-output_df = output_df[cols]
+mlp_results = mlp_results[cols]
 
-output_df.to_pickle("../results-pickle/neural_network_outliers.pkl")
+mlp_results.to_pickle("../results-pickle/neural_network_outliers.pkl")
 
 #%%
-output_df = pd.read_pickle("../results-pickle/neural_network_outliers.pkl")
-output_df
+# SECTION: Classical Models
+def get_classical_data(
+    X_train_val: pd.DataFrame, y_train_val: pd.Series, quantile_threshold: float
+) -> tuple[pd.DataFrame, pd.Series]:
+    # drop all observations above certain quantile in price distribution
+    keep_index = y_train_val.loc[
+        y_train_val <= y_train_val.quantile(1 - (quantile_threshold / 100))
+    ].index
+
+    y_train_val = y_train_val.loc[keep_index]
+    X_train_val = X_train_val.loc[keep_index]
+
+    return X_train_val, y_train_val
+
+
+#%%
+# BOOKMARK: Hyperparameters
+random_state = 42
+n_folds = 10
+n_iter = 10
+log_y = True
+
+quantile_threshold_list = [0, 1, 2.5, 5, 10]
+
+#%%
+# SUBSECTION: Fit Classical Models
+X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
+y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
+
+column_transformer = get_column_transformer()
+preprocessor = Pipeline([("column_transformer", column_transformer)])
+quantile_threshold_results = []
+
+for quantile_threshold in quantile_threshold_list:
+
+    X, y = get_classical_data(X_train_val, y_train_val, quantile_threshold)
+    models = get_models(
+        preprocessor,
+        models=["linear", "lasso", "ridge", "random_forest", "hist_gradient_boosting"],
+        random_state=random_state,
+        log_y=log_y,
+    )
+
+    result_container = ResultContainer()
+
+    result = fit_models(
+        X,
+        y,
+        models,
+        result_container,
+        n_folds,
+        n_iter,
+        random_state,
+        log_y=log_y,
+    )
+
+    df = result.display_df().assign(quantile_threshold=quantile_threshold)
+    quantile_threshold_results.append(df)
+
+classical_models_results = pd.concat(quantile_threshold_results).sort_values("mae_val")
+
+#%%
+cols = list(classical_models_results.columns)
+cols = [cols[-1]] + cols[:-1]
+classical_models_results = classical_models_results[cols]
+
+classical_models_results.to_pickle("../results-pickle/classical_models_outliers.pkl")
+
+#%%
+mlp_results = pd.read_pickle("../results-pickle/neural_network_outliers.pkl")
+classical_models_results = pd.read_pickle(
+    "../results-pickle/classical_models_outliers.pkl"
+)
+
+outlier_results = pd.concat([mlp_results, classical_models_results]).sort_values(
+    "mae_val"
+)
+outlier_results.to_pickle("../results-pickle/outlier_results.pkl")
+
+#%%
+pd.read_pickle("../results-pickle/outlier_results.pkl")
+
+#%%
