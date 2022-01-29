@@ -1,0 +1,168 @@
+\documentclass[12pt, letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{parskip}
+
+\usepackage{graphicx}
+\graphicspath{{../images/}}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    urlcolor=blue,
+    linkcolor=blue,
+    citecolor=blue,
+    filecolor=blue,
+}
+\urlstyle{same}
+
+\title{Paper Structure}
+\author{}
+\date{}
+
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\setcounter{tocdepth}{3}
+
+\section{Introduction}
+
+\section{Methods}
+
+\subsection{Preprocessing}
+
+\subsubsection{Feature Engineering}
+
+\textbf{Images}
+%%%
+\begin{itemize}
+    \item Description of comparing custom CNN with pretrained \texttt{ResNet}
+    \item Explain procedure of scraping images from website, transforming images and adding custom layer with other weights frozen
+    \item Describe Results and Predictive Performance solely by images
+    \item Put Performance into context by showing \textbf{Figure} of sample images with true and predicted price
+\end{itemize}
+%%%
+
+\textbf{Reviews}
+%%%
+\begin{itemize}
+    \item Description of Sentiment Analysis, stating procedure and results and including \textbf{Figure} with Wordcloud
+    \item Mention other reviews features, e.g. language detector
+\end{itemize}
+%%%
+
+\textbf{Others}
+%%%
+\begin{itemize}
+    \item Optionally mention all other features that we added to the dataset
+\end{itemize}
+%%%
+
+
+\subsubsection{Manual Feature Selection}
+%%%
+\begin{itemize}
+    \item Describe process of combining features from images, reviews and numeric features into one dataframe
+    \item Describe decision making which features were kept in the model
+    \item Mention distinction between a selected subset and fitting a regression model with (almost) all features as hints for important features
+\end{itemize}
+%%%
+
+
+\subsubsection{Encoding and Automatic Feature Selection}
+%%%
+\begin{itemize}
+    \item One-Hot Encoding of Categorical Variables, Standardization of Numeric Variables
+    \item Experimenting with different ways of algorithm-based feature selection / dimensionality reduction
+    \item Focus on \texttt{PCA} as most theoretically supported procedure and \texttt{RFE} as procedure we chose
+    \item PCA has advantage of reducing dimensionality and simultaneously producing \emph{uncorrelated} features, disadvantage of producing linear combinations of original features, harder to interpret
+    \item RFE showed best performance and selects subset of original features, can be immediately interpreted as potentially most important features
+\end{itemize}
+%%%
+
+
+\subsection{Models}
+
+\subsubsection{Classical Models}
+%%%
+\begin{itemize}
+    \item serve as benchmark models to better evaluate performance of custom neural network
+    \item selected with increasing degrees of complexity
+    \item focus on 4-5 models, e.g. Linear Regression, Ridge Regression, Random Forest, HistGradientBoosting
+    \item Describe Model Fitting process and hyperparameter tuning with Randomized Search Cross Validation
+\end{itemize}
+%%%
+
+\subsubsection{Neural Network}
+%%%
+\begin{itemize}
+    \item Explain Architecture of Neural Network
+    \item \textbf{Figure} with diagram of \texttt{Linear Block}
+    \item Explain Choice of Model Parameters and Hyperparameters and emphasize which components were most important
+    \item \textbf{Figure} with impact of \texttt{Dropout}
+\end{itemize}
+%%%
+
+
+\subsubsection{Price Distribution}
+%%%
+\begin{itemize}
+    \item \textbf{Figure} of Side-by-Side Histograms of Price and Log-Price Distribution
+    \item Price Distribution right-skewed with some very large outliers
+    \item Explain benefits of normally distributed dependent variable, particular for models with distributional assumptions (e.g. Linear Regression vs. Neural Network)
+    \item State that all classical Machine Learning Models benefitted from log transformation
+    \item Briefly discuss why we did not transform the price variable for the Neural Network
+\end{itemize}
+%%%
+
+
+\section{Results}
+
+\subsection{Predictive Performance}
+%%%
+\begin{itemize}
+    \item \textbf{Figure} of performance comparison between selected classical models and neural network for given feature selector (e.g. RFE) and different number of selected features
+    \item Interpret Differences in Training and Validation Performance between different models
+    \item Interpret Differences in Performance for different number of selected features
+\end{itemize}
+%%%
+
+\subsection{Explainability / Interpretability}
+
+\subsubsection{Feature Importance}
+%%%
+\begin{itemize}
+    \item \textbf{Figure} of Coefficient Plot for Linear Regression with e.g. $25$ selected features
+    \item Interpret Figure
+\end{itemize}
+%%%
+
+\subsubsection{Sensitivity of Neural Network Performance on Outliers}
+%%%
+\begin{itemize}
+    \item State shortcomings of Neural Net to predict prices in the tails of the distribution, error metrics thus largely impacted by outliers
+    \item State (maybe with a table) drastic increase in predictive performance when excluding largest quantiles of price distribution from dataset
+    \item Discuss if the task itself is theoretically feasible for any kind of model
+    \item \textbf{Figure} of latent space representation
+    \item Discuss that the data is not expressive enough to capture all features that determine the price in reality, particularly for apartments with very high prices, that do not differ from lower priced apartments based on their feature set
+    \item Question underlying assumptions that all apartments are reasonably priced, difficult to detect overpriced listings that bias model predictions
+\end{itemize}
+%%%
+
+
+\section{Conclusion}
+
+
+% ask for order of appendix and references
+\section{Appendix}
+%%%
+\begin{itemize}
+    \item include link to repository with codebase to reproduce all findings
+\end{itemize}
+%%%
+
+\section{References}
+
+\end{document}

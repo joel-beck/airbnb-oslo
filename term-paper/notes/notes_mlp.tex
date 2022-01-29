@@ -78,7 +78,7 @@ While briefly experimenting with its cousins, the \texttt{Leaky ReLU} and the \t
 The \texttt{Dropout} Layer at the end of each cycle turned out to be the single most impactful factor for \emph{generalization} ability.
 In fact, due to the different behaviour of dropout during training and inference, we could directly control the relative performance on training and validation set by varying the dropout probability $p$.
 By setting $p$ to zero the network overfitted drastically.
-This was actually a very important observation proving that the current function class is flexible enough to model the task at hand properly.
+This actually provided very valuable information proving that the current function class is flexible enough to model the task at hand properly.
 Thus, there was no need to artificially expand the network size further, which kept the architecture quite compact with roughly $280.000$ trainable parameters and saved a lot of computation time.
 
 %%%
@@ -140,7 +140,7 @@ Since using a larger learning rate at early stages of training did indeed show p
 However, the benefits of faster loss decay at the beginning of training was overweighed by the difficulties of too small learning rates at later stages in the training loop.
 All settings we tried introduced a too aggressive learning rate in flatter regions of the loss surface whereas a constant learning rate still lead to a steady loss decrease.
 
-Moreover, since computation time was not too expensive due to the compact network size, we could easily make up for the slower initial progress with a fixed learning rate by simply training the model for more \texttt{epochs} (typically around $200$), ultimately leading to a lower training and validation loss.
+Moreover, since computation time was not too expensive due to the compact network size, we could easily make up for the slower initial progress with a fixed learning rate by simply training the model for more \texttt{epochs} (typically around $200$ where the model \emph{weights} were saved at the point of best performance on the validation set), ultimately leading to a lower training and validation loss.
 
 
 
