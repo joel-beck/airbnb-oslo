@@ -46,6 +46,7 @@ sns.scatterplot(
     markers=["s", "o"],
     s=70,
     ax=ax1,
+    legend=False,
 ).set(title="MAE Validation", xlabel="")
 
 sns.scatterplot(
@@ -67,8 +68,10 @@ sns.scatterplot(
     markers=["s", "o"],
     s=70,
     ax=ax2,
-    legend=False,
+    legend=True,
 ).set(title=r"$R^2$ Validation", xlabel="")
+
+lgd = ax2.legend(title="# Features", bbox_to_anchor=(1.3, 0.2), frameon=False)
 
 sns.scatterplot(
     data=plot_data,
@@ -81,12 +84,35 @@ sns.scatterplot(
     legend=False,
 ).set(title=r"$R^2$ Training", xlabel="")
 
-fig.suptitle(
-    "Model Performances for different feature sets\n"
-    "Neural Network fitted with prices on original scale, all other Models fitted with prices on logarithmic scale"
+sup = fig.suptitle(
+    "Model Performances for different Feature Sets\n"
+    "Neural Network fitted with prices on original scale, all other models fitted with prices on logarithmic scale"
 )
-fig.subplots_adjust(right=0.8, top=0.9)
 
-sns.move_legend(obj=ax1, loc="center", bbox_to_anchor=(2.5, -0.1), frameon=False)
+fig.subplots_adjust(top=0.9)
+fig.savefig(
+    "../term-paper/images/model_comparison.png",
+    bbox_extra_artists=(lgd, sup),
+    bbox_inches="tight",
+)
 
-plt.show()
+
+#%%
+# TODO: Evaluate best model of each class and average prediction of best three models on Test Set, look at implementation in results.py
+X_test = pd.read_pickle("../data-clean/X_test.pkl")
+y_test = pd.read_pickle("../data-clean/y_test.pkl")
+
+#%%
+# BOOKMARK: Best Model
+
+#%%
+# BOOKMARK: Second Best Model
+
+#%%
+# BOOKMARK: Third Best Model
+
+#%%
+# BOOKMARK: Fourth Best Model
+
+#%%
+# BOOKMARK: Fifth Best Model

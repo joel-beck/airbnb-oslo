@@ -163,7 +163,7 @@ for num_features in num_features_list:
 
     models = get_models(
         preprocessor,
-        models=["linear", "lasso", "ridge", "random_forest", "hist_gradient_boosting"],
+        models=["linear", "ridge", "random_forest", "hist_gradient_boosting"],
         random_state=random_state,
         log_y=log_y,
     )
@@ -186,6 +186,5 @@ for num_features in num_features_list:
 pd.concat(classical_model_results).sort_values("mae_val").to_pickle(
     "../results-pickle/classical_models_rfe_results.pkl"
 )
-
 
 #%%

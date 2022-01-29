@@ -156,7 +156,6 @@ sns.lineplot(
     data=plot_df,
     ax=ax2,
     legend="full",
-    # legend=False,
 ).set(ylabel="", title="Validation MAE")
 
 lgd = ax2.legend(title="Dropout Probability", bbox_to_anchor=(1.4, 0.2), frameon=False)
