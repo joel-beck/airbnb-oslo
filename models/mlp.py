@@ -150,7 +150,7 @@ for log_y in log_y_list:
     result_container.hyperparam_values.append([batch_size, num_epochs, dropout_prob])
 
     # save model weights only for log_y = False
-    save_path = None if log_y else "fully_connected_weights.pt"
+    save_path = None if log_y else "mlp_weights.pt"
 
     metrics, result_container = run_regression(
         model,
