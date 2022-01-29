@@ -4,8 +4,6 @@
 \usepackage{parskip}
 
 \usepackage{graphicx}
-% \usepackage[]{svg}
-
 \graphicspath{{../images/}}
 
 \usepackage{hyperref}
@@ -31,7 +29,7 @@
 
 \section{Architecture}
 
-When the main Neural Network enters the data pipeline, all input variables have already been transformed to numeric predictors, i.e. originally categorical variables are encoded as \textit{Dummy} Vectors and inherently numeric variables are zero centered and scaled to unit variance.
+When the main Neural Network enters the data pipeline, all input variables have already been transformed to numeric predictors, i.e. originally categorical variables are encoded as \emph{Dummy} Vectors and inherently numeric variables are zero centered and scaled to unit variance.
 Thus, both the price variable as the outcome as well as all predictor variables can be transformed to \textbf{Tensors}, the canonical data type across all popular Deep Learning Frameworks.
 
 The network design choice was only restricted by two factors:
@@ -104,15 +102,45 @@ Although there is no influence on the model \emph{weights} in this stage, the mo
 One special feature of the \texttt{Linear Block} architecture is the \emph{Residual Connection} adding the block input to the output of the second linear layer within each block.
 This component was originally implemented with the thought of a fairly deep network in mind since \emph{Residual Blocks} introduced by the famous \texttt{ResNet} architecture are arguably the most popular tool for a stable gradient flow by preventing the issue of vanishing gradients.
 As mentioned above the depth of the final model turned out to be limited.
-We decided to enable inclusion and exclusion of skip-connections in the network by a simple \texttt{boolean} input to the main model fitting function allowing for easy comparisons between the model designs.
+We decided to enable inclusion and exclusion of skip-connections in the network by a simple \texttt{boolean} input parameter to the main model fitting function allowing for easy comparisons between the model designs.
 Although the residual component did not have a major impact on performance, it was slightly beneficial in most settings such that there was no reason to remove it from the model.
 
+There are two aspects worth mentioning about the residual connection in figure \ref{fig:linear-block}:
+%%%
+\begin{itemize}
+    \item The addition of the input with the output of the second linear layer is performed \textbf{before} the final \texttt{Batchnorm} and \texttt{ReLU} layers of this block.
+          This guarantees a nonnegative input in the expected range for the next \texttt{Linear Block} since the outputs of a simple fully connected layer are (in theory) unbounded.
 
-\section{Hyperparameters and Further Remarks}
+    \item One caveat of the residual architecture is to ensure that at the time of addition all contributing terms have the same dimension.
+          In case of a fully connected layer dealing with two-dimensional tensors, this amounts to an equal number of features in the second dimension.
+          As illustrated by the annotations in figure \ref{fig:linear-block} this restriction requires an additional step if the number of \emph{input features} is different from the number of \emph{output features} in this particular block.
+          In our case this adjustment of the feature dimension is performed by means of an additional linear layer specifically for the block input $x$.
+\end{itemize}
+%%%
 
-This subsection discusses why we chose to leave out certain elements from the model architecture and stated the default values for all other hyperparameters contributing to the network.
 
-% TODO: learning rate/learning rate schedulers, batch size, weight decay
+\section{Further (Hyper)-Parameters}
+
+\textbf{Optimizer and Weight Decay} \\
+Similar to \texttt{ReLU} as the default activation function \texttt{Adam} has evolved to the default choice for performing the optimisation step when training the neural network.
+Indeed, the loss curves during the training process looked much smoother when using Adam instead of vanilla Gradient Descent.
+Additionally, there was no need for introducing a \emph{penalty term} on the weights of the network while using Adam, whereas Gradient Descent (with optional \texttt{Momentum}) did benefit slightly from a $L_2$-Penalty.
+
+Moreover, we did not make use of other penalty implementations such as a $L_1$ penalty which can often induce \emph{sparseness} into the model.
+On the one hand adding neither the $L_1$- nor the $L_2$-Norm of the weights to the loss function showed promising improvements in performance, on the other hand, for interpretability reasons, we preferred to induce 'sparseness' \emph{explicitly} by manual and automatic feature selection prior to the model training itself rather than relying on \emph{implicit} effects inside of the network 'black box'.
+
+\textbf{Loss Function} \\
+Since we are in a \emph{Regression} context for predicting the continuous price variable, we chose the standard \texttt{Mean Squared Errro} loss function.
+This has the additional nice property that, in case of a normal distribution with constant variance, i.e. $\text{price} \sim \mathcal{N} \left(\mu, \sigma^2 \right)$, the model \emph{minimizing} the MSE-Loss simultaneously \emph{maximizes} the Gaussian Likelihood, providing a \emph{probabilistic} interpretation.
+
+\textbf{Learning Rate} \\
+Throughout training the network with different configurations of hyperparameters we kept the learning rate fixed at $0.01$.
+Since using a larger learning rate at early stages of training did indeed show promising effects, we experimented with different learning rate \emph{schedulers}, either decreasing the learning rate in fixed intervals by a constant or exponential rate or decreasing the learning rate whenever the loss seems to stagnate for some given window.
+
+However, the benefits of faster loss decay at the beginning of training was overweighed by the difficulties of too small learning rates at later stages in the training loop.
+All settings we tried introduced a too aggressive learning rate in flatter regions of the loss surface whereas a constant learning rate still lead to a steady loss decrease.
+
+Moreover, since computation time was not too expensive due to the compact network size, we could easily make up for the slower initial progress with a fixed learning rate by simply training the model for more \texttt{epochs} (typically around $200$), ultimately leading to a lower training and validation loss.
 
 
 
