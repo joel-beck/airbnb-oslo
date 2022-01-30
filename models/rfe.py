@@ -116,6 +116,7 @@ for i, num_features in enumerate(num_features_list):
     )
     result_container.hyperparam_values.append([batch_size, num_epochs, dropout_prob])
 
+    save_path = f"mlp_weights_{num_features}.pt"
     metrics, result_container = run_regression(
         model,
         optimizer,
@@ -128,6 +129,7 @@ for i, num_features in enumerate(num_features_list):
         log_y=log_y,
         verbose=True,
         save_best=True,
+        save_path=save_path,
     )
 
     metrics.plot()

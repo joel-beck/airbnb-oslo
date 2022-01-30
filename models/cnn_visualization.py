@@ -48,4 +48,7 @@ show_images(
     images=sample_obs["front_page_pictures"],
     true_prices=sample_obs["price"],
     predicted_prices=sample_obs["cnn_pretrained_predictions"],
+    save_path="../term-paper/images/cnn_examples.png",
 )
+
+#%%

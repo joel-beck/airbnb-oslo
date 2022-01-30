@@ -588,6 +588,7 @@ def show_images(
     predicted_prices: pd.Series,
     nrows: int = 4,
     ncols: int = 4,
+    save_path: str = None
 ):
     """
     Displays Grid of Apartment Images with their true Prices and their predicted Prices from the Preatrained Convolutional Neural Network.
@@ -604,6 +605,10 @@ def show_images(
         )
         ax.axis("off")
         ax.imshow(image)
+
+    if save_path is not None:
+        # fig.savefig(save_path, facecolor='white', transparent=False)
+        fig.savefig(save_path, bbox_inches='tight')
 
 
 # NOTE: The Classification Functions below are currently not used, but kept for optionally using some of their components in the corresponding Regression Functions

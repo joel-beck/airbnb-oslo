@@ -311,21 +311,35 @@ plot_data["Price Quantiles"] = (
     plot_data["price_cat"].map(label_mapping).astype("category")
 )
 
-g = sns.relplot(
+fig, ax = plt.subplots(figsize=(10, 10))
+
+sns.scatterplot(
     data=plot_data,
     x="z1",
     y="z2",
     hue="Price Quantiles",
     size="Price Quantiles",
     sizes=[30, 30, 30, 200],
-    height=10,
-    aspect=1,
+    ax=ax,
 ).set(
-    xlabel="Latent Dimension 1", ylabel="Latent Dimension 2", xlim=[-4, 4], ylim=[-4, 4]
+    xlabel="Latent Dimension 1",
+    ylabel="Latent Dimension 2",
+    xlim=[-3.5, 3.5],
+    ylim=[-3.5, 3.5],
 )
 
-g.fig.subplots_adjust(top=0.9)
-g.fig.suptitle("Feature Representation in 2-Dimensional Latent Space")
-g.fig.savefig("../term-paper/images/latent_representation.png")
+lgd = ax.legend(
+    title="Price Quantiles", bbox_to_anchor=(0.75, 1.08), frameon=False, ncol=4
+)
 
-sns.move_legend(g, loc="upper center", ncol=4, bbox_to_anchor=(0.5, 0.95))
+fig.subplots_adjust(top=0.9)
+sup = fig.suptitle("Feature Representation in 2-Dimensional Latent Space")
+fig.savefig(
+    "../term-paper/images/latent_representation.png",
+    bbox_inches="tight",
+    bbox_extra_artists=(lgd, sup),
+)
+
+plt.show()
+
+# sns.move_legend(g, loc="upper center", ncol=4, bbox_to_anchor=(0.5, 0.95))
