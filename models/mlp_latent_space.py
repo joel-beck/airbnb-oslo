@@ -341,5 +341,3 @@ fig.savefig(
 )
 
 plt.show()
-
-# sns.move_legend(g, loc="upper center", ncol=4, bbox_to_anchor=(0.5, 0.95))
