@@ -106,7 +106,6 @@ listings_extended.to_pickle("listings_extended.pkl")
 listings_cols = [
     "accommodates",  # added because of overall feature selection
     "availability_30",  # added because of overall feature selection
-    "bedrooms",
     # "cnn_predictions",
     "cnn_pretrained_predictions",
     "host_gender",
@@ -116,6 +115,7 @@ listings_cols = [
     "minimum_nights_avg_ntm",  # added because of overall feature selection
     "number_amenities",
     "number_bathrooms",
+    "number_bedrooms",
     "number_front_page_pictures",
     "number_of_reviews",
     "price",

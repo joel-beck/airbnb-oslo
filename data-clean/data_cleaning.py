@@ -109,7 +109,7 @@ listings_df = (
         .astype("float")
         / 100,
     )
-    .rename({"bedrooms": "number_bedrooms"})
+    .rename(columns={"bedrooms": "number_bedrooms"})
     .convert_dtypes()
 )
 
