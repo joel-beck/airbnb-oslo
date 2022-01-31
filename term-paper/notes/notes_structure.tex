@@ -37,70 +37,6 @@
 
 \textbf{Images}
 
-Strategy
-%%%
-\begin{itemize}
-    \item Use number of available images for each apartment as well as price predictions solely based on the image \emph{contents} as numeric features for the final model
-\end{itemize}
-%%%
-
-Webscraping
-%%%
-\begin{itemize}
-    \item Dataset contains link to websites of each listing
-    \item Use the \texttt{requests} library to get \texttt{HTML} Source Code of each website
-    \item Use the \texttt{beautifulsoup} library as HTML parser to find and extract embedded weblinks to all images located on this front page \\
-          With this strategy we could extract the first $5$ images (if $5$ or more were available) that could be directly accessed from the front page source code
-    \item Use \texttt{requests} again in combination with the \texttt{pillow} library to decode the content of at all image adresses to two dimensional images which serve as input to a Convolutional Neural Network
-\end{itemize}
-%%%
-
-Preprocessing
-%%%
-\begin{itemize}
-    \item In contrast to classification tasks where \emph{Data Augmentation} is commonly used in order to expand the training set and improve generalization, this approach is not immediately transferable to a regression context since we have to guarantee that the label (i.e. the price) remains unchanged for each image transformation
-    \item Thus, we decided against rotating the images or manipulating the color composition
-    \item We \textbf{did} use image \emph{cropping} however, which is in our opinion one of the few reasonable augmentations for regression
-    \item After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image \textbf{center} in the validation set to avoid any randomness during inference
-    \item At a final step all images were normalized for each color channel separately with the same values that were used during training on \texttt{ImageNet} \\
-          The mean values and standard deviations for each color channel are provided in the \texttt{PyTorch} \href{https://pytorch.org/vision/stable/models.html}{documentation}
-\end{itemize}
-%%%
-
-Model
-%%%
-\begin{itemize}
-    \item Strategy: Fit one small custom CNN as benchmark model and one large pretrained Model with some custom final layers as main model
-    \item Idea: The large model is pretrained on \texttt{ImageNet} and thus capable of extracting common features, use these features as input to custom final layer(s) that output a price prediction, i.e. the last layer directly maps to a single node
-    \item Potential Issue: If the pretrained network is very deep, the learned features before the final layer could be very specific to the \emph{Output Classes} of \texttt{ImageNet} and not generalize well to our images
-          Some possible options:
-          \begin{itemize}
-              \item Out of the collection of available very large pretrained models, choose one that is not extremely deep: \\
-                    We chose \texttt{ResNet18} with roughly $11$ million parameters
-              \item Do not freeze the weights of the pretrained model completely but fine tune them (i.e. modify the weights by backpropagating through the entire network): \\
-                    We did not investigate this option further due to its high computational cost
-              \item Cut the pretrained model before the last layer (with the hope that at this point very generic and widely applicable features of images are extracted which therefore generalize better) and append the custom output layer \\
-                    This option did not improve our results significantly
-          \end{itemize}
-    \item It turned out that a single custom layer mapping from $512$ to a single neuron was not expressive enough
-    \item The performance improved slightly by adding a Fully Connected Network with three layers and $ReLU$ activation functions at the end
-\end{itemize}
-%%%
-
-Results
-%%%
-\begin{itemize}
-    \item Using only the content of the available images, the pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the Validation Set
-    \item The 'Null' Model of always predicting the mean price achieved an $MAE$ of $630$ NOK without a log-transformation of the price and a $MAE$ of $569$ NOK with a log-transformation, so the predictive power of the images alone was very small
-    \item However, the correlation with the CNN predictions with the true price was $0.41$: \\
-          This indicates some limitations of the correlation as useful metric on the one hand but positive tendencies of the CNN predictions on the other hand
-    \item In fact, the network struggled the most with capturing the wide range of prices and almost always predicted values close to the center of the (log) price distribution
-    \item Considering the difficulty of the task it is actually highly doubtful that humans could provide much more accurate predictions
-    \item Show \textbf{Figure} of sample images with true and predicted price
-\end{itemize}
-%%%
-
-
 \textbf{Reviews}
 %%%
 \begin{itemize}
@@ -160,14 +96,6 @@ Results
 %%%
 
 \subsubsection{Neural Network}
-%%%
-\begin{itemize}
-    \item Explain Architecture of Neural Network
-    \item \textbf{Figure} with diagram of \texttt{Linear Block}
-    \item Explain Choice of Model Parameters and Hyperparameters and emphasize which components were most important
-    \item \textbf{Figure} with impact of \texttt{Dropout}
-\end{itemize}
-%%%
 
 
 \subsubsection{Price Distribution}

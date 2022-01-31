@@ -143,12 +143,6 @@ All settings we tried introduced a too aggressive learning rate in flatter regio
 Moreover, since computation time was not too expensive due to the compact network size, we could easily make up for the slower initial progress with a fixed learning rate by simply training the model for more \texttt{epochs} (typically around $200$ where the model \emph{weights} were saved at the point of best performance on the validation set), ultimately leading to a lower training and validation loss.
 
 
-
-\section{Influence of the price distribution}
-
-% TODO: extremely sensitive to outliers, log price did not help => training more difficult, futher investigation and explanations with VAE => include plot of latent space representation, dataset not expressive enough to capture all factors contributing to very high prices, general discussion about validity of data
-
-
 \newpage
 
 \bibliography{bib}
