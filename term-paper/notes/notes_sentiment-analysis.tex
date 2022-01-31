@@ -27,26 +27,28 @@
 %Package: https://huggingface.co/transformers/v3.0.2/main_classes/pipelines.html
 %Model: https://huggingface.co/transformers/v3.0.2/model_doc/distilbert.html
 
-Sentiment analysis is used to detect the underlying sentiment of a text. Therefore it either classifies
-the text as positive or negative. 
+Sentiment analysis is used to detect the underlying sentiment of a text. Therefore, it classifies
+the text as either positive or negative. 
 
-First, to visualize the most frequently used words in the reviews, we created two so-called word clouds, 
-one in english and one in norwegian. To just have the important words in this plot, the stopwords are
-excluded from the analysis. Most conspicuous here: there are mostly positive words printed in both plots.
-The biggest printed and therefore most often used words in english are apartement, Oslo and place and 
-further clean, comfortable, helpful and easy. Also in the norwegian plot are mainly positive phrases like
+First, in order to visualize the most frequently used words in the reviews to give us a short overview, 
+we created two so-called word clouds, one in English and one in Norwegian. To just have the important words 
+in this representation, the stop words were
+excluded from the analysis. What is most striking here is that in both plots 
+predominantly positive words are printed.
+The largest printed and thus most frequently used words in English are apartement, Oslo and place and 
+further clean, comfortable, helpful and easy. Also in the Norwegian plot there are mainly positive expressions like
 "anbefale" (engl. recommend), "fin" (engl. fine) and "flott leilighet" (engl. great apartement).
 
-But to get a more justified analysis we also preformed a sentiment analysis in detail for every review.
-We therefore used the \textit{transformers} package, more precise we used the \textit{pipeline} function 
+To obtain a more informed analysis, we then performed a detailed sentiment analysis for each review.
+To do this, we used the \textit{transformers} package, more specifically we used the \textit{pipeline} function 
 with the \textit{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences
 according to positive or negative sentiments (s. documentation). The used model is DistlBERT, 
 a small, fast, cheap and light Transformer model. This distilled version of BERT, has 40\% 
 less parameters and runs 60\% faster while preserving over 95\% of Bert's performances as 
 measured on the GLUE language understanding benchmark. (?, s. documentation).
 
-The results are saved in a new data frame and within the feature engineering used to generate the
-new feature "fraction negative reviews". 
+The results are stored in a new data frame and applied in feature engineering to generate the
+new feature "proportion of negative reviews". 
 
 
 
