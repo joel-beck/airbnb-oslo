@@ -36,20 +36,77 @@
 \subsubsection{Feature Engineering}
 
 \textbf{Images}
+
+Strategy
 %%%
 \begin{itemize}
-    \item Description of comparing custom CNN with pretrained \texttt{ResNet}
-    \item Explain procedure of scraping images from website, transforming images and adding custom layer with other weights frozen
-    \item Describe Results and Predictive Performance solely by images
-    \item Put Performance into context by showing \textbf{Figure} of sample images with true and predicted price
+    \item Use number of available images for each apartment as well as price predictions solely based on the image \emph{contents} as numeric features for the final model
 \end{itemize}
 %%%
+
+Webscraping
+%%%
+\begin{itemize}
+    \item Dataset contains link to websites of each listing
+    \item Use the \texttt{requests} library to get \texttt{HTML} Source Code of each website
+    \item Use the \texttt{beautifulsoup} library as HTML parser to find and extract embedded weblinks to all images located on this front page \\
+          With this strategy we could extract the first $5$ images (if $5$ or more were available) that could be directly accessed from the front page source code
+    \item Use \texttt{requests} again in combination with the \texttt{pillow} library to decode the content of at all image adresses to two dimensional images which serve as input to a Convolutional Neural Network
+\end{itemize}
+%%%
+
+Preprocessing
+%%%
+\begin{itemize}
+    \item In contrast to classification tasks where \emph{Data Augmentation} is commonly used in order to expand the training set and improve generalization, this approach is not immediately transferable to a regression context since we have to guarantee that the label (i.e. the price) remains unchanged for each image transformation
+    \item Thus, we decided against rotating the images or manipulating the color composition
+    \item We \textbf{did} use image \emph{cropping} however, which is in our opinion one of the few reasonable augmentations for regression
+    \item After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image \textbf{center} in the validation set to avoid any randomness during inference
+    \item At a final step all images were normalized for each color channel separately with the same values that were used during training on \texttt{ImageNet} \\
+          The mean values and standard deviations for each color channel are provided in the \texttt{PyTorch} \href{https://pytorch.org/vision/stable/models.html}{documentation}
+\end{itemize}
+%%%
+
+Model
+%%%
+\begin{itemize}
+    \item Strategy: Fit one small custom CNN as benchmark model and one large pretrained Model with some custom final layers as main model
+    \item Idea: The large model is pretrained on \texttt{ImageNet} and thus capable of extracting common features, use these features as input to custom final layer(s) that output a price prediction, i.e. the last layer directly maps to a single node
+    \item Potential Issue: If the pretrained network is very deep, the learned features before the final layer could be very specific to the \emph{Output Classes} of \texttt{ImageNet} and not generalize well to our images
+          Some possible options:
+          \begin{itemize}
+              \item Out of the collection of available very large pretrained models, choose one that is not extremely deep: \\
+                    We chose \texttt{ResNet18} with roughly $11$ million parameters
+              \item Do not freeze the weights of the pretrained model completely but fine tune them (i.e. modify the weights by backpropagating through the entire network): \\
+                    We did not investigate this option further due to its high computational cost
+              \item Cut the pretrained model before the last layer (with the hope that at this point very generic and widely applicable features of images are extracted which therefore generalize better) and append the custom output layer \\
+                    This option did not improve our results significantly
+          \end{itemize}
+    \item It turned out that a single custom layer mapping from $512$ to a single neuron was not expressive enough
+    \item The performance improved slightly by adding a Fully Connected Network with three layers and $ReLU$ activation functions at the end
+\end{itemize}
+%%%
+
+Results
+%%%
+\begin{itemize}
+    \item Using only the content of the available images, the pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the Validation Set
+    \item The 'Null' Model of always predicting the mean price achieved an $MAE$ of $630$ NOK without a log-transformation of the price and a $MAE$ of $569$ NOK with a log-transformation, so the predictive power of the images alone was very small
+    \item However, the correlation with the CNN predictions with the true price was $0.41$: \\
+          This indicates some limitations of the correlation as useful metric on the one hand but positive tendencies of the CNN predictions on the other hand
+    \item In fact, the network struggled the most with capturing the wide range of prices and almost always predicted values close to the center of the (log) price distribution
+    \item Considering the difficulty of the task it is actually highly doubtful that humans could provide much more accurate predictions
+    \item Show \textbf{Figure} of sample images with true and predicted price
+\end{itemize}
+%%%
+
 
 \textbf{Reviews}
 %%%
 \begin{itemize}
-    \item Description of Sentiment Analysis, stating procedure and results and including \textbf{Figure} with Wordcloud
-    \item Mention other reviews features, e.g. language detector
+    \item Description of Sentiment Analysis, stating procedure and results and including \textbf{Figure} with Wordcloud, either only English Words or Side-by-Side Wordclouds of English and Norwegian Words
+    \item In addition: Language Detection to include the \emph{number of different languages} and the \emph{fraction of norwegian languages} and Analyzing the reviews lengths to include the \emph{median review length}
+    \item Since there are multiple reviews per apartment the results for each review were averaged for each apartment separately.
 \end{itemize}
 %%%
 
@@ -65,8 +122,14 @@
 %%%
 \begin{itemize}
     \item Describe process of combining features from images, reviews and numeric features into one dataframe
-    \item Describe decision making which features were kept in the model
-    \item Mention distinction between a selected subset and fitting a regression model with (almost) all features as hints for important features
+    \item Decision to select features for the final model were based on:
+          \begin{itemize}
+              \item Human Background/Context Knowledge (Apartment \emph{Size} is a sensible predictor for the price by intuition)
+              \item marginal relationships to price detected by visualization (barplot for categorical variable vs. price or scatterplot for numeric variable vs. price)
+              \item Small Dataset with around $3000$ observations: If no reasonable imputation is possible, consider tradeoff between additional predictive value of a variable and number of lost data points due to missing values
+              \item Final Step: Built Linear Regression Model with (almost) all features and investigate features with high coefficients in absolute value.
+                    Since variables are standardized, coefficient magnitudes have meaning.
+          \end{itemize}
 \end{itemize}
 %%%
 
@@ -77,8 +140,9 @@
     \item One-Hot Encoding of Categorical Variables, Standardization of Numeric Variables
     \item Experimenting with different ways of algorithm-based feature selection / dimensionality reduction
     \item Focus on \texttt{PCA} as most theoretically supported procedure and \texttt{RFE} as procedure we chose
-    \item PCA has advantage of reducing dimensionality and simultaneously producing \emph{uncorrelated} features, disadvantage of producing linear combinations of original features, harder to interpret
-    \item RFE showed best performance and selects subset of original features, can be immediately interpreted as potentially most important features
+    \item PCA has advantage of reducing dimensionality and simultaneously producing \emph{uncorrelated} features, disadvantage of producing linear combinations of original features which are harder to interpret
+    \item \texttt{RFE} showed best performance and selects subset of original features, can be immediately interpreted as potentially most important features
+    \item Briefly explain how \texttt{RFE} works
 \end{itemize}
 %%%
 
@@ -89,8 +153,8 @@
 %%%
 \begin{itemize}
     \item serve as benchmark models to better evaluate performance of custom neural network
-    \item selected with increasing degrees of complexity
-    \item focus on 4-5 models, e.g. Linear Regression, Ridge Regression, Random Forest, HistGradientBoosting
+    \item selected with increasing degrees of complexity and corresponding decreasing degree of interpretability
+    \item Focus on $4$ models: \texttt{LinearRegression}, \texttt{Ridge}, \texttt{RandomForest} and \texttt{HistGradientBoosting}
     \item Describe Model Fitting process and hyperparameter tuning with Randomized Search Cross Validation
 \end{itemize}
 %%%
@@ -126,6 +190,10 @@
     \item \textbf{Figure} of performance comparison between selected classical models and neural network for given feature selector (e.g. RFE) and different number of selected features
     \item Interpret Differences in Training and Validation Performance between different models
     \item Interpret Differences in Performance for different number of selected features
+    \item Compare Performance on Validation Set with Performance on Test Set for the best model of each class by means of a table \\
+          $\Rightarrow$ Models whose hyperparameters were tuned on validation set generalize worse to test set, e.g. \texttt{HistGradientBoosting}, \texttt{RandomForest} and \texttt{Ridge}
+    \item Include average predictions of top 2/3/4/5 models, where models are selected based on validation set performance and Test Set predictions are averaged
+    \item Potentially mention which models contributed to predictions on new, unseen dataset from challenge
 \end{itemize}
 %%%
 
