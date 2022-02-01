@@ -31,15 +31,15 @@
 
 % ---------------------------------------------------------------------------- %
 
-\section{Methods} % Total of 9 + 8 = 17 Pages
+\section{Methods} % Total of 9 + 6 = 15 Pages
 
 % ---------------------------------------------------------------------------- %
 
-\subsection{Preprocessing} % Total of 6 + 3 = 9 Pages
+\subsection{Preprocessing} % Total of 5 + 3 + 1 = 9 Pages
 
-\subsubsection{Feature Engineering} % Total of 6 Pages
+\subsubsection{Feature Engineering} % Total of 5 Pages
 
-\textbf{Images} % 3-4 Pages
+\textbf{Images} % 3 Pages (Marei sagt 2 plus Bild :) )
 
 \textbf{Reviews} % 2 Pages
 %%%
@@ -61,22 +61,6 @@
 
 \subsubsection{Feature Selection} % 3 Pages
 
-% ---------------------------------------------------------------------------- %
-
-\subsection{Models} % Total of 2 + 5 + 1 = 8 Pages
-
-\subsubsection{Classical Models} % 2 Pages
-%%%
-\begin{itemize}
-    \item serve as benchmark models to better evaluate performance of custom neural network
-    \item selected with increasing degrees of complexity and corresponding decreasing degree of interpretability
-    \item Focus on $4$ models: \texttt{LinearRegression}, \texttt{Ridge}, \texttt{RandomForest} and \texttt{HistGradientBoosting}
-    \item Describe Model Fitting process and hyperparameter tuning with Randomized Search Cross Validation
-\end{itemize}
-%%%
-
-\subsubsection{Neural Network} % 5 Pages
-
 
 \subsubsection{Price Distribution} % 1 Page
 %%%
@@ -91,11 +75,28 @@
 
 % ---------------------------------------------------------------------------- %
 
-\section{Results} % Total of 4 + 4 = 8 Pages
+\subsection{Models} % Total of 2 + 4 = 6 Pages
+
+\subsubsection{Classical Models} % 2 Pages
+%%%
+\begin{itemize}
+    \item serve as benchmark models to better evaluate performance of custom neural network
+    \item selected with increasing degrees of complexity and corresponding decreasing degree of interpretability
+    \item Focus on $4$ models: \texttt{LinearRegression}, \texttt{Ridge}, \texttt{RandomForest} and \texttt{HistGradientBoosting}
+    \item Describe Model Fitting process and hyperparameter tuning with Randomized Search Cross Validation
+\end{itemize}
+%%%
+
+\subsubsection{Neural Network} % 4 Pages
+
 
 % ---------------------------------------------------------------------------- %
 
-\subsection{Predictive Performance} % 4 Pages
+\section{Results} % Total of 3 + 3 = 6 Pages
+
+% ---------------------------------------------------------------------------- %
+
+\subsection{Predictive Performance} % 3 Pages
 %%%
 \begin{itemize}
     \item \textbf{Figure} of performance comparison between selected classical models and neural network for given feature selector (e.g. \texttt{RFE}) and different number of selected features
@@ -110,9 +111,9 @@
 
 % ---------------------------------------------------------------------------- %
 
-\subsection{Explainability / Interpretability} % Total of 4 Pages
+\subsection{Explainability / Interpretability} % Total of 3 Pages
 
-\subsubsection{Feature Importance} % 1-2 Pages
+\subsubsection{Feature Importance} % 1 Pages
 %%%
 \begin{itemize}
     \item \textbf{Figure} of Coefficient Plot for Linear Regression with e.g. $25$ selected features
@@ -120,7 +121,7 @@
 \end{itemize}
 %%%
 
-\subsubsection{Sensitivity of Neural Network Performance on Outliers} % 2-3 Pages
+\subsubsection{Sensitivity of Neural Network Performance on Outliers} % 2 Pages
 %%%
 \begin{itemize}
     \item State shortcomings of Neural Net to predict prices in the tails of the distribution, error metrics thus largely impacted by outliers
