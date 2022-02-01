@@ -27,17 +27,17 @@
 \tableofcontents
 \setcounter{tocdepth}{3}
 
-\section{Introduction}
+\section{Introduction} % 1 Page
 
-\section{Methods}
+\section{Methods} % Total of 9 + 8 = 17 Pages
 
-\subsection{Preprocessing}
+\subsection{Preprocessing} % Total of 6 + 2 + 1 = 9 Pages
 
-\subsubsection{Feature Engineering}
+\subsubsection{Feature Engineering} % Total of 6 Pages
 
-\textbf{Images}
+\textbf{Images} % 3-4 Pages
 
-\textbf{Reviews}
+\textbf{Reviews} % 2 Pages
 %%%
 \begin{itemize}
     \item Description of Sentiment Analysis, stating procedure and results and including \textbf{Figure} with Wordcloud, either only English Words or Side-by-Side Wordclouds of English and Norwegian Words
@@ -46,31 +46,19 @@
 \end{itemize}
 %%%
 
-\textbf{Others}
+\textbf{Others} % 0-1 pages
 %%%
 \begin{itemize}
     \item Optionally mention all other features that we added to the dataset
+    \item All self-engineered features from images, from reviews and from existing metric variables were combined into a single dataframe as the foundation of all further analysis
 \end{itemize}
 %%%
 
 
-\subsubsection{Manual Feature Selection}
-%%%
-\begin{itemize}
-    \item Describe process of combining features from images, reviews and numeric features into one dataframe
-    \item Decision to select features for the final model were based on:
-          \begin{itemize}
-              \item Human Background/Context Knowledge (Apartment \emph{Size} is a sensible predictor for the price by intuition)
-              \item marginal relationships to price detected by visualization (barplot for categorical variable vs. price or scatterplot for numeric variable vs. price)
-              \item Small Dataset with around $3000$ observations: If no reasonable imputation is possible, consider tradeoff between additional predictive value of a variable and number of lost data points due to missing values
-              \item Final Step: Built Linear Regression Model with (almost) all features and investigate features with high coefficients in absolute value.
-                    Since variables are standardized, coefficient magnitudes have meaning.
-          \end{itemize}
-\end{itemize}
-%%%
+\subsubsection{Manual Feature Selection} % 2 Pages
 
 
-\subsubsection{Encoding and Automatic Feature Selection}
+\subsubsection{Encoding and Automatic Feature Selection} % 1 Page
 %%%
 \begin{itemize}
     \item One-Hot Encoding of Categorical Variables, Standardization of Numeric Variables
@@ -83,9 +71,9 @@
 %%%
 
 
-\subsection{Models}
+\subsection{Models} % Total of 2 + 5 + 1 = 8 Pages
 
-\subsubsection{Classical Models}
+\subsubsection{Classical Models} % 2 Pages
 %%%
 \begin{itemize}
     \item serve as benchmark models to better evaluate performance of custom neural network
@@ -95,10 +83,10 @@
 \end{itemize}
 %%%
 
-\subsubsection{Neural Network}
+\subsubsection{Neural Network} % 5 Pages
 
 
-\subsubsection{Price Distribution}
+\subsubsection{Price Distribution} % 1 Page
 %%%
 \begin{itemize}
     \item \textbf{Figure} of Side-by-Side Histograms of Price and Log-Price Distribution
@@ -110,12 +98,12 @@
 %%%
 
 
-\section{Results}
+\section{Results} % Total of 4 + 4 = 8 Pages
 
-\subsection{Predictive Performance}
+\subsection{Predictive Performance} % 4 Pages
 %%%
 \begin{itemize}
-    \item \textbf{Figure} of performance comparison between selected classical models and neural network for given feature selector (e.g. RFE) and different number of selected features
+    \item \textbf{Figure} of performance comparison between selected classical models and neural network for given feature selector (e.g. \texttt{RFE}) and different number of selected features
     \item Interpret Differences in Training and Validation Performance between different models
     \item Interpret Differences in Performance for different number of selected features
     \item Compare Performance on Validation Set with Performance on Test Set for the best model of each class by means of a table \\
@@ -125,9 +113,9 @@
 \end{itemize}
 %%%
 
-\subsection{Explainability / Interpretability}
+\subsection{Explainability / Interpretability} % Total of 4 Pages
 
-\subsubsection{Feature Importance}
+\subsubsection{Feature Importance} % 1-2 Pages
 %%%
 \begin{itemize}
     \item \textbf{Figure} of Coefficient Plot for Linear Regression with e.g. $25$ selected features
@@ -135,7 +123,7 @@
 \end{itemize}
 %%%
 
-\subsubsection{Sensitivity of Neural Network Performance on Outliers}
+\subsubsection{Sensitivity of Neural Network Performance on Outliers} % 2-3 Pages
 %%%
 \begin{itemize}
     \item State shortcomings of Neural Net to predict prices in the tails of the distribution, error metrics thus largely impacted by outliers
@@ -148,7 +136,7 @@
 %%%
 
 
-\section{Conclusion}
+\section{Conclusion} % 1 Page
 
 
 % ask for order of appendix and references
@@ -161,4 +149,4 @@
 
 \section{References}
 
-\end{document}
+\end{document} % Total of 1 + 17 + 8 + 1 = 27 Pages
