@@ -16,7 +16,7 @@
 }
 \urlstyle{same}
 
-\title{Notes to Manual Feature Selection}
+\title{Notes to Feature Selection}
 \author{}
 \date{}
 
@@ -66,6 +66,17 @@ However, this observation turned out to be the only Houseboat contained in the d
 Consequently, if this observation is used during model fitting, the predicted price during deployment will be extraordinarily high for any other observation of this property type leading to potentially large bias if the original Houseboat was particularly expensive within this property class by chance.
 
 In such cases we combined all rare categories together to a larger \texttt{Other} category and used the mean price of all observations contained in this category to avoid strong influences of outliers.
+
+% TODO: Integrate Automatic Feature Selection
+
+\begin{itemize}
+    \item One-Hot Encoding of Categorical Variables, Standardization of Numeric Variables
+    \item Experimenting with different ways of algorithm-based feature selection / dimensionality reduction
+    \item Focus on \texttt{PCA} as most theoretically supported procedure and \texttt{RFE} as procedure we chose
+    \item PCA has advantage of reducing dimensionality and simultaneously producing \emph{uncorrelated} features, disadvantage of producing linear combinations of original features which are harder to interpret
+    \item \texttt{RFE} showed best performance and selects subset of original features, can be immediately interpreted as potentially most important features
+    \item Briefly explain how \texttt{RFE} works
+\end{itemize}
 
 
 \newpage
