@@ -586,6 +586,7 @@ def show_images(
     images: pd.Series,
     true_prices: pd.Series,
     predicted_prices: pd.Series,
+    figsize: tuple[int, int] = (16, 16),
     nrows: int = 4,
     ncols: int = 4,
     save_path: str = None
@@ -595,7 +596,7 @@ def show_images(
     The predicted Price is the mean of all predicted Prices for one specific Apartment.
     """
 
-    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(16, 16))
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=figsize)
 
     for ax, image, true_price, predicted_price in zip(
         axes.flat, images, true_prices, predicted_prices

@@ -41,7 +41,22 @@ response_price_df = response_price_df.assign(
 ).dropna()
 
 #%%
+# SUBSECTION: Small Image with 2x2 Grid
 # choose random images from dataset
+sample_obs = response_price_df.sample(n=4)
+
+show_images(
+    images=sample_obs["front_page_pictures"],
+    true_prices=sample_obs["price"],
+    predicted_prices=sample_obs["cnn_pretrained_predictions"],
+    figsize=(6, 6),
+    nrows=2,
+    ncols=2,
+    save_path="../term-paper/images/cnn_examples_small.png",
+)
+
+#%%
+# SUBSECTION: Large Image with 4x4 Grid
 sample_obs = response_price_df.sample(n=16)
 
 show_images(

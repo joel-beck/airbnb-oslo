@@ -24,70 +24,89 @@
 \begin{document}
 
 \maketitle
-\tableofcontents
-\setcounter{tocdepth}{3}
 
-\section{Strategy}
+Besides the metric and text-based features the Airbnb Data contains \emph{images} of the listed apartments as well as of the corresponding hosts.
+This section describes how we used these images (while focusing on the apartment pictures) for the purpose of price prediction.
 
-\begin{itemize}
-    \item Use number of available images for each apartment as well as price predictions solely based on the image \emph{contents} as numeric features for the final model
-\end{itemize}
-
+The main idea was to build a Convolutional Neural Network that predicts the price solely based on the image content itself and add these predictions as well as the number of available images for each listing to the main feature set.
+Since there exist multiple images per apartment, the predictions were averaged afterwards within each group to obtain an output array of equal length to all remaining features.
 
 \section{Webscraping}
 
-\begin{itemize}
-    \item Dataset contains link to websites of each listing
-    \item Use the \texttt{requests} library to get \texttt{HTML} Source Code of each website
-    \item Use the \texttt{beautifulsoup} library as HTML parser to find and extract embedded weblinks to all images located on this front page \\
-          With this strategy we could extract the first $5$ images (if $5$ or more were available) that could be directly accessed from the front page source code
-    \item Use \texttt{requests} again in combination with the \texttt{pillow} library to decode the content of at all image adresses to two dimensional images which serve as input to a Convolutional Neural Network
-\end{itemize}
+In the first step, the raw image links provided by the data set had to converted to an image format that the neural network is able to work with.
+
+Therefore we first used the \texttt{requests} library to get the \texttt{HTML} Source Code of each listing's website.
+Next, the \texttt{beautifulsoup} library served as a convenient HTML parser to find and extract all embedded weblinks that lead to images located on the front page of the listings website.
+With this strategy we could extract the first $5$ images for each apartment (if $5$ or more were available) that could be directly accessed from the front page source code.
+
+Finally, we used the \texttt{requests} module again in combination with the \texttt{pillow} package to decode the source content of all image adresses into two dimensional images.
 
 
 \section{Preprocessing}
 
+Before feeding these two dimensional images into the model, we performed some further preprocessing steps.
+
+One very common technique when dealing with images is \emph{Data Augmentation}.
+In contrast to classification tasks however, where Data Augmentation is used to expand the training set and improve simultaneously generalization, this approach is not immediately transferable to a regression context since we have to guarantee that the label (i.e. the price) remains unchanged for each image transformation.
+Thus, we decided against standard transformations such as rotating the images or manipulating the color composition.
+
+We \textbf{did} use image \emph{cropping} however which, in our opinion, is one of the few applicable augmentations in regression contexts.
+After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image \textbf{center} in the validation set to avoid any randomness during inference.
+
+At a final step all images were normalized, separately for each color channel.
+Ic case of the pretrained model explained in the next section we used the same values for normilization that were used during training on the large \texttt{ImageNet} database.
+The mean values and standard deviations for each color channel are provided in the \texttt{PyTorch} \href{https://pytorch.org/vision/stable/models.html}{documentation}.
+
+
+\section{Modeling}
+
+As mentioned above, we used a pretrained Convolutional Neural Network for modeling.
+Ideally, due to learning from a large collection of labeled images in a supervised setting, this model is able to extract meaningful features from our own much smaller input data out of the box.
+As usual in \emph{transfer learning} the weights of the pretraine model are frozen and the output layer is replaced by a trainable custom layer specific to our needs.
+
+One potential issue arises if the dataset used for pretraining differs from the new custom data:
+If the pretrained network is very deep, the learned features before the final layer could be very specific to the Output Classes of \texttt{ImageNet} and not generalize well to our images.
+
+There are multiple options to handle this scenario:
 \begin{itemize}
-    \item In contrast to classification tasks where \emph{Data Augmentation} is commonly used in order to expand the training set and improve generalization, this approach is not immediately transferable to a regression context since we have to guarantee that the label (i.e. the price) remains unchanged for each image transformation
-    \item Thus, we decided against rotating the images or manipulating the color composition
-    \item We \textbf{did} use image \emph{cropping} however, which is in our opinion one of the few reasonable augmentations for regression
-    \item After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image \textbf{center} in the validation set to avoid any randomness during inference
-    \item At a final step all images were normalized for each color channel separately with the same values that were used during training on \texttt{ImageNet} \\
-          The mean values and standard deviations for each color channel are provided in the \texttt{PyTorch} \href{https://pytorch.org/vision/stable/models.html}{documentation}
+    \item Out of the vast collection of freely available pretrained models, choose one that is comparably shallow.
+          We chose \texttt{ResNet18} with roughly $11$ million parameters.
+    \item Do not freeze the weights of the pretrained model completely, but rather fine tune them during training (i.e. modify \emph{all} weights by backpropagating through the entire network).
+          We did not investigate this option further due to its high computational cost.
+    \item Cut the pretrained model before the last layer with the hope that, at this point, very generic and widely applicable features of images are extracted.
+          These features might in theory generalize better to our data.
+          In practice, however, this option did not improve our results significantly.
 \end{itemize}
 
+It turned out that a \emph{single} custom layer, mapping from $512$ directly to a single neuron representing the scalar price prediction, was not expressive enough.
+The performance improved by appending a (small) Fully Connected Network at the end instead containing three layers and \texttt{ReLU} activation functions.
 
-\section{Model}
-
-\begin{itemize}
-    \item Strategy: Fit one small custom CNN as benchmark model and one large pretrained Model with some custom final layers as main model
-    \item Idea: The large model is pretrained on \texttt{ImageNet} and thus capable of extracting common features, use these features as input to custom final layer(s) that output a price prediction, i.e. the last layer directly maps to a single node
-    \item Potential Issue: If the pretrained network is very deep, the learned features before the final layer could be very specific to the \emph{Output Classes} of \texttt{ImageNet} and not generalize well to our images
-          Some possible options:
-          \begin{itemize}
-              \item Out of the collection of available very large pretrained models, choose one that is not extremely deep: \\
-                    We chose \texttt{ResNet18} with roughly $11$ million parameters
-              \item Do not freeze the weights of the pretrained model completely but fine tune them (i.e. modify the weights by backpropagating through the entire network): \\
-                    We did not investigate this option further due to its high computational cost
-              \item Cut the pretrained model before the last layer (with the hope that at this point very generic and widely applicable features of images are extracted which therefore generalize better) and append the custom output layer \\
-                    This option did not improve our results significantly
-          \end{itemize}
-    \item It turned out that a single custom layer mapping from $512$ to a single neuron was not expressive enough
-    \item The performance improved slightly by adding a Fully Connected Network with three layers and $ReLU$ activation functions at the end
-\end{itemize}
+To ensure that the chosen design is not majorly flawed, we constructed a separate much smaller Convolutional Neural Network with only a handful of Convolutional Blocks as a benchmark model.
+Although the performance differences were not as large as desired, the pretrained \texttt{ResNet} indeed indicated more promising results.
 
 
 \section{Results}
 
-\begin{itemize}
-    \item Using only the content of the available images, the pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the Validation Set
-    \item The 'Null' Model of always predicting the mean price achieved an $MAE$ of $630$ NOK without a log-transformation of the price and a $MAE$ of $569$ NOK with a log-transformation, so the predictive power of the images alone was very small
-    \item However, the correlation with the CNN predictions with the true price was $0.41$: \\
-          This indicates some limitations of the correlation as useful metric on the one hand but positive tendencies of the CNN predictions on the other hand
-    \item In fact, the network struggled the most with capturing the wide range of prices and almost always predicted values close to the center of the (log) price distribution
-    \item Considering the difficulty of the task it is actually highly doubtful that humans could provide much more accurate predictions
-    \item Show \textbf{Figure} of sample images with true and predicted price
-\end{itemize}
+Using only the content of the available images, the pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the Validation Set.
+In comparison, the \emph{Null Model} of always predicting the mean price achieved an MAE of $630$ NOK without a log-transformation of the price and a MAE of $569$ NOK with a log-transformation.
+Thus, the raw predictive power of the images alone was very small.
+
+However, the \emph{correlation} of the CNN predictions with the true price was $0.41$.
+This indicates some limitations of the correlation as useful metric on the one hand but at least positive tendencies of the CNN predictions on the other hand.
+In fact, the network struggled the most with capturing the wide \emph{range} of prices and almost always predicted values close to the center of the (log) price distribution.
+
+%%%
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{cnn_examples_small.png}
+    \caption{Images from Airbnb Apartments with true and predicted Prices}
+    \label{fig:cnn_examples_small}
+\end{figure}
+%%%
+
+Although the general idea of categorizing images into price ranges based on image features sounds very appealing, taking a look at the actual input images reveals how challenging this task actually is.
+Figure \ref{fig:cnn_examples_small} displays a random collection of input images.
+Considering the difficulty of the task it is actually highly doubtful that humans could provide much more accurate predictions.
 
 \newpage
 
