@@ -217,6 +217,24 @@ classical_models_results.to_pickle("../results-pickle/classical_models_outliers.
 
 #%%
 mlp_results = pd.read_pickle("../results-pickle/neural_network_outliers.pkl")
+
+table_outliers = (
+    mlp_results[["quantile_threshold", "mae_val", "r2_val"]]
+    .rename(
+        columns={
+            "quantile_threshold": "Quantile Threshold",
+            "mae_val": "Mean Absolute Error",
+            "r2_val": "R2",
+        }
+    )
+    .set_index("Quantile Threshold")
+    .sort_index()
+    .round(2)
+)
+
+table_outliers.to_csv("../term-paper/tables/table_outliers.csv")
+
+#%%
 classical_models_results = pd.read_pickle(
     "../results-pickle/classical_models_outliers.pkl"
 )

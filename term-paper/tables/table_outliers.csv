@@ -1,0 +1,6 @@
+Quantile Threshold,Mean Absolute Error,R2 Validation
+0.0,443.35,0.16
+1.0,337.59,0.51
+2.5,282.17,0.53
+5.0,240.57,0.54
+10.0,214.76,0.49
