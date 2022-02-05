@@ -132,25 +132,22 @@ There are two aspects worth mentioning about the residual connection in figure \
 \subsection{Further (Hyper)-Parameters}
 
 \textbf{Optimizer and Weight Decay} \\
-Similar to \texttt{ReLU} as the default activation function \texttt{Adam} has evolved to the default choice for performing the optimisation step when training the neural network.
-Indeed, the loss curves during the training process looked much smoother when using Adam instead of vanilla Gradient Descent.
-Additionally, there was no need for introducing a \emph{penalty term} on the weights of the network while using Adam, whereas Gradient Descent (with optional \texttt{Momentum}) did benefit slightly from a $L_2$-Penalty.
-
-Moreover, we did not make use of other penalty implementations such as a $L_1$ penalty which can often induce \emph{sparseness} into the model.
-On the one hand adding neither the $L_1$- nor the $L_2$-Norm of the weights to the loss function showed promising improvements in performance, on the other hand, for interpretability reasons, we preferred to induce 'sparseness' \emph{explicitly} by manual and automatic feature selection prior to the model training itself rather than relying on \emph{implicit} effects inside of the network 'black box'.
+We used the popular \texttt{Adam} algorithm for training the Neural Network.
+Compared to vanilla Gradient Descent (with optional momentum) the loss curves during the training process looked much smoother.
+Moreover, while pure Gradient Descent slightly benefitted from an additonal weight penalty, neither the classical $L_2$ weight decay nor any other weight regularizer indicated improvements for training with Adam.
 
 \textbf{Loss Function} \\
-Since we are in a \emph{Regression} context for predicting the continuous price variable, we chose the standard \texttt{Mean Squared Errro} loss function.
-This has the additional nice property that, in case of a normal distribution with constant variance, i.e. $\text{price} \sim \mathcal{N} \left(\mu, \sigma^2 \right)$, the model \emph{minimizing} the MSE-Loss simultaneously \emph{maximizes} the Gaussian Likelihood, providing a \emph{probabilistic} interpretation.
+For the regression task of predicting the continuous price variable, we chose the standard continuously differentiable \emph{Mean Squared Error} loss function.
+This come with the additional nice property that, under the assumption of a conditional normal distribution of the price with constant variance, i.e. $y_i \mid \mathbf{x}_i \sim \mathcal{N} \left(\mu_i, \sigma^2 \right)$, the model \emph{minimizing} the MSE-Loss simultaneously \emph{maximizes} the Gaussian Likelihood, providing a \emph{probabilistic} interpretation.
 
 \textbf{Learning Rate} \\
-Throughout training the network with different configurations of hyperparameters we kept the learning rate fixed at $0.01$.
-Since using a larger learning rate at early stages of training did indeed show promising effects, we experimented with different learning rate \emph{schedulers}, either decreasing the learning rate in fixed intervals by a constant or exponential rate or decreasing the learning rate whenever the loss seems to stagnate for some given window.
+Throughout training we kept the learning rate fixed at $0.01$.
+Using a larger learning rate at early stages of training showed promising effects such that we experimented with different learning rate \emph{schedulers}, either decreasing the learning rate in fixed intervals linearly or exponentially, or decreasing the learning rate whenever the loss seems to stagnate for some given window.
 
-However, the benefits of faster loss decay at the beginning of training was overweighed by the difficulties of too small learning rates at later stages in the training loop.
-All settings we tried introduced a too aggressive learning rate in flatter regions of the loss surface whereas a constant learning rate still lead to a steady loss decrease.
+However, the benefits of faster loss decay at the beginning of training were outweighed by too small learning rates at later stages in the training loop.
+As a consequence, all schedulers resulted in stagnating loss much faster than training with a constant learning rate from start to end.
 
-Moreover, since computation time was not too expensive due to the compact network size, we could easily make up for the slower initial progress with a fixed learning rate by simply training the model for more \texttt{epochs} (typically around $200$ where the model \emph{weights} were saved at the point of best performance on the validation set), ultimately leading to a lower training and validation loss.
+Moreover, since computation time was not too expensive due to the compact network size, we could make up for the slower initial progress that could be achieved with a scheduler by simply training the model for more epochs (while saving the model weights at the point of best performance on the validation set), which ultimately lead to a lower training and validation loss.
 
 
 \newpage
