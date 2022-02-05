@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.9.3)  5 FEB 2022 16:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.9.3)  5 FEB 2022 16:22
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/Users/marei/airbnb-oslo/term-paper/notes/notes_reviews.tex
-(/Users/marei/airbnb-oslo/term-paper/notes/notes_reviews.tex
+**/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.tex
+(/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.tex
 LaTeX2e <2020-10-01> patch level 4
 L3 programming layer <2021-02-18> (/usr/local/texlive/2021/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2020/04/10 v1.4m Standard LaTeX document class
@@ -214,27 +214,27 @@ Package hyperref Info: Option `colorlinks' set `true' on input line 16.
 File: l3backend-pdftex.def 2021-03-18 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count276
 \l__pdf_internal_box=\box49
-) (/Users/marei/airbnb-oslo/term-paper/notes/notes_reviews.aux)
-\openout1 = `notes_reviews.aux'.
+) (/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.aux)
+\openout1 = `notes_feature_engineering.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 24.
+LaTeX Font Info:    ... okay on input line 24.
  (/usr/local/texlive/2021/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count277
@@ -260,7 +260,7 @@ File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package color Info: Driver file: pdftex.def on input line 147.
 )
-Package hyperref Info: Link coloring ON on input line 21.
+Package hyperref Info: Link coloring ON on input line 24.
  (/usr/local/texlive/2021/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
  (/usr/local/texlive/2021/texmf-dist/tex/latex/refcount/refcount.sty
@@ -270,32 +270,50 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count283
 )
-LaTeX Info: Redefining \ref on input line 21.
-LaTeX Info: Redefining \pageref on input line 21.
-LaTeX Info: Redefining \nameref on input line 21.
- (/Users/marei/airbnb-oslo/term-paper/notes/notes_reviews.out) (/Users/marei/airbnb-oslo/term-paper/notes/notes_reviews.out)
+LaTeX Info: Redefining \ref on input line 24.
+LaTeX Info: Redefining \pageref on input line 24.
+LaTeX Info: Redefining \nameref on input line 24.
+ (/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.out) (/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.out)
 \@outlinefile=\write3
-\openout3 = `notes_reviews.out'.
+\openout3 = `notes_feature_engineering.out'.
 
  [1
 
-{/usr/local/texlive/2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] (/Users/marei/airbnb-oslo/term-paper/notes/notes_reviews.aux)
-Package rerunfilecheck Info: File `notes_reviews.out' has not changed.
-(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
+{/usr/local/texlive/2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4]
+<../images//wordcloud_eng.png, id=56, 672.5125pt x 336.25626pt>
+File: ../images//wordcloud_eng.png Graphic file (type png)
+<use ../images//wordcloud_eng.png>
+Package pdftex.def Info: ../images//wordcloud_eng.png  used on input line 128.
+(pdftex.def)             Requested size: 190.63338pt x 95.31581pt.
+<../images//wordcloud_nor.png, id=58, 672.5125pt x 336.25626pt>
+File: ../images//wordcloud_nor.png Graphic file (type png)
+<use ../images//wordcloud_nor.png>
+Package pdftex.def Info: ../images//wordcloud_nor.png  used on input line 131.
+(pdftex.def)             Requested size: 190.63338pt x 95.31581pt.
+ [5 </Users/marei/airbnb-oslo/term-paper/notes/../images//wordcloud_eng.png> </Users/marei/airbnb-oslo/term-paper/notes/../images//wordcloud_nor.png>]
+No file notes_feature_engineering.bbl.
+<../images//cnn_examples.png, id=66, 910.40125pt x 912.40875pt>
+File: ../images//cnn_examples.png Graphic file (type png)
+<use ../images//cnn_examples.png>
+Package pdftex.def Info: ../images//cnn_examples.png  used on input line 167.
+(pdftex.def)             Requested size: 390.0pt x 390.86629pt.
+[6 </Users/marei/airbnb-oslo/term-paper/notes/../images//cnn_examples.png>] (/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.aux)
+Package rerunfilecheck Info: File `notes_feature_engineering.out' has not changed.
+(rerunfilecheck)             Checksum: ECEC89BAD0239C51C5921FC38F006069;698.
  ) 
 Here is how much of TeX's memory you used:
- 8722 strings out of 478994
- 127991 string characters out of 5858185
- 433559 words of memory out of 5000000
- 26109 multiletter control sequences out of 15000+600000
- 404681 words of font info for 31 fonts, out of 8000000 for 9000
+ 8802 strings out of 478994
+ 129391 string characters out of 5858185
+ 433774 words of memory out of 5000000
+ 26160 multiletter control sequences out of 15000+600000
+ 410576 words of font info for 52 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 71i,5n,74p,548b,323s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on /Users/marei/airbnb-oslo/term-paper/notes/notes_reviews.pdf (1 page, 42766 bytes).
+ 71i,8n,74p,560b,328s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
+Output written on /Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.pdf (6 pages, 1466356 bytes).
 PDF statistics:
- 26 PDF objects out of 1000 (max. 8388607)
- 19 compressed objects within 1 object stream
- 3 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 105 PDF objects out of 1000 (max. 8388607)
+ 82 compressed objects within 1 object stream
+ 15 named destinations out of 1000 (max. 500000)
+ 64 words of extra memory for PDF output out of 10000 (max. 10000000)
 
