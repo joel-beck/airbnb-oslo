@@ -59,7 +59,7 @@ reviews_features = (
 
 #%%
 # SUBSECTION: Add fraction of negative reviews as new column
-sentiment_analysis = pd.read_pickle("../exploratory/reviews_sentimentA.pkl")
+sentiment_analysis = pd.read_pickle("../data-clean/reviews_sentiment.pkl")
 
 frac_negative = sentiment_analysis.groupby(sentiment_analysis.index).agg(
     frac_negative=("label", lambda x: (x == "NEGATIVE").mean())
