@@ -33,18 +33,37 @@ Whereas the selected classical Machine Learning models described in section \ref
 
 \section{Classical Models} \label{classical-models}
 
+When attacking the prediction task directly with a Neural Network, there are two questions that we cannot answer:
+%%%
+\begin{enumerate}
+    \item How do we know if a performance metric is \emph{good}?
+    \item Is fitting a Neural Network appropriate in the first place?
+          Maybe we can get away with a much simpler, more interpretable and, thus, preferable model?
+\end{enumerate}
+%%%
+In order to get some insights, we selected four classical Machine Learning models of varying complexity from the \texttt{scikit-learn} library to serve as benchmark models for our custom Neural Net.
+These include:
 %%%
 \begin{itemize}
-    \item serve as benchmark models to better evaluate performance of custom neural network
-    \item selected with increasing degrees of complexity and corresponding decreasing degree of interpretability
-    \item Focus on $4$ models: \texttt{LinearRegression}, \texttt{Ridge}, \texttt{RandomForest} and \texttt{HistGradientBoosting}
-    \item Describe Model Fitting process and hyperparameter tuning with Randomized Search Cross Validation
+    \item \href{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html}{Linear Regression}: simple, well understood in terms of underlying theory and highly interpretable.
+    \item \href{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html}{Ridge Regression}: still very interpretable with a closed form analytical solution, adds one hyperparameter to the equation.
+    \item \href{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html}{Random Forest}: very flexible model with many hyperparameters determining e.g. the number of regression trees and the tree depth.
+          Can be applied to many contexts and often works 'out of the box'.
+    \item \href{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html}{Histogram-Based Gradient Boosting}: modern and fast tree-based gradient boosting algorithm.
+          Comes with a large number of tunable hyperparameters, some of them similar to the Random Forest parameters, some of them more specific to the \emph{Boosting} instead of the \emph{Bagging} approach such as the learning rate.
+          Similar to the very popular \href{https://xgboost.readthedocs.io/en/stable/}{XGBoost} and \href{https://lightgbm.readthedocs.io/en/latest/}{LightGBM} implementations that regularly outperform deep Neural Networks in Kaggle competitions on tabular data.
 \end{itemize}
 %%%
 
+All models were fitted with \emph{Cross Validation}.
+Except for the Linear Regression this included (extensive) \emph{Hyperparameter Tuning}.
+Since the parameter space for both of the tree-based models is very high-dimensional we used a \emph{Randomized Search} algorithm rather than the more common \emph{Grid Search} approach.
+This allows for greater variation along more 'important' dimensions while still keeping the computation time feasible.
 
 
 \section{Neural Network} \label{neural-network}
+
+In concurrence with the Seminar's topic the focus of our project is centered around constructing a custom Neural Network that is trained in a supervised setting and learns to map feature combinations to price predictions for the Airbnb data set.
 
 \subsection{Architecture}
 
