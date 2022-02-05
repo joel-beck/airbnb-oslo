@@ -1,17 +1,17 @@
 # Fdb version 3
-["bibtex notes_feature_engineering"] 1644074539 "notes_feature_engineering.aux" "notes_feature_engineering.bbl" "notes_feature_engineering" 1644074539
+["bibtex notes_feature_engineering"] 1644077177 "notes_feature_engineering.aux" "notes_feature_engineering.bbl" "notes_feature_engineering" 1644077178
   "/usr/local/texlive/2021/texmf-dist/bibtex/bst/base/apalike.bst" 1292289607 24635 604dafcc79f521a11ea73e506e1fbd98 ""
   "bib.bib" 0 -1 0 ""
-  "notes_feature_engineering.aux" 1644074539 1926 b8ce94e66388fa7fb0d0c5e841bcc0d1 "pdflatex"
+  "notes_feature_engineering.aux" 1644077178 1926 b8ce94e66388fa7fb0d0c5e841bcc0d1 "pdflatex"
   (generated)
-  "notes_feature_engineering.blg"
   "notes_feature_engineering.bbl"
-["pdflatex"] 1644074538 "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.tex" "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.pdf" "notes_feature_engineering" 1644074539
+  "notes_feature_engineering.blg"
+["pdflatex"] 1644077177 "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.tex" "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.pdf" "notes_feature_engineering" 1644077178
   "../images//cnn_examples.png" 1643622476 787247 fd87abbab03a1e8858d9a82dedc81a5f ""
   "../images//wordcloud_eng.png" 1644074438 231183 983ac9cf92f87226ca9efef59bb7a641 ""
   "../images//wordcloud_nor.png" 1644074464 206565 60a03d6c04601b5f4f1ab8fbf6826e16 ""
-  "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.aux" 1644074539 1926 b8ce94e66388fa7fb0d0c5e841bcc0d1 ""
-  "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.tex" 1644074537 11394 5c426d4cf4db1d076833eba62f43772f ""
+  "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.aux" 1644077178 1926 b8ce94e66388fa7fb0d0c5e841bcc0d1 ""
+  "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.tex" 1644077177 11470 d609e320abe1f053bafc616e82cca47e ""
   "/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2021/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2021/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm" 1136768653 1536 74b7293ec3713bb7fdca8dd1bd1f469c ""
@@ -95,14 +95,14 @@
   "/usr/local/texlive/2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1616695603 5169178 a2ce6e2d73f603b690db6777d06dbccb ""
   "/usr/local/texlive/2021/texmf-var/web2c/pdftex/pdflatex.fmt" 1630675856 2724740 56490faf84261a52fbfd0ba3217ecf19 ""
   "/usr/local/texlive/2021/texmf.cnf" 1616695596 577 4c1911a7228e554c6032256d3cf5567d ""
-  "notes_feature_engineering.aux" 1644074539 1926 b8ce94e66388fa7fb0d0c5e841bcc0d1 "pdflatex"
+  "notes_feature_engineering.aux" 1644077178 1926 b8ce94e66388fa7fb0d0c5e841bcc0d1 "pdflatex"
   "notes_feature_engineering.bbl" 0 -1 0 "bibtex notes_feature_engineering"
-  "notes_feature_engineering.out" 1644074539 698 ecec89bad0239c51c5921fc38f006069 "pdflatex"
-  "notes_feature_engineering.tex" 1644074537 11394 5c426d4cf4db1d076833eba62f43772f ""
+  "notes_feature_engineering.out" 1644077178 698 ecec89bad0239c51c5921fc38f006069 "pdflatex"
+  "notes_feature_engineering.tex" 1644077177 11470 d609e320abe1f053bafc616e82cca47e ""
   (generated)
-  "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.pdf"
-  "notes_feature_engineering.out"
-  "notes_feature_engineering.pdf"
-  "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.log"
   "notes_feature_engineering.log"
+  "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.pdf"
+  "/Users/marei/airbnb-oslo/term-paper/notes/notes_feature_engineering.log"
+  "notes_feature_engineering.pdf"
+  "notes_feature_engineering.out"
   "notes_feature_engineering.aux"
