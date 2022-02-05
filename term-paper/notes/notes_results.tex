@@ -46,15 +46,6 @@ We chose to analyze the feature importance of an auxiliary Linear Regression mod
 Therefore we preselected $25$ of the network's input features with the \texttt{RFE} algorithm introduced in the previous chapter and compared the coefficient magnitudes.
 As noted before, all predictors were standardized such that a meaningful comparison is feasible.
 
-%%%
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\textwidth]{coefficient_plot.png}
-    \caption{Estimated coefficients of a Linear Regression model for $25$ preselected features}
-    \label{fig:coefficient-plot}
-\end{figure}
-%%%
-
 The results are shown in figure \ref{fig:coefficient-plot}.
 It is worth noting that the two most important features based on various different feature selectors of the \texttt{scikit-learn} library were always the number of \emph{bedrooms} and the (number of) \emph{accomodates} in this order, both measuring the apartment's \emph{capacity}.
 
@@ -143,5 +134,16 @@ As a consequence, a blind removal of such outliers is difficult to justify when 
 
 \bibliography{bib}
 \bibliographystyle{apalike}
+
+\appendix
+
+%%%
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{coefficient_plot.png}
+    \caption{Estimated coefficients of a Linear Regression model for $25$ preselected features}
+    \label{fig:coefficient-plot}
+\end{figure}
+%%%
 
 \end{document}

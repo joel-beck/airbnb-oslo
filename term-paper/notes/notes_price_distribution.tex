@@ -28,15 +28,6 @@
 One key aspect of exploratory data analysis is investigating the \emph{distribution} of the outcome variable.
 In our case the price distribution is highly right-skewed with a few very expensive listings pulling the mean and median of the price distribution further away from each other.
 
-%%%
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.8\textwidth]{price_distribution.png}
-    \caption{Distribution of Apartment Prices on original and logarithmic Scale}
-    \label{fig:price-distribution}
-\end{figure}
-%%%
-
 Some statistical models such as \emph{Linear Regression} tend to perform better when the outcome distribution is symmetric and approximately normal, whereas some very flexible algorithms like \emph{Neural Networks} do not make any distributional assumptions and are capable of modeling any kind of distribution accurately.
 Figure \ref{fig:price-distribution} illustrates an approximate normal distribution can be achieved with a simple logarithmic distribution.
 
@@ -50,5 +41,16 @@ However, in contrast to the untransformed version, the network still suffered fr
 
 \bibliography{bib}
 \bibliographystyle{apalike}
+
+\appendix
+
+%%%
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\textwidth]{price_distribution.png}
+    \caption{Distribution of Apartment Prices on original and logarithmic Scale}
+    \label{fig:price-distribution}
+\end{figure}
+%%%
 
 \end{document}

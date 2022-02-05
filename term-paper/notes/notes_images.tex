@@ -95,22 +95,24 @@ However, the \emph{correlation} of the CNN predictions with the true price was $
 This indicates some limitations of the correlation as useful metric on the one hand but at least positive tendencies of the CNN predictions on the other hand.
 In fact, the network struggled the most with capturing the wide \emph{range} of prices and almost always predicted values close to the center of the (log) price distribution.
 
-%%%
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.5\textwidth]{cnn_examples_small.png}
-    \caption{Images from Airbnb Apartments with true and predicted Prices}
-    \label{fig:cnn_examples_small}
-\end{figure}
-%%%
-
 Although the general idea of categorizing images into price ranges based on image features sounds very appealing, taking a look at the actual input images reveals how challenging this task actually is.
-Figure \ref{fig:cnn_examples_small} displays a random collection of input images.
+Figure \ref{fig:cnn-examples} displays a random collection of input images.
 Considering the difficulty of the task it is actually highly doubtful that humans could provide much more accurate predictions.
 
 \newpage
 
 \bibliography{bib}
 \bibliographystyle{apalike}
+
+\appendix
+
+%%%
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{cnn_examples.png}
+    \caption{Images from Airbnb Apartments with true and predicted Prices}
+    \label{fig:cnn-examples}
+\end{figure}
+%%%
 
 \end{document}
