@@ -16,7 +16,7 @@
 }
 \urlstyle{same}
 
-\title{Notes to Image Processing and Modeling}
+\title{Notes to Feature Engineering}
 \author{}
 \date{}
 
@@ -25,13 +25,23 @@
 
 \maketitle
 
+Extending the original feature set with new informative covariates which are created from (combinations of) existing variables is a central aspect of every data analysis.
+Besided many numeric features the Airbnb data contains \emph{images} as well as \emph{reviews} in raw text form.
+These data types in particular require some preprocessing steps which will be the focus of this section.
+
+In addition, some basic data cleaning steps were necessary.
+These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation.
+
+
+\section{Image Processing and Modeling}
+
 Besides the metric and text-based features the Airbnb Data contains \emph{images} of the listed apartments as well as of the corresponding hosts.
 This section describes how we used these images (while focusing on the apartment pictures) for the purpose of price prediction.
 
 The main idea was to build a Convolutional Neural Network that predicts the price solely based on the image content itself and add these predictions as well as the number of available images for each listing to the main feature set.
 Since there exist multiple images per apartment, the predictions were averaged afterwards within each group to obtain an output array of equal length to all remaining features.
 
-\section{Webscraping}
+\subsection{Webscraping}
 
 In the first step, the raw image links provided by the data set had to converted to an image format that the neural network is able to work with.
 
@@ -42,7 +52,7 @@ With this strategy we could extract the first $5$ images for each apartment (if 
 Finally, we used the \texttt{requests} module again in combination with the \texttt{pillow} package to decode the source content of all image adresses into two dimensional images.
 
 
-\section{Preprocessing}
+\subsection{Preprocessing}
 
 Before feeding these two dimensional images into the model, we performed some further preprocessing steps.
 
@@ -58,7 +68,7 @@ Ic case of the pretrained model explained in the next section we used the same v
 The mean values and standard deviations for each color channel are provided in the \texttt{PyTorch} \href{https://pytorch.org/vision/stable/models.html}{documentation}.
 
 
-\section{Modeling}
+\subsection{Modeling}
 
 As mentioned above, we used a pretrained Convolutional Neural Network for modeling.
 Ideally, due to learning from a large collection of labeled images in a supervised setting, this model is able to extract meaningful features from our own much smaller input data out of the box.
@@ -85,7 +95,7 @@ To ensure that the chosen design is not majorly flawed, we constructed a separat
 Although the performance differences were not as large as desired, the pretrained \texttt{ResNet} indeed indicated more promising results.
 
 
-\section{Results}
+\subsection{Results}
 
 Using only the content of the available images, the pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the Validation Set.
 In comparison, the \emph{Null Model} of always predicting the mean price achieved an MAE of $630$ NOK without a log-transformation of the price and a MAE of $569$ NOK with a log-transformation.
