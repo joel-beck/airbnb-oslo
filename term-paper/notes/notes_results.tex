@@ -164,11 +164,10 @@ There are two possible explanations for this phenomenon:
     \item The model is faced with a nearly impossible task.
 \end{enumerate}
 %%%
-In order to discriminate the observations with the highest prices from all other listings, the corresponding feature combinations must be separable in the $59$-dimensional feature space.
+In order to discriminate the observations with the highest prices from all other listings, the corresponding feature combinations must be separable in the full $59$-dimensional feature space.
 Since this high-dimensional space cannot be visualized, we approximate it with an two-dimensional \emph{embedding} or \emph{latent space}.
 If the price outliers are clearly separated from the rest in this embedded space, the network is faced with a feasible task.
 If, however, the outliers are located in the \emph{middle} of the latent distribution, there is little hope to discriminate the most expensive apartments from any of their potentially much lower priced embedded neighbours.
-In this case, the collected data might simply not be rich or expressive enough to capture all factors that contribute to very high prices.
 
 Modern Machine Learning methods provide a large toolbox for low-dimensional embeddings.
 Since the project is mainly focused on Deep Learning we decided to use a \emph{Variatonal Autoencoder}.
@@ -189,13 +188,20 @@ Already a \emph{single} dimension seems so be sufficient for a general understan
 While some of the most expensive apartments are located on the far left, surrounded by highly-priced neighbours, the other half shares a similar feature representation to \emph{medium to low} priced listings.
 Hence, the network likely maps this second half to comparably low price predictions resulting in large residuals with a high influence on the MAE and the $R^2$ value.
 
-Finally, it can be argued that the entire task of predicting Airbnb prices is flawed in the first place.
+Assuming that the two-dimensional picture appropriately reflects the situation in the full feature space there are two possible explanations for this lack of separability:
+%%%
+\begin{enumerate}
+    \item The collected data is simply not rich or expressive enough to capture all factors that contribute to very high prices.
+    \item Some apartments are listed at a price that does not represent their true value.
+\end{enumerate}
+%%%
+
+In the latter case it can be argued that the entire task of predicting Airbnb prices is flawed in the first place:
 In order to draw connections from features to outputs the process implicitly assumes observations whose listed price can be justified and explained by characteristics of the joint feature distribution.
 
-In practice, however, some apartments might be drastically overpriced biasing the model to learn wrong feature-price mappings and inflating the error metrics.
-Such observations are extremely hard to detect:
-While some covariates might be able to accurately approximate low demand, the corresponding apartment could be undesirable for other reasons than its price.
-In fact, even a price outlier with zero guests can be well worth the money, yet nobody is willing to pay that high amount for an accomodation, regardless of its quality.
+Moreover, discriminating between these two options is nontrivial.
+One idea is to use features like availability or the number of reviews to approximate demand and classify price outliers with low demand as overpriced.
+However, it is entirely possible that an extremely expensive observation with very low demand is listed according to its true value, yet nobody is willing to pay such a high amount for an accomodation, regardless of its quality.
 As a consequence, a blind removal of such outliers is difficult to justify when obeying correct statistical methodology.
 
 \newpage
