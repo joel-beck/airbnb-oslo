@@ -27,6 +27,74 @@
 
 \section{Predictive Performance}
 
+%%%
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{model_comparison.png}
+    \caption{Performance Comparison of Classical Models with Neural Network}
+    \label{fig:model-comparison}
+\end{figure}
+%%%
+
+Figure \ref{fig:model-comparison} shows performance metrics for all fitted models on both the Training Set and the Validation Set.
+Whereas we used the Mean Squared Error Loss for \emph{training} the Neural Net due to its convenient differentiability with regards to backpropagation, we focused on the Mean Absolute Error and the $R^2$ value for \emph{evaluating} all regression models.
+The MAE measures absolute deviations between true and predicted price and is therefore interpretable on the same scale as the original data.
+While the $R^2$ certainly has some inherent flaws, it provides a scale-independent and highly interpretable measure of overall model fit.
+
+The different colors in figure \ref{fig:model-comparison} indicate how many features were selected by the \texttt{RFE} algorithm for this particular fit with $59$ total predictor variables.
+Unsurprisingly, one or two features (in case of the \texttt{RFE} the number of bedrooms and the (number of) accomodates) provide too little information to model the task appropriately.
+However, including merely $5$ features (in this case adding the $30$ day availability, the indicator variable for the \emph{Frogner} neighbourhood and, notably, the price predictions from the Convolutional Net based on the image data) results in a very competitive performance for most models on the validation set.
+
+The two subplots on the left displaying the MAE tell a very similar story to the subplots on the right that show the $R^2$:
+Generally, more features lead to better performance on training and validation set.
+In case of the flexible Histogram-based Gradient Boosting algorithm and, to some minor extent, for the Random Forest, a high number of input features lead to \emph{overfitting} such that the performance on the training set is far superior to the values on out-of-sample data.
+In contrast, models with few parameters such as Linear Regression or Ridge Regression generalize very well to the validation set with virtually no performance drop.
+
+One exception to this rule is the highly complex Neural Network which appears to perform \emph{better} on out-of-sample data.
+This phenomenon can be explained to some extent by the different behaviour of Dropout and Batchnorm during training and inference and was already discussed in the previous chapter.
+
+When comparing the models within each subplot, all classical Machine Learning models perform similarly on the validation data.
+This finding emphasizes two aspects:
+%%%
+\begin{enumerate}
+    \item The prediction task does \textbf{not} require overly complex models and linear models perform just fine.
+    \item We can expect predictions within a distance of roughly $400$ NOK (40 Euros) on average to the true price.
+          Further, a $R^2$ value of around $0.4$ is the best we can hope for.
+          These statements hold for fitting on the \emph{entire} training set, section \ref{outliers} reveals how the performance radically improves when excluding some observations.
+\end{enumerate}
+%%%
+In comparison to all \texttt{scikit-learn} models our custom Neural Net appears to underperform.
+We have to keep in mind, though, that evaluation on the validation set is overly optimistic for those models whose hyperparameters were tuned on this data during cross validation.
+The best simulation to performance on truly unseen data is thus provided by the \emph{test} set that was not used in any step up to this point.
+
+\begin{table}[t]
+    \centering
+    \begin{tabular}{@{}ccc@{}}
+        \toprule
+        \multicolumn{1}{l}{} & \multicolumn{1}{l}{MAE} & \multicolumn{1}{l}{\textbf{$R^2$}} \\ \midrule
+        Linear Regression    & 404.709                 & 0.298                              \\
+        Ridge                & 405.932                 & 0.294                              \\
+        Random Forest        & 444.166                 & 0.268                              \\
+        HistGradientBoosting & 412.243                 & 0.387                              \\
+        Neural Network       & 402.24                  & 0.333                              \\
+        Top2 Average         & 404.848                 & 0.296                              \\
+        Top3 Average         & 399.315                 & 0.343                              \\
+        Top4 Average         & 404.206                 & 0.332                              \\
+        Top5 Average         & 408.116                 & 0.27                               \\ \bottomrule
+    \end{tabular}
+    \caption{Test Set Performance of Classical Machine Learning Models, our custom Neural Network and Ensemble Predictions}
+    \label{tab:test-set}
+\end{table}
+
+Table \ref{tab:test-set} compares test set metrics for the best performing models on the validation set within each class (i.e. the Neural Net version with all $59$ features and the Random Forest model with only $25$ features were selected).
+In addition, we added some simple ensemble models that predict the average estimate from the top $2$, $3$, $4$ or all five models, respectively.
+
+Quite surpringly, the Neural Net shows a significant performance boost on the Test Set and is now very competitive with all other models.
+The Random Forest Model generalizes worst and suffers from overfitting given its selected hyperparameter configuration.
+Averaging predictions from multiple algorithms indicates promising results:
+The Top $3$ Average achieves the lowest out-of-sample Mean Absolute Error of slightly below $400$ NOK.
+
+
 
 
 \section{Explanations and Interpretation}
@@ -62,7 +130,7 @@ The city center might plausibly be connected to fewer rooms and smaller apartmen
 These confounding effects are controlled for in the regression model but not in the naive bivariate analysis.
 
 
-\subsection{Sensitivity to Outliers}
+\subsection{Sensitivity to Outliers} \label{outliers}
 
 % Manually constructed with saved .csv file in tables folder and
 % https://www.tablesgenerator.com/latex_tables
