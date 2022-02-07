@@ -33,7 +33,7 @@ These data types in particular require some preprocessing steps which will be th
 
 In addition, some basic data cleaning steps were necessary.
 These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation.
-% COMMENT: nimmt vielleicht schon zu viel vor weg?
+In order to later use the predictor variables as model inputs all features of categorical nature were transformed to Dummy variables whereas all numeric features were standardized.
 
 \subsection{Image Processing and Modeling}
 
@@ -47,11 +47,11 @@ Since there exist multiple images per apartment, the predictions were averaged a
 
 In the first step, the raw image links provided by the data set had to converted to an image format that the neural network is able to work with.
 
-Therefore we first used the \texttt{requests} library to get the \texttt{HTML} Source Code of each listing's website.
-Next, the \texttt{beautifulsoup} library served as a convenient HTML parser to find and extract all embedded weblinks that lead to images located on the front page of the listings website.
+Therefore we first used the \href{https://docs.python-requests.org/en/latest/}{requests} library to get the HTML Source Code of each listing's website.
+Next, the \href{https://beautiful-soup-4.readthedocs.io/en/latest/}{beautifulsoup} library served as a convenient HTML parser to find and extract all embedded weblinks that lead to images located on the front page of the listings website.
 With this strategy we could extract the first $5$ images for each apartment (if $5$ or more were available) that could be directly accessed from the front page source code.
 
-Finally, we used the \texttt{requests} module again in combination with the \texttt{pillow} package to decode the source content of all image adresses into two dimensional images.
+Finally, we used the \texttt{requests} module again in combination with the \href{https://pillow.readthedocs.io/en/stable/}{pillow} package to decode the source content of all image adresses into two dimensional images.
 
 
 \subsubsection{Preprocessing}
@@ -68,7 +68,8 @@ After resizing all images to $256 \times 256$ pixels we randomly cropped a squar
 
 At a final step all images were normalized, separately for each color channel.
 In case of the pretrained model explained in the next section we used the same values for normilization that were used during training on the large \texttt{ImageNet} database.
-The mean values and standard deviations for each color channel are provided in the \texttt{PyTorch} \href{https://pytorch.org/vision/stable/models.html}{documentation}.
+% TODO: Add reference to ImageNet
+The mean values and standard deviations for each color channel are provided in the \href{https://pytorch.org/vision/stable/models.html}{PyTorch documentation}.
 
 
 \subsubsection{Modeling}
@@ -85,6 +86,7 @@ There are multiple options to handle this scenario:
 \begin{itemize}
     \item Out of the vast collection of freely available pretrained models, choose one that is comparably shallow.
           We chose \texttt{ResNet18} with roughly $11$ million parameters.
+          % TODO: Add reference to ResNet
     \item Do not freeze the weights of the pretrained model completely, but rather fine tune them during training (i.e. modify \emph{all} weights by backpropagating through the entire network).
           We did not investigate this option further due to its high computational cost.
     \item Cut the pretrained model before the last layer with the hope that, at this point, very generic and widely applicable features of images are extracted.
@@ -117,7 +119,7 @@ Considering the difficulty of the task it is actually highly doubtful that human
 
 In order to extract the most important information from the reviews, we have performed the following analyses.
 
-First, we used the \texttt{langdetect} package to determine the language of each review.
+First, we used the \href{https://pypi.org/project/langdetect/}{langdetect} package to determine the language of each review.
 With this information, we tried to get some insights about the internationality of the guests.
 Since English and Norwegian are the most commonly used languages, we then created two so-called word clouds in this languages
 to visualize the most frequently used words in the reviews and to give us a short overview of the given ratings.
@@ -126,7 +128,6 @@ What is most striking in the plots (s. Fig. \ref{fig:wordclouds}) is that in bot
 further \textit{clean}, \textit{comfortable}, \textit{helpful} and \textit{easy}. Also in the Norwegian plot there are mainly positive expressions like \textit{"anbefale"} (engl. recommend), \textit{"fin"} (engl. fine) and \textit{"flott leilighet"} (engl. great apartement).
 % Wörter in Anführungsstriche oder kursiv?
 
-% COMMENT: Example comment for Marei to show functionality :)
 % insert Wordclouds english and norwegian side-by-side
 \begin{figure}[t]
     \centering
@@ -162,7 +163,7 @@ Finally, we used the sentiment analysis to determine the ratio of negative revie
 \section{Feature Selection}
 
 Not all features out of the new combined and extended feature set are equally valuable to the model in terms of predictive power.
-In fact, some of the features could not even be transformed to meaningful predictors such as multiple columns containing some kind of \texttt{id} information.
+In fact, some of the features could not even be transformed to meaningful predictors due to containing e.g. \emph{id} information.
 Others were completely redundant in presence of a combination of original and/or manually constructed features and were thus dropped from the feature set.
 
 Before starting the modeling we intended to reduce the feature set even further to avoid strong correlations among the input predictors and possibly improve generalization performance to out-of-sample data.
@@ -171,10 +172,10 @@ Thus, we agreed on a two-step strategy.
 First, we manually selected features based on three criteria:
 %%%
 \begin{enumerate}
-    \item The variable in consideration and the apartment price must have some connection based on human intuition and background knowledge. For instance, we included variables containing information about the apartment's \emph{size} such as the number of \texttt{accomodates}, the number of \texttt{bathrooms} and the number of \texttt{bedrooms}.
+    \item The variable in consideration and the apartment price must have some connection based on human intuition and background knowledge. For instance, we included variables containing information about the apartment's \emph{size} such as the number of \emph{accomodates}, the number of \emph{bathrooms} and the number of \emph{bedrooms}.
     \item There has to exist some correlation with the price in a bivariate visualization, e.g. a \emph{barplot} in case of categorical predictors or a \emph{scatterplot} in case of numeric features.
     \item Since our dataset was comparably small with roughly $3000$ observations, we had to take care about missing values.
-          Therefore, each variable whose missing values could not be imputed in a meaningful and uncontroversial manner was either selected or dropped based on the trade-off of the number of missing values reducing the size of the data set and its additional predictive value.
+          Therefore, each variable whose missing values could not be imputed in a meaningful and uncontroversial manner was either selected or dropped based on the trade-off of potential data reduction and its additional predictive value.
 \end{enumerate}
 %%%
 
@@ -184,21 +185,26 @@ There was a high chance of exluding important predictors that shine in combinati
 % -Schritt3: Manuelle Feature Selection bzw. inspiriert durch overall feature selection / Regression mit allen Features. Das Ergebnis hiervon ist dann listings_subset bzw. listings_extended
 % -Schritt 5: Schritt 5 (optional): Automatisierte Feature Selection (zB durch RFE) bzw. Dimensionality Reduction (im Sinne von PCA) mittels eines Algorithmus
 
-Therefore, in a second step we fitted an auxiliary Linear Regression Model with \emph{all} available features (except for the trivial ones such as the \verb|picture_url|) and analyzed the absolute magnitude of the coefficients to obtain the relevant coefficient here.
-Since all variables are standardized, these magnitudes are within the same range and unit-independent and can thus be compared.
+Therefore, in a second step, we fitted an auxiliary Linear Regression model with \emph{all} available features (except for the trivial ones such as the \emph{picture url}) and analyzed the absolute magnitude of the coefficients.
+Since all variables are standardized, these magnitudes are within the same range and unit-independent, and can thus be compared.
 
 Of course, even this approach is not perfect, as several highly correlated characteristics that have a strong influence on price could lead to rather small estimated individual coefficients due to their joint predictive/explanatory power.
-To circumvent this potential issue, we additionally used the \emph{algorithmic} feature selectors provided by the \texttt{scikit-learn} library, which (ideally) are able to separate the effects of highly correlated features and select only a small subset of them.
+To circumvent this potential issue, we additionally used the \emph{algorithmic} feature selectors provided by the \href{https://scikit-learn.org/stable/index.html}{scikit-learn} library, which (ideally) are able to separate the effects of highly correlated features and select only a small subset of them.
 
-We decided to apply the following algorithms: \textit{RFE} (Recursive Feature Selection), \textit{SelectFromModel}, \textit{SelectKBest}, \textit{SequentialFeatureSelector} and \textit{VarianceThreshold}. The detailed results are given in the appendix.
-Since \textit{RFE} showed the best performance and the selected subset of original features can be immediately interpreted as potentially the most important features, we then performed an even more detailed analysis using this feature selector.
+Thereby we focused on two algorithms:
+%%%
+\begin{itemize}
+    \item Principal Component Analysis (\href{https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html}{PCA}):
+          Reduces dimensionality with the additional benefit of creating \emph{uncorrelated} linear combinations of existing features.
+    \item Recursive Feature Selection (\href{https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFE.html}{RFE}):
+          Selects subset of original features by leveraging an external estimator (in our case a \emph{Support Vector Regressor}).
+          We chose the \texttt{RFE} algorithm for the main analysis since the selected features can be immediately interpreted and the performance on the selected feature set was slightly better compared to \texttt{PCA}.
 
-% was sind unsere Ergebnisse der FSA zusammengefasst?
-The overall results of these algorithms lead to the addition of the variable \texttt{property\_type}. But some of the observed correlations had to be taken with care. For example, the category \emph{houseboat} was assigned by far the largest coefficient of the variable \verb|property_type|.
-However,  it turned out that this observation was the only houseboat included in the data set.
-To avoid strong influences of these outliers, we combined all rare categories into one larger \texttt{Other} category and used the mean price of all observations included in this category.
+\end{itemize}
+%%%
 
-The last step consists in preprocessing the data. For this purpose, we have implemented a \texttt{column\_transformer} function that includes both the One-Hot Encoding of the categorical variables and the standardization of the numerical variables and can be applied directly to an entire data set.
+The influence of the feature selector on the predictive and particularly the generalization performance is discussed in the \emph{Results} section.
+% TODO: Add Hyperlink to Results Chapter
 
 
 \section{Price Distribution}
