@@ -184,19 +184,19 @@ There was a high chance of exluding important predictors that shine in combinati
 % -Schritt3: Manuelle Feature Selection bzw. inspiriert durch overall feature selection / Regression mit allen Features. Das Ergebnis hiervon ist dann listings_subset bzw. listings_extended
 % -Schritt 5: Schritt 5 (optional): Automatisierte Feature Selection (zB durch RFE) bzw. Dimensionality Reduction (im Sinne von PCA) mittels eines Algorithmus
 
-Hence, in a second step we fit an auxiliary Linear Regression Model including \emph{all} of the available features (except for the trivial ones such as the \verb|picture_url|) and analyzed the absolute magnitude of the coefficients to get the relevant coefficient here. 
-Since all variables are standardized these magnitudes are within the same range and unit-independent and can thus be compared.
+Therefore, in a second step we fitted an auxiliary Linear Regression Model with \emph{all} available features (except for the trivial ones such as the \verb|picture_url|) and analyzed the absolute magnitude of the coefficients to obtain the relevant coefficient here. 
+Since all variables are standardized, these magnitudes are within the same range and unit-independent and can thus be compared.
 
-This approach, of course, is not perfect as well since multiple highly correlated features having a strong \emph{combined} impact on price could end up with rather small individual estimated coefficients due to \emph{sharing} their predictive / explanatory power.
-To circumvent this potential issue, we relied on \emph{algorithmic} feature selectors provided by the \texttt{scikit-learn} library that are (ideally) capable of separating the effects of strongly correlated features and select only a small subset of them. 
+Of course, even this approach is not perfect, as several highly correlated characteristics that have a strong influence on price could lead to rather small estimated individual coefficients due to their joint predictive/explanatory power.
+To circumvent this potential issue, we additionally used the \emph{algorithmic} feature selectors provided by the \texttt{scikit-learn} library, which (ideally) are able to separate the effects of highly correlated features and select only a small subset of them. 
 
-We decided to apply the following algorithms: \textit{RFE} (Recursive Feature Selection), \textit{SelectFromModel}, \textit{SelectKBest}, \textit{SequentialFeatureSelector} and \textit{VarianceThreshold}. The detailed results are shown in the appendix.
-Because the \textit{RFE} showed the best performance and the selected subset of original features can be immediately interpreted as potentially most important features, so we performed an even more detailed analysis with this feature selector afterwards. 
+We decided to apply the following algorithms: \textit{RFE} (Recursive Feature Selection), \textit{SelectFromModel}, \textit{SelectKBest}, \textit{SequentialFeatureSelector} and \textit{VarianceThreshold}. The detailed results are given in the appendix.
+Since \textit{RFE} showed the best performance and the selected subset of original features can be immediately interpreted as potentially the most important features, we then performed an even more detailed analysis using this feature selector.  
 
 % was sind unsere Ergebnisse der FSA zusammengefasst?
-The overall results of these algorithms lead to additionally adding the variable \texttt{property\_type}. But thereby some of the observed connections had to be taken with care. For example, by far the largest coefficient was attributed to the category \emph{Houseboat} of the \verb|property_type| variable.
-However, this observation turned out to be the only Houseboat contained in the dataset.
-To avoid strong influences of these outliers, we combined all rare categories together to a larger \texttt{Other} category and used the mean price of all observations contained in this category.
+The overall results of these algorithms lead to the addition of the variable \texttt{property\_type}. But some of the observed correlations had to be taken with care. For example, the category \emph{houseboat} was assigned by far the largest coefficient of the variable \verb|property_type|.
+However,  it turned out that this observation was the only houseboat included in the data set.
+To avoid strong influences of these outliers, we combined all rare categories into one larger \texttt{Other} category and used the mean price of all observations included in this category.
 
 % For the auxiliary regression we decided to keep $30$ variables.
 % Out of the predictors with largest absolute coefficients most were already chosen by the first step described above.
@@ -211,7 +211,7 @@ To avoid strong influences of these outliers, we combined all rare categories to
 
 % TODO: Integrate Automatic Feature Selection
 
-The last step consists of data preprocessing. Therefore we implemented a function column\_transformer, which included the One-Hot Encoding of the categorical variables as well as the standardization of the numeric variables. 
+The last step consists in preprocessing the data. For this purpose, we have implemented a \texttt{column\_transformer} function that includes both the One-Hot Encoding of the categorical variables and the standardization of the numerical variables and can be applied directly to an entire data set.
 
 % \begin{itemize}
 %     \item One-Hot Encoding of Categorical Variables, Standardization of Numeric Variables
