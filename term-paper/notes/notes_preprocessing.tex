@@ -28,12 +28,12 @@
 \section{Feature Engineering}
 
 Extending the original feature set with new informative covariates which are created from (combinations of) existing variables is a central aspect of every data analysis.
-Besided many numeric features the Airbnb data contains \emph{images} as well as \emph{reviews} in raw text form.
+Besides many numeric features the Airbnb data contains \emph{images} as well as \emph{reviews} in raw text form.
 These data types in particular require some preprocessing steps which will be the focus of this section.
 
 In addition, some basic data cleaning steps were necessary.
 These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation.
-
+% COMMENT: nimmt vielleicht schon zu viel vor weg?
 
 \subsection{Image Processing and Modeling}
 
@@ -61,12 +61,13 @@ Before feeding these two dimensional images into the model, we performed some fu
 One very common technique when dealing with images is \emph{Data Augmentation}.
 In contrast to classification tasks however, where Data Augmentation is used to expand the training set and improve simultaneously generalization, this approach is not immediately transferable to a regression context since we have to guarantee that the label (i.e. the price) remains unchanged for each image transformation.
 Thus, we decided against standard transformations such as rotating the images or manipulating the color composition.
+% COMMENT: da wir das ja nicht weiter verfolgt haben: kürzer fassen? Ein Satz?
 
-We \textbf{did} use image \emph{cropping} however which, in our opinion, is one of the few applicable augmentations in regression contexts.
+We \textbf{did} use image \emph{cropping}, however, which, in our opinion, is one of the few applicable augmentations in regression contexts.
 After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image \textbf{center} in the validation set to avoid any randomness during inference.
 
 At a final step all images were normalized, separately for each color channel.
-Ic case of the pretrained model explained in the next section we used the same values for normilization that were used during training on the large \texttt{ImageNet} database.
+In case of the pretrained model explained in the next section we used the same values for normilization that were used during training on the large \texttt{ImageNet} database.
 The mean values and standard deviations for each color channel are provided in the \texttt{PyTorch} \href{https://pytorch.org/vision/stable/models.html}{documentation}.
 
 
@@ -74,7 +75,8 @@ The mean values and standard deviations for each color channel are provided in t
 
 As mentioned above, we used a pretrained Convolutional Neural Network for modeling.
 Ideally, due to learning from a large collection of labeled images in a supervised setting, this model is able to extract meaningful features from our own much smaller input data out of the box.
-As usual in \emph{transfer learning} the weights of the pretraine model are frozen and the output layer is replaced by a trainable custom layer specific to our needs.
+As usual in \emph{transfer learning} the weights of the pretrained model are frozen and the output layer is replaced by a trainable custom layer specific to our needs.
+% COMMENT: Abkürzung für CNN einführen
 
 One potential issue arises if the dataset used for pretraining differs from the new custom data:
 If the pretrained network is very deep, the learned features before the final layer could be very specific to the Output Classes of \texttt{ImageNet} and not generalize well to our images.
@@ -115,7 +117,7 @@ Considering the difficulty of the task it is actually highly doubtful that human
 
 In order to extract the most important information from the reviews, we have performed the following analyses.
 
-First, we used the \textit{langdetect} package to determine the language of each review.
+First, we used the \texttt{langdetect} package to determine the language of each review.
 With this information, we tried to get some insights about the internationality of the guests.
 Since English and Norwegian are the most commonly used languages, we then created two so-called word clouds in this languages
 to visualize the most frequently used words in the reviews and to give us a short overview of the given ratings.
@@ -145,8 +147,8 @@ also recorded for each listing id. Finally, this data frame was added to the \te
 is performed later. (s. cite sentiment)
 
 In addition, to obtain a more informed analysis of the reviews, we also performed a detailed sentiment analysis for each review. Sentiment analysis are used to detect the underlying emotion of a text. Therefore, it classifies the text as either positive or negative.
-To do this, we used the \textit{transformers} package, more specifically we used the \textit{pipeline} function
-with the \textit{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences
+To do this, we used the \texttt{transformers} package, more specifically we used the \texttt{pipeline} function
+with the \texttt{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences
 according to positive or negative sentiments (s. documentation). The used model is DistlBERT,
 a small, fast and light Transformer model, a distilled version of BERT algorithm, which achieves significantly faster results. (s. documentation transformers).
 Finally, we used the sentiment analysis to determine the ratio of negative reviews to the total number of reviews per listings id, which is also added to the \textit{reviews\_feature} data frame.
