@@ -322,3 +322,6 @@ testset_df.index = df_index
 testset_df
 
 #%%
+testset_df.drop(columns=["MSE"]).round(3).to_csv(
+    "../term-paper/tables/table_test_set.csv"
+)

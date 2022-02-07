@@ -16,7 +16,7 @@
 }
 \urlstyle{same}
 
-\title{Notes to Feature Engineering}
+\title{Notes to Preprocessing}
 \author{}
 \date{}
 
@@ -24,6 +24,8 @@
 \begin{document}
 
 \maketitle
+
+\section{Feature Engineering}
 
 Extending the original feature set with new informative covariates which are created from (combinations of) existing variables is a central aspect of every data analysis.
 Besided many numeric features the Airbnb data contains \emph{images} as well as \emph{reviews} in raw text form.
@@ -33,7 +35,7 @@ In addition, some basic data cleaning steps were necessary.
 These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation.
 
 
-\section{Image Processing and Modeling}
+\subsection{Image Processing and Modeling}
 
 Besides the metric and text-based features the Airbnb Data contains \emph{images} of the listed apartments as well as of the corresponding hosts.
 This section describes how we used these images (while focusing on the apartment pictures) for the purpose of price prediction.
@@ -41,7 +43,7 @@ This section describes how we used these images (while focusing on the apartment
 The main idea was to build a Convolutional Neural Network that predicts the price solely based on the image content itself and add these predictions as well as the number of available images for each listing to the main feature set.
 Since there exist multiple images per apartment, the predictions were averaged afterwards within each group to obtain an output array of equal length to all remaining features.
 
-\subsection{Webscraping}
+\subsubsection{Webscraping}
 
 In the first step, the raw image links provided by the data set had to converted to an image format that the neural network is able to work with.
 
@@ -52,7 +54,7 @@ With this strategy we could extract the first $5$ images for each apartment (if 
 Finally, we used the \texttt{requests} module again in combination with the \texttt{pillow} package to decode the source content of all image adresses into two dimensional images.
 
 
-\subsection{Preprocessing}
+\subsubsection{Preprocessing}
 
 Before feeding these two dimensional images into the model, we performed some further preprocessing steps.
 
@@ -68,7 +70,7 @@ Ic case of the pretrained model explained in the next section we used the same v
 The mean values and standard deviations for each color channel are provided in the \texttt{PyTorch} \href{https://pytorch.org/vision/stable/models.html}{documentation}.
 
 
-\subsection{Modeling}
+\subsubsection{Modeling}
 
 As mentioned above, we used a pretrained Convolutional Neural Network for modeling.
 Ideally, due to learning from a large collection of labeled images in a supervised setting, this model is able to extract meaningful features from our own much smaller input data out of the box.
@@ -95,7 +97,7 @@ To ensure that the chosen design is not majorly flawed, we constructed a separat
 Although the performance differences were not as large as desired, the pretrained \texttt{ResNet} indeed indicated more promising results.
 
 
-\subsection{Results}
+\subsubsection{Results}
 
 Using only the content of the available images, the pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the Validation Set.
 In comparison, the \emph{Null Model} of always predicting the mean price achieved an MAE of $630$ NOK without a log-transformation of the price and a MAE of $569$ NOK with a log-transformation.
@@ -155,6 +157,66 @@ Finally, we used the sentiment analysis to determine the ratio of negative revie
 
 
 
+\subsection{Reviews}
+
+%Sources:
+%Analysis: https://towardsdatascience.com/a-beginners-guide-to-sentiment-analysis-in-python-95e354ea84f6
+%Package: https://huggingface.co/transformers/v3.0.2/main_classes/pipelines.html
+%Model: https://huggingface.co/transformers/v3.0.2/model_doc/distilbert.html
+
+In order to extract the most important information from the reviews, we have performed the following analyses.
+
+First, we used the \textit{langdetect} package to determine the language of each review.
+With this information, we tried to get some insights about the internationality of the guests.
+Since English and Norwegian are the most commonly used languages, we then created two so-called word clouds in this languages to visualize the most frequently used words in the reviews and to give us a short overview of the given ratings.
+
+To just have the important words in this representation, a list of given stop words are used to extract them.
+What is most striking here is that in both plots predominantly positive words are printed.
+The largest printed and thus most frequently used words in English are \textit{apartement}, \textit{Oslo} and \textit{place} and further \textit{clean}, \textit{comfortable}, \textit{helpful} and \textit{easy}.
+Also in the Norwegian plot there are mainly positive expressions like \textit{"anbefale"} (engl. recommend), \textit{"fin"} (engl. fine) and \textit{"flott leilighet"} (engl. great apartement).
+% Wörter in Anführungsstriche oder kursiv?
+
+% insert Wordclouds english and norwegian side-by-side
+
+The results of the language detection are stored per \textit{listing\_id} in a new data frame called \textit{reviews\_features}.
+This data frame contains the number of reviews per listing, the median length of a review, the number of different languages, as well as a list of languages in which the reviews for that apartment were written.
+The percentages of Norwegian and English reviews are also recorded for each listing id.
+Finally, this data frame was added to the \textit{listings} data frame on which feature selection is performed later.
+
+In addition, to obtain a more informed analysis of the reviews, we also performed a detailed sentiment analysis for each review. Sentiment analysis are used to detect the underlying emotion of a text.
+Therefore, it classifies the text as either positive or negative.
+
+To do this, we used the \textit{transformers} package, more specifically we used the \textit{pipeline} function with the \textit{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences according to positive or negative sentiments (s. documentation).
+The used model is DistlBERT, a small, fast and light Transformer model, a distilled version of BERT algorithm, which achieves significantly faster results (s. documentation).
+Finally, we used the sentiment analysis to determine the ratio of negative reviews to the total number of reviews per listings id, which is also added to the reviews\_feature data frame.
+
+% , has 40\%
+% less parameters and runs 60\% faster while preserving over 95\% of Bert's performances as
+% measured on the GLUE language understanding benchmark. (?, s. documentation).
+
+% The results are stored in a new data frame and applied in feature engineering to generate the
+% new feature \textit{proportion of negative reviews}.
+
+
+\section{Feature Selection}
+
+
+\section{Price Distribution}
+
+One key aspect of exploratory data analysis is investigating the \emph{distribution} of the outcome variable.
+In our case the price distribution is highly right-skewed with a few very expensive listings pulling the mean and median of the price distribution further away from each other.
+
+Some statistical models such as \emph{Linear Regression} tend to perform better when the outcome distribution is symmetric and approximately normal, whereas some very flexible algorithms like \emph{Neural Networks} do not make any distributional assumptions and are capable of modeling any kind of distribution accurately.
+Figure \ref{fig:price-distribution} illustrates an approximate normal distribution can be achieved with a simple logarithmic distribution.
+
+Whereas \emph{all} of the classical models benefitted from the log-transformation resulting in lower error metrics, this was not the case for the Neural Network we used.
+
+In fact, training turned out to be more challenging, since the \emph{magnitude} of the losses by comparing true and predicted price on the logarithmic scale was drastically reduced, leading to smaller gradients and thus smaller weight updates.
+This issue could be mitigated to some extent with a larger learning rate.
+However, in contrast to the untransformed version, the network still suffered from \emph{vanishing gradients} and \emph{loss plateaus}.
+
+
+
 \newpage
 
 \bibliography{bib}
@@ -168,6 +230,15 @@ Finally, we used the sentiment analysis to determine the ratio of negative revie
     \includegraphics[width=\textwidth]{cnn_examples.png}
     \caption{Images from Airbnb Apartments with true and predicted Prices}
     \label{fig:cnn-examples}
+\end{figure}
+%%%
+
+%%%
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\textwidth]{price_distribution.png}
+    \caption{Distribution of Apartment Prices on original and logarithmic Scale}
+    \label{fig:price-distribution}
 \end{figure}
 %%%
 
