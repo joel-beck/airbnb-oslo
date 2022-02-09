@@ -1,3 +1,4 @@
+
 \documentclass[12pt, letterpaper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
@@ -176,7 +177,7 @@ There are two aspects worth mentioning about the residual connection in figure \
     Moreover, since computation time was not too expensive due to the compact network size, we could make up for the slower initial progress that could be achieved with a scheduler by simply training the model for more epochs (while saving the model weights at the point of best performance on the validation set), which ultimately lead to a lower training and validation loss.
 
     %%%
-    \begin{figure}[t]
+    \begin{figure}[ht]
         \centering
         \includegraphics[width=\textwidth]{dropout_performance.png}
         \caption{Impact of Dropout Probability on Training and Validation Performance}
