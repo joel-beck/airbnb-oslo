@@ -1,6 +1,7 @@
 \documentclass[12pt, letterpaper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+\usepackage[titletoc, title]{appendix}
 \usepackage{parskip}
 
 \usepackage{graphicx}
@@ -11,7 +12,7 @@
     colorlinks=true,
     urlcolor=blue,
     linkcolor=blue,
-    citecolor=blue,
+    citecolor=black,
     filecolor=blue,
 }
 \urlstyle{same}
@@ -25,15 +26,19 @@
 
 \maketitle
 
+This chapter covers all necessary preprocessing steps that build the foundation for all further modeling tasks.
+Here, we mostly focus on extracting information from the image and text data contained in the Airbnb Dataset.
+However, feature \emph{selection} and transformations of the price variable turned out to be essential components of the preprocessing pipeline and are discussed in Appendix \ref{appendix:feature-selection} and \ref{appendix:price-distribution}.
+
+In addition, some basic data cleaning steps at the very beginning were necessary.
+These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation.
+In order to later use the predictor variables as model inputs all features of categorical nature were transformed to Dummy variables whereas all numeric features were standardized.
+
 \section{Feature Engineering}
 
 Extending the original feature set with new informative covariates which are created from (combinations of) existing variables is a central aspect of every data analysis.
 Besides many numeric features the Airbnb data contains \emph{images} as well as \emph{reviews} in raw text form.
-These data types in particular require some preprocessing steps which will be the focus of this section.
-
-In addition, some basic data cleaning steps were necessary.
-These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation.
-In order to later use the predictor variables as model inputs all features of categorical nature were transformed to Dummy variables whereas all numeric features were standardized.
+These data types in particular require some extra care which will be the focus of this section.
 
 \subsection{Image Processing and Modeling}
 
@@ -43,33 +48,9 @@ This section describes how we used these images (while focusing on the apartment
 The main idea was to build a Convolutional Neural Network that predicts the price solely based on the image content itself and add these predictions as well as the number of available images for each listing to the main feature set.
 Since there exist multiple images per apartment, the predictions were averaged afterwards within each group to obtain an output array of equal length to all remaining features.
 
-\subsubsection{Webscraping}
-
-In the first step, the raw image links provided by the data set had to converted to an image format that the neural network is able to work with.
-
-Therefore we first used the \href{https://docs.python-requests.org/en/latest/}{requests} library to get the HTML Source Code of each listing's website.
-Next, the \href{https://beautiful-soup-4.readthedocs.io/en/latest/}{beautifulsoup} library served as a convenient HTML parser to find and extract all embedded weblinks that lead to images located on the front page of the listings website.
-With this strategy we could extract the first $5$ images for each apartment (if $5$ or more were available) that could be directly accessed from the front page source code.
-
-Finally, we used the \texttt{requests} module again in combination with the \href{https://pillow.readthedocs.io/en/stable/}{pillow} package to decode the source content of all image adresses into two dimensional images.
-
-
-\subsubsection{Preprocessing}
-
-Before feeding these two dimensional images into the model, we performed some further preprocessing steps.
-
-One very common technique when dealing with images is \emph{Data Augmentation}.
-In contrast to classification tasks however, where Data Augmentation is used to expand the training set and improve simultaneously generalization, this approach is not immediately transferable to a regression context since we have to guarantee that the label (i.e. the price) remains unchanged for each image transformation.
-Thus, we decided against standard transformations such as rotating the images or manipulating the color composition.
-% COMMENT: da wir das ja nicht weiter verfolgt haben: kürzer fassen? Ein Satz?
-
-We \textbf{did} use image \emph{cropping}, however, which, in our opinion, is one of the few applicable augmentations in regression contexts.
-After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image \textbf{center} in the validation set to avoid any randomness during inference.
-
-At a final step all images were normalized, separately for each color channel.
-In case of the pretrained model explained in the next section we used the same values for normilization that were used during training on the large \texttt{ImageNet} database.
-% TODO: Add reference to ImageNet
-The mean values and standard deviations for each color channel are provided in the \href{https://pytorch.org/vision/stable/models.html}{PyTorch documentation}.
+Before the images can be used as model input they had to be \emph{scraped} from each listing's webpage.
+Further, some basic transformations were necessary.
+Details about these image proprocessing steps can be found in Appendix \ref{appendix:images}.
 
 
 \subsubsection{Modeling}
@@ -86,7 +67,6 @@ There are multiple options to handle this scenario:
 \begin{itemize}
     \item Out of the vast collection of freely available pretrained models, choose one that is comparably shallow.
           We chose \texttt{ResNet18} with roughly $11$ million parameters.
-          % TODO: Add reference to ResNet
     \item Do not freeze the weights of the pretrained model completely, but rather fine tune them during training (i.e. modify \emph{all} weights by backpropagating through the entire network).
           We did not investigate this option further due to its high computational cost.
     \item Cut the pretrained model before the last layer with the hope that, at this point, very generic and widely applicable features of images are extracted.
@@ -112,7 +92,7 @@ This indicates some limitations of the correlation as useful metric on the one h
 In fact, the network struggled the most with capturing the wide \emph{range} of prices and almost always predicted values close to the center of the (log) price distribution.
 
 Although the general idea of categorizing images into price ranges based on image features sounds very appealing, taking a look at the actual input images reveals how challenging this task actually is.
-Figure \ref{fig:cnn-examples} displays a random collection of input images.
+Figure \ref{fig:cnn-examples} in the Appendix displays a random collection of input images.
 Considering the difficulty of the task it is actually highly doubtful that humans could provide much more accurate predictions.
 
 \section{Reviews}
@@ -150,8 +130,8 @@ is performed later. (s. cite sentiment)
 In addition, to obtain a more informed analysis of the reviews, we also performed a detailed sentiment analysis for each review. Sentiment analysis are used to detect the underlying emotion of a text. Therefore, it classifies the text as either positive or negative.
 To do this, we used the \texttt{transformers} package, more specifically we used the \texttt{pipeline} function
 with the \texttt{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences
-according to positive or negative sentiments (s. documentation). The used model is DistlBERT,
-a small, fast and light Transformer model, a distilled version of BERT algorithm, which achieves significantly faster results. (s. documentation transformers).
+according to positive or negative sentiments (s. documentation). The used model is DistlBERT \cite{sanh2020},
+a small, fast and light Transformer model, a distilled version of BERT \cite{devlin2019} algorithm, which achieves significantly faster results. (s. documentation transformers).
 Finally, we used the sentiment analysis to determine the ratio of negative reviews to the total number of reviews per listings id, which is also added to the \textit{reviews\_feature} data frame.
 
 %Sources:
@@ -160,92 +140,114 @@ Finally, we used the sentiment analysis to determine the ratio of negative revie
 %Model: https://huggingface.co/transformers/v3.0.2/model_doc/distilbert.html
 
 
-\section{Feature Selection}
+\begin{appendices}
+    \section{}
+    \subsection{Image Processing and Modeling} \label{appendix:images}
 
-Not all features out of the new combined and extended feature set are equally valuable to the model in terms of predictive power.
-In fact, some of the features could not even be transformed to meaningful predictors due to containing e.g. \emph{id} information.
-Others were completely redundant in presence of a combination of original and/or manually constructed features and were thus dropped from the feature set.
+    \subsubsection{Webscraping}
 
-Before starting the modeling we intended to reduce the feature set even further to avoid strong correlations among the input predictors and possibly improve generalization performance to out-of-sample data.
-Thus, we agreed on a two-step strategy.
+    In the first step, the raw image links provided by the data set had to converted to an image format that the neural network is able to work with.
 
-First, we manually selected features based on three criteria:
-%%%
-\begin{enumerate}
-    \item The variable in consideration and the apartment price must have some connection based on human intuition and background knowledge. For instance, we included variables containing information about the apartment's \emph{size} such as the number of \emph{accomodates}, the number of \emph{bathrooms} and the number of \emph{bedrooms}.
-    \item There has to exist some correlation with the price in a bivariate visualization, e.g. a \emph{barplot} in case of categorical predictors or a \emph{scatterplot} in case of numeric features.
-    \item Since our dataset was comparably small with roughly $3000$ observations, we had to take care about missing values.
-          Therefore, each variable whose missing values could not be imputed in a meaningful and uncontroversial manner was either selected or dropped based on the trade-off of potential data reduction and its additional predictive value.
-\end{enumerate}
-%%%
+    Therefore we first used the \href{https://docs.python-requests.org/en/latest/}{requests} library to get the HTML Source Code of each listing's website.
+    Next, the \href{https://beautiful-soup-4.readthedocs.io/en/latest/}{beautifulsoup} library served as a convenient HTML parser to find and extract all embedded weblinks that lead to images located on the front page of the listings website.
+    With this strategy we could extract the first $5$ images for each apartment (if $5$ or more were available) that could be directly accessed from the front page source code.
 
-Up to this point the feature selection process was solely based on bivariate relationships and self-chosen (arguably arbitrary) selection criteria.
-There was a high chance of exluding important predictors that shine in combination with other variables rather than on their own.
-% daher jetzt feature selection algorithms including
-% -Schritt3: Manuelle Feature Selection bzw. inspiriert durch overall feature selection / Regression mit allen Features. Das Ergebnis hiervon ist dann listings_subset bzw. listings_extended
-% -Schritt 5: Schritt 5 (optional): Automatisierte Feature Selection (zB durch RFE) bzw. Dimensionality Reduction (im Sinne von PCA) mittels eines Algorithmus
+    Finally, we used the \texttt{requests} module again in combination with the \href{https://pillow.readthedocs.io/en/stable/}{pillow} package to decode the source content of all image adresses into two dimensional images.
 
-Therefore, in a second step, we fitted an auxiliary Linear Regression model with \emph{all} available features (except for the trivial ones such as the \emph{picture url}) and analyzed the absolute magnitude of the coefficients.
-Since all variables are standardized, these magnitudes are within the same range and unit-independent, and can thus be compared.
+    \subsubsection{Image Transformations}
 
-Of course, even this approach is not perfect, as several highly correlated characteristics that have a strong influence on price could lead to rather small estimated individual coefficients due to their joint predictive/explanatory power.
-To circumvent this potential issue, we additionally used the \emph{algorithmic} feature selectors provided by the \href{https://scikit-learn.org/stable/index.html}{scikit-learn} library, which (ideally) are able to separate the effects of highly correlated features and select only a small subset of them.
+    Before feeding these two dimensional images into the model, we performed some further preprocessing steps.
 
-Thereby we focused on two algorithms:
-%%%
-\begin{itemize}
-    \item Principal Component Analysis (\href{https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html}{PCA}):
-          Reduces dimensionality with the additional benefit of creating \emph{uncorrelated} linear combinations of existing features.
-    \item Recursive Feature Selection (\href{https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFE.html}{RFE}):
-          Selects subset of original features by leveraging an external estimator (in our case a \emph{Support Vector Regressor}).
-          We chose the \texttt{RFE} algorithm for the main analysis since the selected features can be immediately interpreted and the performance on the selected feature set was slightly better compared to \texttt{PCA}.
+    One very common technique when dealing with images is \emph{Data Augmentation}.
+    In contrast to classification tasks however, where Data Augmentation is used to expand the training set and improve simultaneously generalization, this approach is not immediately transferable to a regression context since we have to guarantee that the label (i.e. the price) remains unchanged for each image transformation.
+    Thus, we decided against standard transformations such as rotating the images or manipulating the color composition.
+    % COMMENT: da wir das ja nicht weiter verfolgt haben: kürzer fassen? Ein Satz?
 
-\end{itemize}
-%%%
+    We \textbf{did} use image \emph{cropping}, however, which, in our opinion, is one of the few applicable augmentations in regression contexts.
+    After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image \textbf{center} in the validation set to avoid any randomness during inference.
 
-The influence of the feature selector on the predictive and particularly the generalization performance is discussed in the \emph{Results} section.
-% TODO: Add Hyperlink to Results Chapter
+    At a final step all images were normalized, separately for each color channel.
+    In case of the pretrained model explained in the next section we used the same values for normilization that were used during training on the large \texttt{ImageNet} database \cite{russakovsky2015}.
+    The mean values and standard deviations for each color channel are provided in the \href{https://pytorch.org/vision/stable/models.html}{PyTorch documentation}.
 
+    %%%
+    \begin{figure}[t]
+        \centering
+        \includegraphics[width=\textwidth]{cnn_examples.png}
+        \caption{Images from Airbnb Apartments with true and predicted Prices}
+        \label{fig:cnn-examples}
+    \end{figure}
+    %%%
 
-\section{Price Distribution}
+    \subsection{Feature Selection} \label{appendix:feature-selection}
 
-One key aspect of exploratory data analysis is investigating the \emph{distribution} of the outcome variable.
-In our case the price distribution is highly right-skewed with a few very expensive listings pulling the mean and median of the price distribution further away from each other.
+    Not all features out of the new combined and extended feature set are equally valuable to the model in terms of predictive power.
+    In fact, some of the features could not even be transformed to meaningful predictors due to containing e.g. \emph{id} information.
+    Others were completely redundant in presence of a combination of original and/or manually constructed features and were thus dropped from the feature set.
 
-Some statistical models such as \emph{Linear Regression} tend to perform better when the outcome distribution is symmetric and approximately normal, whereas some very flexible algorithms like \emph{Neural Networks} do not make any distributional assumptions and are capable of modeling any kind of distribution accurately.
-Figure \ref{fig:price-distribution} illustrates an approximate normal distribution can be achieved with a simple logarithmic distribution.
+    Before starting the modeling we intended to reduce the feature set even further to avoid strong correlations among the input predictors and possibly improve generalization performance to out-of-sample data.
+    Thus, we agreed on a two-step strategy.
 
-Whereas \emph{all} of the classical models benefitted from the log-transformation resulting in lower error metrics, this was not the case for the Neural Network we used.
+    First, we manually selected features based on three criteria:
+    %%%
+    \begin{enumerate}
+        \item The variable in consideration and the apartment price must have some connection based on human intuition and background knowledge. For instance, we included variables containing information about the apartment's \emph{size} such as the number of \emph{accomodates}, the number of \emph{bathrooms} and the number of \emph{bedrooms}.
+        \item There has to exist some correlation with the price in a bivariate visualization, e.g. a \emph{barplot} in case of categorical predictors or a \emph{scatterplot} in case of numeric features.
+        \item Since our dataset was comparably small with roughly $3000$ observations, we had to take care about missing values.
+              Therefore, each variable whose missing values could not be imputed in a meaningful and uncontroversial manner was either selected or dropped based on the trade-off of potential data reduction and its additional predictive value.
+    \end{enumerate}
+    %%%
 
-In fact, training turned out to be more challenging, since the \emph{magnitude} of the losses by comparing true and predicted price on the logarithmic scale was drastically reduced, leading to smaller gradients and thus smaller weight updates.
-This issue could be mitigated to some extent with a larger learning rate.
-However, in contrast to the untransformed version, the network still suffered from \emph{vanishing gradients} and \emph{loss plateaus}.
+    Up to this point the feature selection process was solely based on bivariate relationships and self-chosen (arguably arbitrary) selection criteria.
+    There was a high chance of exluding important predictors that shine in combination with other variables rather than on their own.
 
+    Therefore, in a second step, we fitted an auxiliary Linear Regression model with \emph{all} available features (except for the trivial ones such as the \emph{picture url}) and analyzed the absolute magnitude of the coefficients.
+    Since all variables are standardized, these magnitudes are within the same range and unit-independent, and can thus be compared.
 
+    Of course, even this approach is not perfect, as several highly correlated characteristics that have a strong influence on price could lead to rather small estimated individual coefficients due to their joint predictive/explanatory power.
+    To circumvent this potential issue, we additionally used the \emph{algorithmic} feature selectors provided by the \href{https://scikit-learn.org/stable/index.html}{scikit-learn} library, which (ideally) are able to separate the effects of highly correlated features and select only a small subset of them.
 
-\newpage
+    Thereby we focused on two algorithms:
+    %%%
+    \begin{itemize}
+        \item Principal Component Analysis (\href{https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html}{PCA}):
+              Reduces dimensionality with the additional benefit of creating \emph{uncorrelated} linear combinations of existing features.
+        \item Recursive Feature Selection (\href{https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFE.html}{RFE}):
+              Selects subset of original features by leveraging an external estimator (in our case a \emph{Support Vector Regressor}).
+              We chose the \texttt{RFE} algorithm for the main analysis since the selected features can be immediately interpreted and the performance on the selected feature set was slightly better compared to \texttt{PCA}.
 
-\bibliography{bib}
+    \end{itemize}
+    %%%
+
+    The influence of the feature selector on the predictive and particularly the generalization performance is discussed in the \emph{Results} section.
+    % TODO: Add Hyperlink to Results Chapter
+
+    \subsection{Price Distribution} \label{appendix:price-distribution}
+
+    One key aspect of exploratory data analysis is investigating the \emph{distribution} of the outcome variable.
+    In our case the price distribution is highly right-skewed with a few very expensive listings pulling the mean and median of the price distribution further away from each other.
+
+    Some statistical models such as \emph{Linear Regression} tend to perform better when the outcome distribution is symmetric and approximately normal, whereas some very flexible algorithms like \emph{Neural Networks} do not make any distributional assumptions and are capable of modeling any kind of distribution accurately.
+    Figure \ref{fig:price-distribution} illustrates an approximate normal distribution can be achieved with a simple logarithmic distribution.
+
+    Whereas \emph{all} of the classical models benefitted from the log-transformation resulting in lower error metrics, this was not the case for the Neural Network we used.
+
+    In fact, training turned out to be more challenging, since the \emph{magnitude} of the losses by comparing true and predicted price on the logarithmic scale was drastically reduced, leading to smaller gradients and thus smaller weight updates.
+    This issue could be mitigated to some extent with a larger learning rate.
+    However, in contrast to the untransformed version, the network still suffered from \emph{vanishing gradients} and \emph{loss plateaus}.
+
+    %%%
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[width=0.8\textwidth]{price_distribution.png}
+        \caption{Distribution of Apartment Prices on original and logarithmic Scale}
+        \label{fig:price-distribution}
+    \end{figure}
+    %%%
+
+\end{appendices}
+
+\bibliography{../bib}
 \bibliographystyle{apalike}
-
-\appendix
-
-%%%
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\textwidth]{cnn_examples.png}
-    \caption{Images from Airbnb Apartments with true and predicted Prices}
-    \label{fig:cnn-examples}
-\end{figure}
-%%%
-
-%%%
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.8\textwidth]{price_distribution.png}
-    \caption{Distribution of Apartment Prices on original and logarithmic Scale}
-    \label{fig:price-distribution}
-\end{figure}
-%%%
 
 \end{document}

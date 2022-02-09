@@ -1,9 +1,41 @@
 
-@misc{allaire2018,
-  title = {J. {{Allaire J}}. 2018. {{Deep}} Learning with {{R}}},
-  author = {Allaire, J., Chollet, F},
-  year = {2018},
-  publisher = {{Manning Publications, Shelter Island, NY}}
+@article{bergstra2012,
+  title = {Random {{Search}} for {{Hyper-Parameter Optimization}}.},
+  author = {Bergstra, James and Bengio, Yoshua},
+  year = {2012},
+  journal = {J. Mach. Learn. Res.},
+  volume = {13},
+  pages = {281--305}
+}
+
+@article{breiman2001,
+  title = {Random {{Forests}}},
+  author = {Breiman, Leo},
+  year = {2001},
+  month = oct,
+  journal = {Machine Learning},
+  volume = {45},
+  number = {1},
+  pages = {5--32},
+  issn = {1573-0565},
+  doi = {10.1023/A:1010933404324},
+  abstract = {Random forests are a combination of tree predictors such that each tree depends on the values of a random vector sampled independently and with the same distribution for all trees in the forest. The generalization error for forests converges a.s. to a limit as the number of trees in the forest becomes large. The generalization error of a forest of tree classifiers depends on the strength of the individual trees in the forest and the correlation between them. Using a random selection of features to split each node yields error rates that compare favorably to Adaboost (Y. Freund \& R. Schapire, Machine Learning: Proceedings of the Thirteenth International conference, ***, 148\textendash 156), but are more robust with respect to noise. Internal estimates monitor error, strength, and correlation and these are used to show the response to increasing the number of features used in the splitting. Internal estimates are also used to measure variable importance. These ideas are also applicable to regression.},
+  langid = {english}
+}
+
+@article{chen2016,
+  title = {{{XGBoost}}: {{A Scalable Tree Boosting System}}},
+  shorttitle = {{{XGBoost}}},
+  author = {Chen, Tianqi and Guestrin, Carlos},
+  year = {2016},
+  month = aug,
+  journal = {Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
+  eprint = {1603.02754},
+  eprinttype = {arxiv},
+  pages = {785--794},
+  doi = {10.1145/2939672.2939785},
+  abstract = {Tree boosting is a highly effective and widely used machine learning method. In this paper, we describe a scalable end-to-end tree boosting system called XGBoost, which is used widely by data scientists to achieve state-of-the-art results on many machine learning challenges. We propose a novel sparsity-aware algorithm for sparse data and weighted quantile sketch for approximate tree learning. More importantly, we provide insights on cache access patterns, data compression and sharding to build a scalable tree boosting system. By combining these insights, XGBoost scales beyond billions of examples using far fewer resources than existing systems.},
+  archiveprefix = {arXiv}
 }
 
 @book{chollet2018,
@@ -14,6 +46,33 @@
   address = {{Shelter Island, New York}},
   isbn = {978-1-61729-443-3},
   langid = {english}
+}
+
+@article{devlin2019,
+  title = {{{BERT}}: {{Pre-training}} of {{Deep Bidirectional Transformers}} for {{Language Understanding}}},
+  shorttitle = {{{BERT}}},
+  author = {Devlin, Jacob and Chang, Ming-Wei and Lee, Kenton and Toutanova, Kristina},
+  year = {2019},
+  month = may,
+  journal = {arXiv:1810.04805 [cs]},
+  eprint = {1810.04805},
+  eprinttype = {arxiv},
+  primaryclass = {cs},
+  abstract = {We introduce a new language representation model called BERT, which stands for Bidirectional Encoder Representations from Transformers. Unlike recent language representation models, BERT is designed to pre-train deep bidirectional representations from unlabeled text by jointly conditioning on both left and right context in all layers. As a result, the pre-trained BERT model can be fine-tuned with just one additional output layer to create state-of-the-art models for a wide range of tasks, such as question answering and language inference, without substantial task-specific architecture modifications. BERT is conceptually simple and empirically powerful. It obtains new state-of-the-art results on eleven natural language processing tasks, including pushing the GLUE score to 80.5\% (7.7\% point absolute improvement), MultiNLI accuracy to 86.7\% (4.6\% absolute improvement), SQuAD v1.1 question answering Test F1 to 93.2 (1.5 point absolute improvement) and SQuAD v2.0 Test F1 to 83.1 (5.1 point absolute improvement).},
+  archiveprefix = {arXiv}
+}
+
+@article{goodfellow2015,
+  title = {Explaining and {{Harnessing Adversarial Examples}}},
+  author = {Goodfellow, Ian J. and Shlens, Jonathon and Szegedy, Christian},
+  year = {2015},
+  month = mar,
+  journal = {arXiv:1412.6572 [cs, stat]},
+  eprint = {1412.6572},
+  eprinttype = {arxiv},
+  primaryclass = {cs, stat},
+  abstract = {Several machine learning models, including neural networks, consistently misclassify adversarial examples---inputs formed by applying small but intentionally worst-case perturbations to examples from the dataset, such that the perturbed input results in the model outputting an incorrect answer with high confidence. Early attempts at explaining this phenomenon focused on nonlinearity and overfitting. We argue instead that the primary cause of neural networks' vulnerability to adversarial perturbation is their linear nature. This explanation is supported by new quantitative results while giving the first explanation of the most intriguing fact about them: their generalization across architectures and training sets. Moreover, this view yields a simple and fast method of generating adversarial examples. Using this approach to provide examples for adversarial training, we reduce the test set error of a maxout network on the MNIST dataset.},
+  archiveprefix = {arXiv}
 }
 
 @book{goodfellow2016,
@@ -54,6 +113,43 @@
   langid = {english}
 }
 
+@article{ioffe2015,
+  title = {Batch {{Normalization}}: {{Accelerating Deep Network Training}} by {{Reducing Internal Covariate Shift}}},
+  shorttitle = {Batch {{Normalization}}},
+  author = {Ioffe, Sergey and Szegedy, Christian},
+  year = {2015},
+  month = mar,
+  journal = {arXiv:1502.03167 [cs]},
+  eprint = {1502.03167},
+  eprinttype = {arxiv},
+  primaryclass = {cs},
+  abstract = {Training Deep Neural Networks is complicated by the fact that the distribution of each layer's inputs changes during training, as the parameters of the previous layers change. This slows down the training by requiring lower learning rates and careful parameter initialization, and makes it notoriously hard to train models with saturating nonlinearities. We refer to this phenomenon as internal covariate shift, and address the problem by normalizing layer inputs. Our method draws its strength from making normalization a part of the model architecture and performing the normalization for each training mini-batch. Batch Normalization allows us to use much higher learning rates and be less careful about initialization. It also acts as a regularizer, in some cases eliminating the need for Dropout. Applied to a state-of-the-art image classification model, Batch Normalization achieves the same accuracy with 14 times fewer training steps, and beats the original model by a significant margin. Using an ensemble of batch-normalized networks, we improve upon the best published result on ImageNet classification: reaching 4.9\% top-5 validation error (and 4.8\% test error), exceeding the accuracy of human raters.},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{ke2017,
+  title = {{{LightGBM}}: {{A Highly Efficient Gradient Boosting Decision Tree}}},
+  shorttitle = {{{LightGBM}}},
+  booktitle = {Advances in {{Neural Information Processing Systems}}},
+  author = {Ke, Guolin and Meng, Qi and Finley, Thomas and Wang, Taifeng and Chen, Wei and Ma, Weidong and Ye, Qiwei and Liu, Tie-Yan},
+  year = {2017},
+  volume = {30},
+  publisher = {{Curran Associates, Inc.}}
+}
+
+@article{kingma2014,
+  title = {Auto-{{Encoding Variational Bayes}}},
+  author = {Kingma, Diederik P. and Welling, Max},
+  year = {2014},
+  month = may,
+  journal = {arXiv:1312.6114 [cs, stat]},
+  eprint = {1312.6114},
+  eprinttype = {arxiv},
+  primaryclass = {cs, stat},
+  abstract = {How can we perform efficient inference and learning in directed probabilistic models, in the presence of continuous latent variables with intractable posterior distributions, and large datasets? We introduce a stochastic variational inference and learning algorithm that scales to large datasets and, under some mild differentiability conditions, even works in the intractable case. Our contributions is two-fold. First, we show that a reparameterization of the variational lower bound yields a lower bound estimator that can be straightforwardly optimized using standard stochastic gradient methods. Second, we show that for i.i.d. datasets with continuous latent variables per datapoint, posterior inference can be made especially efficient by fitting an approximate inference model (also called a recognition model) to the intractable posterior using the proposed lower bound estimator. Theoretical advantages are reflected in experimental results.},
+  archiveprefix = {arXiv}
+}
+
 @article{kingma2017,
   title = {Adam: {{A Method}} for {{Stochastic Optimization}}},
   shorttitle = {Adam},
@@ -79,27 +175,6 @@
   isbn = {978-1-4919-2413-6}
 }
 
-@book{lutz2013,
-  title = {Learning {{Python}}},
-  author = {Lutz, Mark},
-  year = {2013},
-  edition = {Fifth edition},
-  publisher = {{O'Reilly}},
-  address = {{Beijing}},
-  isbn = {978-1-4493-5573-9},
-  langid = {english}
-}
-
-@book{mckinney2013,
-  title = {Python for Data Analysis},
-  author = {McKinney, Wes},
-  year = {2013},
-  publisher = {{O'Reilly}},
-  address = {{Beijing}},
-  isbn = {978-1-4493-1979-3},
-  langid = {english}
-}
-
 @incollection{paszke2019,
   title = {{{PyTorch}}: {{An Imperative Style}}, {{High-Performance Deep Learning Library}}},
   booktitle = {Advances in {{Neural Information Processing Systems}} 32},
@@ -119,29 +194,54 @@
   pages = {2825--2830}
 }
 
-@book{zumel2014,
-  title = {Practical Data Science with {{R}}},
-  author = {Zumel, Nina and Mount, John},
+@article{russakovsky2015,
+  title = {{{ImageNet Large Scale Visual Recognition Challenge}}},
+  author = {Russakovsky, Olga and Deng, Jia and Su, Hao and Krause, Jonathan and Satheesh, Sanjeev and Ma, Sean and Huang, Zhiheng and Karpathy, Andrej and Khosla, Aditya and Bernstein, Michael and Berg, Alexander C. and {Fei-Fei}, Li},
+  year = {2015},
+  month = jan,
+  journal = {arXiv:1409.0575 [cs]},
+  eprint = {1409.0575},
+  eprinttype = {arxiv},
+  primaryclass = {cs},
+  abstract = {The ImageNet Large Scale Visual Recognition Challenge is a benchmark in object category classification and detection on hundreds of object categories and millions of images. The challenge has been run annually from 2010 to present, attracting participation from more than fifty institutions. This paper describes the creation of this benchmark dataset and the advances in object recognition that have been possible as a result. We discuss the challenges of collecting large-scale ground truth annotation, highlight key breakthroughs in categorical object recognition, provide a detailed analysis of the current state of the field of large-scale image classification and object detection, and compare the state-of-the-art computer vision accuracy with human accuracy. We conclude with lessons learned in the five years of the challenge, and propose future directions and improvements.},
+  archiveprefix = {arXiv}
+}
+
+@article{sanh2020,
+  title = {{{DistilBERT}}, a Distilled Version of {{BERT}}: Smaller, Faster, Cheaper and Lighter},
+  shorttitle = {{{DistilBERT}}, a Distilled Version of {{BERT}}},
+  author = {Sanh, Victor and Debut, Lysandre and Chaumond, Julien and Wolf, Thomas},
+  year = {2020},
+  month = feb,
+  journal = {arXiv:1910.01108 [cs]},
+  eprint = {1910.01108},
+  eprinttype = {arxiv},
+  primaryclass = {cs},
+  abstract = {As Transfer Learning from large-scale pre-trained models becomes more prevalent in Natural Language Processing (NLP), operating these large models in on-the-edge and/or under constrained computational training or inference budgets remains challenging. In this work, we propose a method to pre-train a smaller general-purpose language representation model, called DistilBERT, which can then be fine-tuned with good performances on a wide range of tasks like its larger counterparts. While most prior work investigated the use of distillation for building task-specific models, we leverage knowledge distillation during the pre-training phase and show that it is possible to reduce the size of a BERT model by 40\%, while retaining 97\% of its language understanding capabilities and being 60\% faster. To leverage the inductive biases learned by larger models during pre-training, we introduce a triple loss combining language modeling, distillation and cosine-distance losses. Our smaller, faster and lighter model is cheaper to pre-train and we demonstrate its capabilities for on-device computations in a proof-of-concept experiment and a comparative on-device study.},
+  archiveprefix = {arXiv}
+}
+
+@article{srivastava2014,
+  title = {Dropout: {{A Simple Way}} to {{Prevent Neural Networks}} from {{Overfitting}}},
+  shorttitle = {Dropout},
+  author = {Srivastava, Nitish and Hinton, Geoffrey and Krizhevsky, Alex and Sutskever, Ilya and Salakhutdinov, Ruslan},
   year = {2014},
-  publisher = {{Manning Publications Co}},
-  address = {{Shelter Island, NY}},
-  isbn = {978-1-61729-156-2},
-  langid = {english}
+  journal = {Journal of Machine Learning Research},
+  volume = {15},
+  number = {56},
+  pages = {1929--1958},
+  issn = {1533-7928},
+  abstract = {Deep neural nets with a large number of parameters are very powerful machine learning systems. However, overfitting is a serious problem in such networks. Large networks are also slow to use, making it difficult to deal with overfitting by combining the predictions of many different large neural nets at test time. Dropout is a technique for addressing this problem. The key idea is to randomly drop units (along with their connections) from the neural network during training. This prevents units from co-adapting too much. During training, dropout samples from an exponential number of different \^athinned\^a networks. At test time, it is easy to approximate the effect of averaging the predictions of all these thinned networks by simply using a single unthinned network that has smaller weights. This significantly reduces overfitting and gives major improvements over other regularization methods. We show that dropout improves the performance of neural networks on supervised learning tasks in vision, speech recognition, document classification and computational biology, obtaining state-of-the-art results on many benchmark data sets.}
 }
 
-@misc{sentiment,
-  author = {Natassha Selvaraj},
-  title = {{A Beginner's Guide to Sentiment Analysis with Python}},
-  howpublished = "\url{https://towardsdatascience.com/a-beginners-guide-to-sentiment-analysis-in-python-95e354ea84f6}",
-  year = {2020}, 
-  note = "[Online; accessed 20-January-2022]"
+@article{zhang2021,
+  title = {Dive into {{Deep Learning}}},
+  author = {Zhang, Aston and Lipton, Zachary C. and Li, Mu and Smola, Alexander J.},
+  year = {2021},
+  journal = {arXiv preprint arXiv:2106.11342},
+  eprint = {2106.11342},
+  eprinttype = {arxiv},
+  archiveprefix = {arXiv}
 }
 
-@misc{transformers,
-  author = {huggingface},
-  title = {{Transformers Package Documentation}},
-  howpublished = "\url{https://huggingface.co/transformers/v3.0.2}",
-  year = {2020}, 
-  note = "[Online; accessed 20-January-2022]"
-}
 

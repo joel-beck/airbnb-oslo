@@ -1,6 +1,7 @@
 \documentclass[12pt, letterpaper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+\usepackage[titletoc, title]{appendix}
 \usepackage{booktabs}
 \usepackage{parskip}
 
@@ -12,7 +13,7 @@
     colorlinks=true,
     urlcolor=blue,
     linkcolor=blue,
-    citecolor=blue,
+    citecolor=black,
     filecolor=blue,
 }
 \urlstyle{same}
@@ -97,7 +98,7 @@ The Top $3$ Average achieves the lowest out-of-sample Mean Absolute Error of sli
 
 
 
-\section{Explanations and Interpretation}
+\section{Understanding and Interpretation}
 
 Interpreting the results of high-dimensional and complex statistical models is notoriously difficult.
 This section approaches the challenge from two opposite angles.
@@ -113,8 +114,8 @@ We chose to analyze the feature importance of an auxiliary Linear Regression mod
 
 Therefore we preselected $25$ of the network's input features with the \texttt{RFE} algorithm introduced in the previous chapter and compared the coefficient magnitudes.
 As noted before, all predictors were standardized such that a meaningful comparison is feasible.
+The results are shown in figure \ref{fig:coefficient-plot} in the Appendix.
 
-The results are shown in figure \ref{fig:coefficient-plot}.
 It is worth noting that the two most important features based on various different feature selectors of the \texttt{scikit-learn} library were always the number of \emph{bedrooms} and the (number of) \emph{accomodates} in this order, both measuring the apartment's \emph{capacity}.
 
 The coefficient plot, however, is dominated by categorical features:
@@ -170,8 +171,7 @@ If the price outliers are clearly separated from the rest in this embedded space
 If, however, the outliers are located in the \emph{middle} of the latent distribution, there is little hope to discriminate the most expensive apartments from any of their potentially much lower priced embedded neighbours.
 
 Modern Machine Learning methods provide a large toolbox for low-dimensional embeddings.
-Since the project is mainly focused on Deep Learning we decided to use a \emph{Variatonal Autoencoder}.
-% TODO: Add reference to VAE paper
+Since the project is mainly focused on Deep Learning we decided to use a \emph{Variatonal Autoencoder} \cite{kingma2014}.
 In contrast to deterministic Autoencoders the VAE contains an additional loss term apart from the usual reconstruction loss that pulls the encoded latent space distribution towards an isotropic multivariate Gaussian distribution.
 For this reason, latent space visualizations of the VAE appear to be more spread out and output classes (that are not used for training the VAE) tend to be easier to identify.
 
@@ -205,20 +205,22 @@ One idea is to use features like availability or the number of reviews to approx
 However, it is entirely possible that an extremely expensive observation with very low demand is listed according to its true value, yet nobody is willing to pay such a high amount for an accomodation, regardless of its quality.
 As a consequence, a blind removal of such outliers is difficult to justify when obeying correct statistical methodology.
 
-\newpage
 
-\bibliography{bib}
+\begin{appendices}
+    \section{}
+    \subsection{Feature Importance}
+
+    %%%
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[width=\textwidth]{coefficient_plot.png}
+        \caption{Estimated coefficients of a Linear Regression model for $25$ preselected features}
+        \label{fig:coefficient-plot}
+    \end{figure}
+    %%%
+\end{appendices}
+
+\bibliography{../bib}
 \bibliographystyle{apalike}
-
-\appendix
-
-%%%
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\textwidth]{coefficient_plot.png}
-    \caption{Estimated coefficients of a Linear Regression model for $25$ preselected features}
-    \label{fig:coefficient-plot}
-\end{figure}
-%%%
 
 \end{document}
