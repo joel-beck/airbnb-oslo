@@ -45,7 +45,7 @@
 
 This section covers all necessary preprocessing steps that build the foundation for all further modeling tasks.
 Here, we mostly focus on feature \emph{engineering} by extracting information from the image and text data contained in the Airbnb Dataset.
-However, feature \emph{selection} and transformations of the price variable turned out to be essential components of the preprocessing pipeline and are discussed in Appendix \ref{appendix:feature-selection} and \ref{appendix:price-distribution}.
+However, feature \emph{selection} and transformations of the price variable turned out to be essential components of the preprocessing pipeline and are discussed in \Cref{appendix:feature-selection} and \Cref{appendix:price-distribution}.
 
 In addition, some basic data cleaning steps at the very beginning were necessary.
 These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation.
@@ -65,7 +65,7 @@ Since there exist multiple images per apartment, the predictions were averaged a
 
 Before the images can be used as model input they had to be \emph{scraped} from each listing's webpage.
 Further, some basic transformations were necessary.
-Details about these image proprocessing steps can be found in Appendix \ref{appendix:images}.
+Details about these image proprocessing steps can be found in \Cref{appendix:images}.
 
 
 \textbf{Image Modeling} \\
@@ -105,7 +105,7 @@ This indicates some limitations of the correlation as useful metric on the one h
 In fact, the network struggled the most with capturing the wide \emph{range} of prices and almost always predicted values close to the center of the (log) price distribution.
 
 Although the general idea of categorizing images into price ranges based on image features sounds very appealing, taking a look at the actual input images reveals how challenging this task actually is.
-Figure \ref{fig:cnn-examples} in the Appendix displays a random collection of input images.
+\Cref{fig:cnn-examples} in the Appendix displays a random collection of input images.
 Considering the difficulty of the task it is actually highly doubtful that humans could provide much more accurate predictions.
 
 \subsubsection{Reviews}
@@ -114,12 +114,11 @@ In order to extract the most important information from the reviews, we have per
 
 First, we used the \href{https://pypi.org/project/langdetect/}{langdetect} package to determine the language of each review.
 With this information, we tried to get some insights about the internationality of the guests.
-Since English and Norwegian are the most commonly used languages, we then created two so-called word clouds in this languages
-to visualize the most frequently used words in the reviews and to give us a short overview of the given ratings.
+Since English and Norwegian are the most commonly used languages, we then created two so-called word clouds in these languages to visualize the most frequently used words in the reviews and to give us a short overview of the given ratings.
 To just have the important words in this representation, a list of given stop words are used to extract them.
-What is most striking in the plots (s. Fig. \ref{fig:wordclouds}) is that in both predominantly positive words are printed. The largest printed and thus most frequently used words in English are \textit{apartement}, \textit{Oslo} and \textit{place} and
-further \textit{clean}, \textit{comfortable}, \textit{helpful} and \textit{easy}. Also in the Norwegian plot there are mainly positive expressions like \textit{"anbefale"} (engl. recommend), \textit{"fin"} (engl. fine) and \textit{"flott leilighet"} (engl. great apartement).
-% Wörter in Anführungsstriche oder kursiv?
+What is most striking in \Cref{fig:wordclouds} is that in both predominantly positive words are printed.
+The largest printed and thus most frequently used words in English are \textit{apartment}, \textit{Oslo} and \textit{place} and further \textit{clean}, \textit{comfortable}, \textit{helpful} and \textit{easy}.
+Also in the Norwegian plot there are mainly positive expressions like \textit{anbefale} (engl. \emph{recommend}), \textit{fin} (engl. \emph{fine}) and \textit{flott leilighet} (engl. \emph{great apartment}).
 
 % insert Wordclouds english and norwegian side-by-side
 \begin{figure}[t]
@@ -135,16 +134,17 @@ further \textit{clean}, \textit{comfortable}, \textit{helpful} and \textit{easy}
 \end{figure}
 
 The results of the language detection are stored per \textit{listing\_id} in a new data frame called \textit{reviews\_features}.
-This data frame contains the number of reviews per listing, the median length of a review, the number of different languages,
-as well as a list of languages in which the reviews for that apartment were written. The percentages of Norwegian and English reviews are
-also recorded for each listing id. Finally, this data frame was added to the \textit{listings} data frame on which feature selection
-is performed later. (s. cite sentiment)
+This data frame contains the number of reviews per listing, the median length of a review, the number of different languages as well as a list of languages in which the reviews for that apartment were written.
+The percentages of Norwegian and English reviews are also recorded for each listing id.
+Finally, this data frame was added to the \textit{listings} data frame on which feature selection is performed later. (s. cite sentiment)
 
-In addition, to obtain a more informed analysis of the reviews, we also performed a detailed sentiment analysis for each review. Sentiment analysis are used to detect the underlying emotion of a text. Therefore, it classifies the text as either positive or negative.
-To do this, we used the \texttt{transformers} package, more specifically we used the \texttt{pipeline} function
-with the \texttt{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences
-according to positive or negative sentiments (s. documentation). The used model is DistlBERT \citep{sanh2020},
-a small, fast and light Transformer model, a distilled version of BERT \citep{devlin2019} algorithm, which achieves significantly faster results. (s. documentation transformers).
+In addition, to obtain a more informed analysis of the reviews, we also performed a detailed sentiment analysis for each review.
+Sentiment analysis is used to detect the underlying emotion of a text.
+Therefore, it classifies the text as either positive or negative.
+
+To do this, we used the \texttt{transformers} package, more specifically we used the \texttt{pipeline} function with the \texttt{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences according to positive or negative sentiments (s. documentation).
+The used model is DistlBERT \citep{sanh2020}, a small, fast and light Transformer model, a distilled version of BERT \citep{devlin2019} algorithm, which achieves significantly faster results (s. documentation transformers).
+
 Finally, we used the sentiment analysis to determine the ratio of negative reviews to the total number of reviews per listings id, which is also added to the \textit{reviews\_feature} data frame.
 
 %Sources:
@@ -158,7 +158,7 @@ This section describes the statistical models that we used to predict apartment 
 The goal is to contruct different models of varying complexity and compare both their in-sample and their out-of-sample performance on the Airbnb data.
 
 At this point in the data pipeline all preprocessing steps are completed such that all covariates have the correct data type to be used by the models.
-Whereas the selected classical Machine Learning models described in section \ref{classical-models} use input features as \texttt{numpy} arrays, the Neural Network in section \ref{neural-network} first converts them to \emph{Tensors}, the canonical data type across all popular Deep Learning Frameworks.
+Whereas the selected classical Machine Learning models described in \Cref{classical-models} use input features as \texttt{numpy} arrays, the Neural Network in \Cref{neural-network} first converts them to \emph{Tensors}, the canonical data type across all popular Deep Learning Frameworks.
 
 \subsubsection{Classical Models} \label{classical-models}
 
@@ -194,7 +194,7 @@ This allows for greater variation along more 'important' dimensions while still 
 
 In concurrence with the Seminar's topic the focus of our project is centered around constructing a custom Neural Network that is trained in a supervised setting and learns to map feature combinations to price predictions for the Airbnb data set.
 The following section highlights the key components of the model's architecture.
-A brief overview of additional (hyper-)parameters that were of minor importance can be found in Appendix \ref{appendix:hyperparameters}.
+A brief overview of additional (hyper-)parameters that were of minor importance can be found in \Cref{appendix:hyperparameters}.
 
 The network's design is restricted by two factors:
 %%%
@@ -218,7 +218,7 @@ More precisely, the architecture consists of $6$ intermediary \textbf{blocks} wi
 \end{figure}
 %%%
 
-The structure of each so-called \texttt{Linear Block} is displayed in figure \ref{fig:linear-block}.
+The structure of each so-called \texttt{Linear Block} is displayed in \Cref{fig:linear-block}.
 We now explain the reasoning behind including or excluding elements in this configuration.
 
 \textbf{Linear Layer} \\
@@ -245,7 +245,7 @@ More specifically, the network overfitted drastically by setting $p$ to zero.
 This actually provided the valuable insight that the current function class is flexible enough to model the task at hand properly.
 Thus, there was no need to artificially expand the network size beyond the current quite compact architecture with roughly $280.000$ trainable parameters, saving computation time as a nice side-effect.
 
-Figure \ref{fig:dropout} in the Appendix displays the shift in performance metrics on training and validation set when steadily increasing the dropout probability $p$.
+\Cref{fig:dropout} in the Appendix displays the shift in performance metrics on training and validation set when steadily increasing the dropout probability $p$.
 While not beneficial for overall performance, dropout delivers a leverage to make the model perform much better on out-of-sample data compared to the dataset that it was actually trained on.
 
 This behaviour can be explained by the \emph{ensemble} interpretation of dropout \citep{goodfellow2016}:
@@ -256,14 +256,14 @@ In contrast, during inference (and possible deployment of the model), any random
 Although there is no influence on the model \emph{weights} in this stage, the model pools all subset models together and \emph{averages out} the diverging effects of each component, ultimately resulting in better performance metrics.
 
 \textbf{Residual Connections} \\
-One special feature of the \texttt{Linear Block} architecture in figure \ref{fig:linear-block} is the \emph{Residual Connection} which adds the block input to the output of the second linear layer within each block.
+One special feature of the \texttt{Linear Block} architecture in \Cref{fig:linear-block} is the \emph{Residual Connection} which adds the block input to the output of the second linear layer within each block.
 This component was originally implemented having a fairly deep network in mind since \emph{Residual Blocks} introduced by the famous \texttt{ResNet} architecture \citep{he2015} are a very popular tool for stable gradient flow by preventing the issue of vanishing gradients.
 
 As mentioned above the actual depth of the final model turned out to be limited.
 Therefore we decided to enable inclusion and exclusion of skip-connections in the network by a \texttt{boolean} parameter allowing for easy comparisons between the model designs.
 Although the residual component did not have a major impact on performance, it was slightly beneficial in most settings such that there was no reason to remove it from the architecture.
 
-There are two aspects worth mentioning about the residual connection in figure \ref{fig:linear-block}:
+There are two aspects worth mentioning about the residual connection in \Cref{fig:linear-block}:
 %%%
 \begin{enumerate}
   \item The addition of the input with the output of the second linear layer is performed \textbf{before} the final \texttt{Batchnorm} and \texttt{ReLU} layers of this block.
@@ -271,7 +271,7 @@ There are two aspects worth mentioning about the residual connection in figure \
 
   \item One caveat of the residual architecture is to ensure that at addition time all contributing terms share the same dimensions.
         In case of a fully connected layer dealing with two-dimensional tensors, this amounts to an equal number of features in the second dimension.
-        As illustrated by the annotations in figure \ref{fig:linear-block}, this restriction requires an extra step if the number of input features is different from the number of output features in this particular block.
+        As illustrated by the annotations in \Cref{fig:linear-block}, this restriction requires an extra step if the number of input features is different from the number of output features in this particular block.
         In our case the dimnesions adjustment is performed by an additional linear layer exclusively for the block input $x$.
 \end{enumerate}
 %%%

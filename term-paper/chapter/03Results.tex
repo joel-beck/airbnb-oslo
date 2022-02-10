@@ -31,12 +31,12 @@
 \end{figure}
 %%%
 
-Figure \ref{fig:model-comparison} shows performance metrics for all fitted models on both the Training Set and the Validation Set.
+\Cref{fig:model-comparison} shows performance metrics for all fitted models on both the Training Set and the Validation Set.
 Whereas we used the Mean Squared Error Loss for \emph{training} the Neural Net due to its convenient differentiability with regards to backpropagation, we focused on the Mean Absolute Error and the $R^2$ value for \emph{evaluating} all regression models.
 The MAE measures absolute deviations between true and predicted price and is therefore interpretable on the same scale as the original data.
 While the $R^2$ certainly has some inherent flaws, it provides a scale-independent and highly interpretable measure of overall model fit.
 
-The different colors in figure \ref{fig:model-comparison} indicate how many features were selected by the \texttt{RFE} algorithm for this particular fit with $59$ total predictor variables.
+The different colors in \Cref{fig:model-comparison} indicate how many features were selected by the \texttt{RFE} algorithm for this particular fit with $59$ total predictor variables.
 Unsurprisingly, one or two features (in case of the \texttt{RFE} the number of bedrooms and the (number of) accomodates) provide too little information to model the task appropriately.
 However, including merely $5$ features (in this case adding the $30$ day availability, the indicator variable for the \emph{Frogner} neighbourhood and, notably, the price predictions from the Convolutional Net based on the image data) results in a very competitive performance for most models on the validation set.
 
@@ -55,7 +55,7 @@ This finding emphasizes two aspects:
   \item The prediction task does \textbf{not} require overly complex models and linear models perform just fine.
   \item We can expect predictions within a distance of roughly $400$ NOK (40 Euros) on average to the true price.
         Further, a $R^2$ value of around $0.4$ is the best we can hope for.
-        These statements hold for fitting on the \emph{entire} training set, section \ref{outliers} reveals how the performance radically improves when excluding some observations.
+        These statements hold for fitting on the \emph{entire} training set, \Cref{outliers} reveals how the performance radically improves when excluding some observations.
 \end{enumerate}
 %%%
 In comparison to all \texttt{scikit-learn} models our custom Neural Net appears to underperform.
@@ -67,21 +67,21 @@ The best simulation to performance on truly unseen data is thus provided by the 
   \begin{tabular}{@{}ccc@{}}
     \toprule
     \multicolumn{1}{l}{Model} & \multicolumn{1}{l}{MAE} & \multicolumn{1}{l}{\textbf{$R^2$}} \\ \midrule
-    Linear Regression    & 404.709                 & 0.298                              \\
-    Ridge                & 405.932                 & 0.294                              \\
-    Random Forest        & 444.166                 & 0.268                              \\
-    HistGradientBoosting & 412.243                 & 0.387                              \\
-    Neural Network       & 402.24                  & 0.333                              \\
-    Top2 Average         & 404.848                 & 0.296                              \\
-    Top3 Average         & 399.315                 & 0.343                              \\
-    Top4 Average         & 404.206                 & 0.332                              \\
-    Top5 Average         & 408.116                 & 0.27                               \\ \bottomrule
+    Linear Regression         & 404.709                 & 0.298                              \\
+    Ridge                     & 405.932                 & 0.294                              \\
+    Random Forest             & 444.166                 & 0.268                              \\
+    HistGradientBoosting      & 412.243                 & 0.387                              \\
+    Neural Network            & 402.24                  & 0.333                              \\
+    Top2 Average              & 404.848                 & 0.296                              \\
+    Top3 Average              & 399.315                 & 0.343                              \\
+    Top4 Average              & 404.206                 & 0.332                              \\
+    Top5 Average              & 408.116                 & 0.27                               \\ \bottomrule
   \end{tabular}
   \caption{Test Set Performance of Classical Machine Learning Models, our custom Neural Network and Ensemble Predictions}
   \label{tab:test-set}
 \end{table}
 
-Table \ref{tab:test-set} compares test set metrics for the best performing models on the validation set within each class (i.e. the Neural Net version with all $59$ features and the Random Forest model with only $25$ features were selected).
+\Cref{tab:test-set} compares test set metrics for the best performing models on the validation set within each class (i.e. the Neural Net version with all $59$ features and the Random Forest model with only $25$ features were selected).
 In addition, we added some simple ensemble models that predict the average estimate from the top $2$, $3$, $4$ or all five models, respectively.
 
 Quite surpringly, the Neural Net shows a significant performance boost on the Test Set and is now very competitive with all other models.
@@ -108,7 +108,7 @@ We chose to analyze the feature importance of an auxiliary Linear Regression mod
 
 Therefore we preselected $25$ of the network's input features with the \texttt{RFE} algorithm introduced in the previous chapter and compared the coefficient magnitudes.
 As noted before, all predictors were standardized such that a meaningful comparison is feasible.
-The results are shown in figure \ref{fig:coefficient-plot}.
+The results are shown in \Cref{fig:coefficient-plot}.
 
 \begin{figure}[t]
   \centering
@@ -124,7 +124,7 @@ In agreement with human intuition the \emph{room} type, the \emph{property} type
 Unsurprisingly, the property types \emph{entire home} and \emph{entire villa} are connected with high prices, whereas the the room type \emph{shared room} correlates with cheaper apartments.
 Notably, the price predictions from the Convolutional Network fitted on the image data indicates a significant positive effect, conditioned on all other selected features.
 
-When analyzing the \emph{marginal} effect of neighbourhood on price by e.g. ordering the neighbourhoods according to their median price, this order is nearly identical to the ranking in figure \ref{fig:coefficient-plot} with \emph{Frogner} at the top and \emph{Grorud} at the bottom.
+When analyzing the \emph{marginal} effect of neighbourhood on price by e.g. ordering the neighbourhoods according to their median price, this order is nearly identical to the ranking in \Cref{fig:coefficient-plot} with \emph{Frogner} at the top and \emph{Grorud} at the bottom.
 
 Interestingly, apartments in the \emph{Sentrum} (central area) have a large positive coefficient in the regression, yet the second to lowest median price.
 This finding indicates the presence of \emph{confounders}:
@@ -151,7 +151,7 @@ These confounding effects are controlled for in the regression model but not in 
   \label{tab:mlp-outliers}
 \end{table}
 
-Table \ref{tab:mlp-outliers} shows performance metrics for the Neural Network fitted on a subset of the data in the validation set.
+\Cref{tab:mlp-outliers} shows performance metrics for the Neural Network fitted on a subset of the data in the validation set.
 As indicated by the first column the dataset was reduced by successively cutting off observations from the top of the price distribution.
 More precisely, the first row refers to the entire data whereas the last row excludes the top $10$\% most expensive apartments.
 
@@ -185,7 +185,7 @@ For this reason, latent space visualizations of the VAE appear to be more spread
 \end{figure}
 %%%
 
-Figure \ref{fig:latent-representation} visualizes the two-dimensional feature embedding.
+\Cref{fig:latent-representation} visualizes the two-dimensional feature embedding.
 Already a \emph{single} dimension seems so be sufficient for a general understanding of price segments.
 While some of the most expensive apartments are located on the far left, surrounded by highly-priced neighbours, the other half shares a similar feature representation to \emph{medium to low} priced listings.
 Hence, the network likely maps this second half to comparably low price predictions resulting in large residuals with a high influence on the MAE and the $R^2$ value.

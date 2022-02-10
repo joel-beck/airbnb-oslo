@@ -1,5 +1,19 @@
 \section{Conclusion}
 
-Discuss your results.
+In order to predict Airbnb prices in Oslo we constructed our own Deep Neural Network and compared its performance to a collection of well-established Machine Learning algorithms.
+Since we extracted numeric features out of the unstructured image and text data as part of the preprocessing pipeline, the input data fed into the models was of tabular nature.
+Thus, classical Machine Learning models and in particular highly intepretable linear models indicated a competitive predictive performance on out-of-sample data.
+
+Further, we emphasized the impact of using different feature set \emph{sizes} both on the training and validation set and used a two-dimensional feature embedding to visualize and explain the sensitivity of the network's predictions with respect to outliers in the price distribution.
+The lowest \emph{test} set error was achieved by a straightforward ensemble of multiple individual predictive models.
+
+There are various options to extend our work.
+One particularly appealing idea for \emph{understanding} the Neural Net's behaviour is the construction of \emph{adversarial examples}.
+In the regression context one could try to leverage steep areas in the high-dimensional loss surface such that small perturbations of each input feature result in exploding price predictions.
+
+Bounding the magnitude of each perturbation by a constant might not be directly transferable to regression tasks in presence of categorical features.
+As an alternative to the traditional approach borrowed from image classification which is often based on the \emph{Fast Gradient Sign Method} \citep{goodfellow2015}, a well-behaved Linear Regression model could again be used as a benchmark model.
+Then, any popular gradient \emph{ascent} algorithm can be used to find feature combinations that maximize the distance between the Linear Regression prediction and the Neural Net prediction.
+Since this approach does not naturally bound the input changes, the resulting loss function has to be heavily regularized to prevent pathological solutions.
 
 
