@@ -24,8 +24,30 @@ pd.set_option("precision", 3)
 pd.set_option("display.max_columns", 100)
 
 #%%
-X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
-y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
+# Analysis for Munich or Oslo Data
+MUNICH = True
+
+if MUNICH:
+    X_train_val_path = "../data-munich/munich_X_train_val.pkl"
+    y_train_val_path = "../data-munich/munich_y_train_val.pkl"
+    mlp_results_path = "../results-pickle/munich_neural_network_outliers.pkl"
+    classical_models_results_path = (
+        "../results-pickle/munich_classical_models_outliers.pkl"
+    )
+    table_outliers_path = "../term-paper/tables/munich_table_outliers.csv"
+    outlier_results_path = "../results-pickle/munich_outlier_results.pkl"
+else:
+    X_train_val_path = "../data-clean/X_train_val.pkl"
+    y_train_val_path = "../data-clean/y_train_val.pkl"
+    mlp_results_path = "../results-pickle/neural_network_outliers.pkl"
+    classical_models_results_path = "../results-pickle/classical_models_outliers.pkl"
+    table_outliers_path = "../term-paper/tables/table_outliers.csv"
+    outlier_results_path = "../results-pickle/outlier_results.pkl"
+
+
+#%%
+X_train_val = pd.read_pickle(X_train_val_path)
+y_train_val = pd.read_pickle(y_train_val_path)
 
 # look into outliers (here largest quantile of prices)
 y_train_val.loc[y_train_val > y_train_val.quantile(1 - (1 / 100))]
@@ -144,7 +166,7 @@ cols = list(mlp_results.columns)
 cols = [cols[-1]] + cols[:-1]
 mlp_results = mlp_results[cols]
 
-mlp_results.to_pickle("../results-pickle/neural_network_outliers.pkl")
+mlp_results.to_pickle(mlp_results_path)
 
 #%%
 # SECTION: Classical Models
@@ -173,8 +195,8 @@ quantile_threshold_list = [0, 1, 2.5, 5, 10]
 
 #%%
 # SUBSECTION: Fit Classical Models
-X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
-y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
+X_train_val = pd.read_pickle(X_train_val_path)
+y_train_val = pd.read_pickle(y_train_val_path)
 
 column_transformer = get_column_transformer()
 preprocessor = Pipeline([("column_transformer", column_transformer)])
@@ -185,7 +207,7 @@ for quantile_threshold in quantile_threshold_list:
     X, y = get_classical_data(X_train_val, y_train_val, quantile_threshold)
     models = get_models(
         preprocessor,
-        models=["linear", "lasso", "ridge", "random_forest", "hist_gradient_boosting"],
+        models=["linear", "ridge", "random_forest", "hist_gradient_boosting"],
         random_state=random_state,
         log_y=log_y,
     )
@@ -213,10 +235,10 @@ cols = list(classical_models_results.columns)
 cols = [cols[-1]] + cols[:-1]
 classical_models_results = classical_models_results[cols]
 
-classical_models_results.to_pickle("../results-pickle/classical_models_outliers.pkl")
+classical_models_results.to_pickle(classical_models_results_path)
 
 #%%
-mlp_results = pd.read_pickle("../results-pickle/neural_network_outliers.pkl")
+mlp_results = pd.read_pickle(mlp_results_path)
 
 table_outliers = (
     mlp_results[["quantile_threshold", "mae_val", "r2_val"]]
@@ -232,19 +254,15 @@ table_outliers = (
     .round(2)
 )
 
-table_outliers.to_csv("../term-paper/tables/table_outliers.csv")
+table_outliers.to_csv(table_outliers_path)
 
 #%%
-classical_models_results = pd.read_pickle(
-    "../results-pickle/classical_models_outliers.pkl"
-)
+classical_models_results = pd.read_pickle(classical_models_results_path)
 
 outlier_results = pd.concat([mlp_results, classical_models_results]).sort_values(
     "mae_val"
 )
-outlier_results.to_pickle("../results-pickle/outlier_results.pkl")
 
-#%%
-pd.read_pickle("../results-pickle/outlier_results.pkl")
+outlier_results.to_pickle(outlier_results_path)
 
 #%%
