@@ -1,0 +1,10 @@
+,MAE,R2
+Linear Regression,47.973,0.073
+Ridge,47.267,0.09
+Random Forest,51.166,0.072
+HistGradientBoosting,32.848,0.512
+Neural Network,45.381,0.309
+Top2 Average,47.275,0.083
+Top3 Average,41.674,0.247
+Top4 Average,43.081,0.208
+Top5 Average,42.976,0.232

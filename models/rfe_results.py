@@ -25,8 +25,41 @@ pd.set_option("precision", 3)
 pd.set_option("display.max_columns", 100)
 
 #%%
+# Analysis for Munich or Oslo Data
+MUNICH = True
+
+if MUNICH:
+    listings_path = "../data-munich/munich_listings.pkl"
+    fig_distribution_path = "../term-paper/images/munich_price_distribution.png"
+    classical_models_path = "../results-pickle/munich_classical_models_rfe_results.pkl"
+    neural_network_path = "../results-pickle/munich_neural_network_rfe_results.pkl"
+    complete_results_path = "../results-pickle/munich_complete_rfe_results.pkl"
+    fig_comparison_path = "../term-paper/images/munich_model_comparison.png"
+    X_train_val_path = "../data-munich/munich_X_train_val.pkl"
+    y_train_val_path = "../data-munich/munich_y_train_val.pkl"
+    X_test_path = "../data-munich/munich_X_train_val.pkl"
+    y_test_path = "../data-munich/munich_y_train_val.pkl"
+    fig_coefficient_path = "../term-paper/images/munich_coefficient_plot.png"
+    mlp_weights_path = "munich_mlp_weights_None.pt"
+    testset_results_path = "../term-paper/tables/munich_table_test_set.csv"
+else:
+    listings_path = "../data-clean/listings_subset.pkl"
+    fig_distribution_path = "../term-paper/images/price_distribution.png"
+    classical_models_path = "../results-pickle/classical_models_rfe_results.pkl"
+    neural_network_path = "../results-pickle/munich_neural_network_rfe_results.pkl"
+    complete_results_path = "../results-pickle/complete_rfe_results.pkl"
+    fig_comparison_path = "../term-paper/images/model_comparison.png"
+    X_train_val_path = "../data-clean/X_train_val.pkl"
+    y_train_val_path = "../data-clean/y_train_val.pkl"
+    X_test_path = "../data-clean/X_test_val.pkl"
+    y_test_path = "../data-clean/y_test_val.pkl"
+    fig_coefficient_path = "../term-paper/images/coefficient_plot.png"
+    mlp_weights_path = "mlp_weights_None.pt"
+    testset_results_path = "../term-paper/tables/table_test_set.csv"
+
+#%%
 # SECTION: Plot Price and Log-Price Distribution
-listings_df = pd.read_pickle("../data-clean/listings_subset.pkl")
+listings_df = pd.read_pickle(listings_path)
 
 fig, axes = plt.subplots(ncols=2, figsize=(10, 6), sharey=True)
 ax1, ax2 = axes.flat
@@ -41,18 +74,14 @@ sns.histplot(listings_df["price"], log_scale=True, ax=ax2).set(
 
 ax2.xaxis.set_major_formatter(ScalarFormatter())
 
-fig.savefig("../term-paper/images/price_distribution.png")
+fig.savefig(fig_distribution_path)
 plt.show()
 
 
 #%%
 # SECTION: Model Comparison for different Number of Features
-classical_models_rfe_results = pd.read_pickle(
-    "../results-pickle/classical_models_rfe_results.pkl"
-)
-neural_network_rfe_results = pd.read_pickle(
-    "../results-pickle/neural_network_rfe_results.pkl"
-)
+classical_models_rfe_results = pd.read_pickle(classical_models_path)
+neural_network_rfe_results = pd.read_pickle(neural_network_path)
 
 complete_rfe_results = pd.concat(
     [
@@ -61,7 +90,7 @@ complete_rfe_results = pd.concat(
     ]
 ).sort_values("mae_val")
 
-complete_rfe_results.to_pickle("../results-pickle/complete_rfe_results.pkl")
+complete_rfe_results.to_pickle(complete_results_path)
 
 #%%
 complete_rfe_results
@@ -127,7 +156,7 @@ sup = fig.suptitle(
 
 fig.subplots_adjust(top=0.9)
 fig.savefig(
-    "../term-paper/images/model_comparison.png",
+    fig_comparison_path,
     bbox_extra_artists=(lgd, sup),
     bbox_inches="tight",
 )
@@ -135,11 +164,11 @@ fig.savefig(
 
 #%%
 # SUBSECTION: Load Data from Training, Validation and Test Set
-X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
-y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
+X_train_val = pd.read_pickle(X_train_val_path)
+y_train_val = pd.read_pickle(y_train_val_path)
 
-X_test = pd.read_pickle("../data-clean/X_test.pkl")
-y_test = pd.read_pickle("../data-clean/y_test.pkl")
+X_test = pd.read_pickle(X_test_path)
+y_test = pd.read_pickle(y_test_path)
 
 #%%
 # SUBSECTION: Coefficient Plot for Linear Regression
@@ -163,7 +192,7 @@ sns.barplot(data=coefs, x="coefficient", y="feature", ax=ax).set(
     xlabel="Coefficient",
 )
 
-fig.savefig("../term-paper/images/coefficient_plot.png", bbox_inches="tight")
+fig.savefig(fig_coefficient_path, bbox_inches="tight")
 
 plt.show()
 
@@ -244,7 +273,7 @@ dropout_prob = 0.5
 use_skip_connections = True
 
 mlp = MLP(in_features, hidden_features_list, dropout_prob, use_skip_connections)
-mlp.load_state_dict(torch.load("mlp_weights_None.pt"))
+mlp.load_state_dict(torch.load(mlp_weights_path))
 mlp.eval()
 
 with torch.no_grad():
@@ -274,7 +303,7 @@ top5_average = np.mean(
         ridge_predictions,
         linearreg_predictions,
         histgradientboosting_predictions,
-        randomforest_predictions.shape,
+        randomforest_predictions,
         mlp_predictions.detach().numpy(),
     ],
     axis=0,
@@ -323,6 +352,6 @@ testset_df.index = df_index
 testset_df
 
 #%%
-testset_df.drop(columns=["MSE"]).round(3).to_csv(
-    "../term-paper/tables/table_test_set.csv"
-)
+testset_df.drop(columns=["MSE"]).round(3).to_csv(testset_results_path)
+
+#%%
