@@ -70,7 +70,8 @@ complete_rfe_results
 plot_data = complete_rfe_results.astype({"num_features": "category"})
 
 # sharex="col", sharey="row" is amazing :)
-fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12), sharex="col", sharey=True)
+# fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12), sharex="col", sharey=True)
+fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12), sharey=True)
 ax1, ax2, ax3, ax4 = axes.flat
 
 sns.scatterplot(
