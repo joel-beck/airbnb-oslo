@@ -58,7 +58,6 @@ Details about these image proprocessing steps can be found in Appendix \ref{appe
 As mentioned above, we used a pretrained Convolutional Neural Network for modeling.
 Ideally, due to learning from a large collection of labeled images in a supervised setting, this model is able to extract meaningful features from our own much smaller input data out of the box.
 As usual in \emph{transfer learning} the weights of the pretrained model are frozen and the output layer is replaced by a trainable custom layer specific to our needs.
-% COMMENT: Abkürzung für CNN einführen
 
 One potential issue arises if the dataset used for pretraining differs from the new custom data:
 If the pretrained network is very deep, the learned features before the final layer could be very specific to the Output Classes of \texttt{ImageNet} and not generalize well to our images.
@@ -161,7 +160,6 @@ Finally, we used the sentiment analysis to determine the ratio of negative revie
     One very common technique when dealing with images is \emph{Data Augmentation}.
     In contrast to classification tasks however, where Data Augmentation is used to expand the training set and improve simultaneously generalization, this approach is not immediately transferable to a regression context since we have to guarantee that the label (i.e. the price) remains unchanged for each image transformation.
     Thus, we decided against standard transformations such as rotating the images or manipulating the color composition.
-    % COMMENT: da wir das ja nicht weiter verfolgt haben: kürzer fassen? Ein Satz?
 
     We \textbf{did} use image \emph{cropping}, however, which, in our opinion, is one of the few applicable augmentations in regression contexts.
     After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image \textbf{center} in the validation set to avoid any randomness during inference.
@@ -220,7 +218,6 @@ Finally, we used the sentiment analysis to determine the ratio of negative revie
     %%%
 
     The influence of the feature selector on the predictive and particularly the generalization performance is discussed in the \emph{Results} section.
-    % TODO: Add Hyperlink to Results Chapter
 
     \subsection{Price Distribution} \label{appendix:price-distribution}
 

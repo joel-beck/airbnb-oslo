@@ -26,8 +26,27 @@ simplefilter(action="ignore", category=FutureWarning)
 pd.set_option("precision", 3)
 
 #%%
-X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")
-y_train_val = pd.read_pickle("../data-clean/y_train_val.pkl")
+# BOOKMARK: Train on new Munich Data or on old Oslo Data
+MUNICH = True
+
+if MUNICH:
+    X_train_val_path = "../data-munich/munich_X_train_val.pkl"
+    y_train_val_path = "../data-munich/munich_y_train_val.pkl"
+    neural_network_results_path = (
+        "../results-pickle/munich_neural_network_rfe_results.pkl"
+    )
+    classical_models_results_path = (
+        "../results-pickle/munich_classical_models_rfe_results.pkl"
+    )
+else:
+    X_train_val_path = "../data-clean/X_train_val.pkl"
+    y_train_val_path = "../data-clean/y_train_val.pkl"
+    neural_network_results_path = "../results-pickle/neural_network_rfe_results.pkl"
+    classical_models_results_path = "../results-pickle/classical_models_rfe_results.pkl"
+
+#%%
+X_train_val = pd.read_pickle(X_train_val_path)
+y_train_val = pd.read_pickle(y_train_val_path)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -36,7 +55,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def get_data_subset(
     X_train_val: pd.DataFrame, y_train_val: pd.DataFrame, num_features: int
 ) -> tuple[TensorDataset, TensorDataset]:
-    # currently 59 transformed columns
+    # 59 transformed columns for Oslo, 88 transformed columns for Munich
     column_transformer = get_column_transformer()
 
     if num_features is not None:
@@ -83,6 +102,8 @@ num_features_list = [None, 50, 25, 10, 5, 2, 1]
 neural_network_results = []
 
 for i, num_features in enumerate(num_features_list):
+    print(f"Number of Features: {num_features}\n")
+
     trainset, valset, preprocessor = get_data_subset(
         X_train_val, y_train_val, num_features
     )
@@ -116,7 +137,11 @@ for i, num_features in enumerate(num_features_list):
     )
     result_container.hyperparam_values.append([batch_size, num_epochs, dropout_prob])
 
-    save_path = f"mlp_weights_{num_features}.pt"
+    save_path = (
+        f"munich_mlp_weights_{num_features}.pt"
+        if MUNICH
+        else f"mlp_weights_{num_features}.pt"
+    )
     metrics, result_container = run_regression(
         model,
         optimizer,
@@ -136,7 +161,7 @@ for i, num_features in enumerate(num_features_list):
     neural_network_results.append(result_container.display_df())
 
 pd.concat(neural_network_results).sort_values("mae_val").to_pickle(
-    "../results-pickle/neural_network_rfe_results.pkl"
+    neural_network_results_path
 )
 
 #%%
@@ -156,6 +181,7 @@ column_transformer = get_column_transformer()
 classical_model_results = []
 
 for num_features in num_features_list:
+    print(f"\nNumber of Features: {num_features}\n")
 
     if num_features is not None:
         rfe = RFE(SVR(kernel="linear"), n_features_to_select=num_features, step=0.5)
@@ -186,7 +212,7 @@ for num_features in num_features_list:
     classical_model_results.append(result.display_df())
 
 pd.concat(classical_model_results).sort_values("mae_val").to_pickle(
-    "../results-pickle/classical_models_rfe_results.pkl"
+    classical_models_results_path
 )
 
 #%%

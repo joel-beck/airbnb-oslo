@@ -60,7 +60,7 @@ These data types in particular require some extra care which will be the focus o
 Besides the metric and text-based features the Airbnb Data contains \emph{images} of the listed apartments as well as of the corresponding hosts.
 This section describes how we used these images (while focusing on the apartment pictures) for the purpose of price prediction.
 
-The main idea was to build a Convolutional Neural Network that predicts the price solely based on the image content itself and add these predictions as well as the number of available images for each listing to the main feature set.
+The main idea was to build a Convolutional Neural Network (CNN) that predicts the price solely based on the image content itself and add these predictions as well as the number of available images for each listing to the main feature set.
 Since there exist multiple images per apartment, the predictions were averaged afterwards within each group to obtain an output array of equal length to all remaining features.
 
 Before the images can be used as model input they had to be \emph{scraped} from each listing's webpage.
@@ -69,10 +69,9 @@ Details about these image proprocessing steps can be found in \Cref{appendix:ima
 
 
 \textbf{Image Modeling} \\
-As mentioned above, we used a pretrained Convolutional Neural Network for modeling.
+As mentioned above, we used a pretrained CNN for modeling.
 Ideally, due to learning from a large collection of labeled images in a supervised setting, this model is able to extract meaningful features from our own much smaller input data out of the box.
 As usual in \emph{transfer learning} the weights of the pretrained model are frozen and the output layer is replaced by a trainable custom layer specific to our needs.
-% COMMENT: Abkürzung für CNN einführen
 
 One potential issue arises if the dataset used for pretraining differs from the new custom data:
 If the pretrained network is very deep, the learned features before the final layer could be very specific to the Output Classes of \texttt{ImageNet} and not generalize well to our images.
@@ -91,7 +90,7 @@ There are multiple options to handle this scenario:
 It turned out that a \emph{single} custom layer, mapping from $512$ directly to a single neuron representing the scalar price prediction, was not expressive enough.
 The performance improved by appending a (small) Fully Connected Network at the end instead containing three layers and \texttt{ReLU} activation functions.
 
-To ensure that the chosen design is not majorly flawed, we constructed a separate much smaller Convolutional Neural Network with only a handful of Convolutional Blocks as a benchmark model.
+To ensure that the chosen design is not majorly flawed, we constructed a separate much smaller CNN with only a handful of Convolutional Blocks as a benchmark model.
 Although the performance differences were not as large as desired, the pretrained \texttt{ResNet} indeed indicated more promising results.
 
 
@@ -136,21 +135,18 @@ Also in the Norwegian plot there are mainly positive expressions like \textit{an
 The results of the language detection are stored per \textit{listing\_id} in a new data frame called \textit{reviews\_features}.
 This data frame contains the number of reviews per listing, the median length of a review, the number of different languages as well as a list of languages in which the reviews for that apartment were written.
 The percentages of Norwegian and English reviews are also recorded for each listing id.
-Finally, this data frame was added to the \textit{listings} data frame on which feature selection is performed later. (s. cite sentiment)
+Finally, this data frame was added to the \textit{listings} data frame on which feature selection is performed later.
+% COMMENT: (s. cite sentiment)
 
 In addition, to obtain a more informed analysis of the reviews, we also performed a detailed sentiment analysis for each review.
 Sentiment analysis is used to detect the underlying emotion of a text.
 Therefore, it classifies the text as either positive or negative.
 
-To do this, we used the \texttt{transformers} package, more specifically we used the \texttt{pipeline} function with the \texttt{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences according to positive or negative sentiments (s. documentation).
-The used model is DistlBERT \citep{sanh2020}, a small, fast and light Transformer model, a distilled version of BERT \citep{devlin2019} algorithm, which achieves significantly faster results (s. documentation transformers).
+To do this, we used the \href{https://huggingface.co/transformers/v3.0.2/model_doc/distilbert.html}{transformers} package, more specifically we used the \href{https://huggingface.co/transformers/v3.0.2/main_classes/pipelines.html}{pipeline} function with the \texttt{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences according to positive or negative sentiments (s. documentation).
+The used model is DistlBERT \citep{sanh2020}, a small, fast and light Transformer model, a distilled version of BERT \citep{devlin2019} algorithm, which achieves significantly faster results.
+Our implementation is inspired by \citep{selvaraj2020}.
 
 Finally, we used the sentiment analysis to determine the ratio of negative reviews to the total number of reviews per listings id, which is also added to the \textit{reviews\_feature} data frame.
-
-%Sources:
-%Analysis: https://towardsdatascience.com/a-beginners-guide-to-sentiment-analysis-in-python-95e354ea84f6
-%Package: https://huggingface.co/transformers/v3.0.2/main_classes/pipelines.html
-%Model: https://huggingface.co/transformers/v3.0.2/model_doc/distilbert.html
 
 \subsection{Models}
 
