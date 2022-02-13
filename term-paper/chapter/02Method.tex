@@ -88,7 +88,7 @@ There are multiple options to handle this scenario:
 \end{itemize}
 
 It turned out that a \emph{single} custom layer, mapping from $512$ directly to a single neuron representing the scalar price prediction, was not expressive enough.
-The performance improved by appending a (small) Fully Connected Network at the end instead containing three layers and \texttt{ReLU} activation functions.
+The performance improved by instead appending a (small) Fully Connected Network at the end containing three layers and \texttt{ReLU} activation functions.
 
 To ensure that the chosen design is not majorly flawed, we constructed a separate much smaller CNN with only a handful of Convolutional Blocks as a benchmark model.
 Although the performance differences were not as large as desired, the pretrained \texttt{ResNet} indeed indicated more promising results.
@@ -106,6 +106,8 @@ In fact, the network struggled the most with capturing the wide \emph{range} of 
 Although the general idea of categorizing images into price ranges based on image features sounds very appealing, taking a look at the actual input images reveals how challenging this task actually is.
 \Cref{fig:cnn-examples} in the Appendix displays a random collection of input images.
 Considering the difficulty of the task it is actually highly doubtful that humans could provide much more accurate predictions.
+
+%%%%%%
 
 \subsubsection{Reviews}
 
