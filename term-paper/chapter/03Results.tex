@@ -62,20 +62,20 @@ In comparison to all \texttt{scikit-learn} models our custom Neural Net appears 
 We have to keep in mind, though, that evaluation on the validation set is overly optimistic for those models whose hyperparameters were tuned on this data during cross validation.
 The best simulation to performance on truly unseen data is thus provided by the \emph{test} set that was not used in any step up to this point.
 
-\begin{table}[t]
+\begin{table}[th]
   \centering
-  \begin{tabular}{@{}ccc@{}}
-    \toprule
-    \multicolumn{1}{l}{Model} & \multicolumn{1}{l}{MAE} & \multicolumn{1}{l}{\textbf{$R^2$}} \\ \midrule
-    Linear Regression         & 404.709                 & 0.298                              \\
-    Ridge                     & 405.932                 & 0.294                              \\
-    Random Forest             & 444.166                 & 0.268                              \\
-    HistGradientBoosting      & 412.243                 & 0.387                              \\
-    Neural Network            & 402.24                  & 0.333                              \\
-    Top2 Average              & 404.848                 & 0.296                              \\
-    Top3 Average              & 399.315                 & 0.343                              \\
-    Top4 Average              & 404.206                 & 0.332                              \\
-    Top5 Average              & 408.116                 & 0.27                               \\ \bottomrule
+  \begin{tabular}{lrr}
+    \hline
+    Model                & \multicolumn{1}{c}{MAE} & \multicolumn{1}{c}{$R^2$} \\ \hline
+    Linear Regression    & 404.709                 & 0.298                     \\
+    Ridge                & 405.932                 & 0.294                     \\
+    Random Forest        & 444.166                 & 0.268                     \\
+    HistGradientBoosting & 412.243                 & 0.387                     \\
+    Neural Network       & 402.24                  & 0.333                     \\
+    Top2 Average         & 404.848                 & 0.296                     \\
+    Top3 Average         & 399.315                 & 0.343                     \\
+    Top4 Average         & 404.206                 & 0.332                     \\
+    Top5 Average         & 408.116                 & 0.27                      \\ \hline
   \end{tabular}
   \caption{Test Set Performance of Classical Machine Learning Models, our custom Neural Network and Ensemble Predictions}
   \label{tab:test-set}
