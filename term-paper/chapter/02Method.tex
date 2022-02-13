@@ -235,7 +235,7 @@ Of all individual components of the \texttt{Linear Block} structure, Batchnorm w
 Out of the numerous options for including nonlinearities into the network and thus expanding the function space that the network is able to learn, we settled for the default choice of the \emph{Rectified Linear Unit} activation.
 While briefly experimenting with the related \texttt{Leaky ReLU} and \texttt{Exponential ReLU}, the differences were insignificant and could be easily attributed to other factors such as random weight initialization.
 
-\textbf{Dropout} \\
+\textbf{Dropout} \\ \label{dropout}
 The \texttt{Dropout} Layer \citep{srivastava2014} at the end of each cycle turned out to be the single most impactful factor for the network's \emph{generalization} ability.
 In fact, due to the different behaviour of dropout during training and inference, we could directly control the relative performance on training and validation set by varying the dropout probability $p$.
 

@@ -84,8 +84,10 @@ The best simulation to performance on truly unseen data is thus provided by the 
 \Cref{tab:test-set} compares test set metrics for the best performing models on the validation set within each class (i.e. the Neural Net version with all $59$ features and the Random Forest model with only $25$ features were selected).
 In addition, we added some simple ensemble models that predict the average estimate from the top $2$, $3$, $4$ or all five models, respectively.
 
-Quite surpringly, the Neural Net shows a significant performance boost on the Test Set and is now very competitive with all other models.
-The Random Forest Model generalizes worst and suffers from overfitting given its selected hyperparameter configuration.
+The hyperparameter configuration of the Random Forest Model that performed best for the validation data generalizes worst to the test set.
+Quite surpringly, the Neural Net shows a significant performance boost on the test data and is now very competitive with all other models.
+One plausible explanation for this phenomenon is provided in \Cref{outliers}.
+
 Averaging predictions from multiple algorithms indicates promising results:
 The Top $3$ Average achieves the lowest out-of-sample Mean Absolute Error of slightly below $400$ NOK.
 
@@ -158,11 +160,19 @@ More precisely, the first row refers to the entire data whereas the last row exc
 By omitting just the top $1$\%, the MAE reduces by over $100$ NOK (about $10$ Euros) and the $R^2$ rapidly jumps to over $0.5$.
 This sensitivity to outliers in the price distribution is \textbf{not} solved by log-transforming the price, all classical models from the previous chapter suffer from the same effect.
 
-Clearly, the Neural Network lacks the ability to capture the entire price range accurately.
-There are two possible explanations for this phenomenon:
+The values in \Cref{tab:mlp-outliers} also suggest an explanation why the Neural Network performs much better in the test set compared to the validation set which can not be observed for all other models.
+When partitioning the entire data into training, validation and test set, it just happened by chance that the test set contains fewer price outliers which drive the error metrics up compared to the validation set, even though the model is exactly the same.
+In fact, when \emph{training} the Neural Network with some of the outliers removed, the training and validation metrics are much closer as well, such that we detected an additional factor besides \emph{Dropout} (see \Cref{dropout}) for the diverging behaviour.
+
+In contrast, the classical Machine Learning models were fitted with the more robust cross-validation approach.
+Hence, extreme outliers were contained in the validation fold only once out of multiple evaluations.
+By ultimately averaging the error metrics across all folds their impact is diminished.
+
+As we have seen the Neural Network (just like all remaining models) lacks the ability to capture the entire price range accurately, yet in theory it is supposed to be flexible enough to approximate any arbitrary function reasonably well.
+There exist two possible explanations with very different implications:
 %%%
 \begin{enumerate}
-  \item The model is flawed.
+  \item The model is inherently flawed.
   \item The model is faced with a nearly impossible task.
 \end{enumerate}
 %%%
@@ -198,11 +208,11 @@ Assuming that the two-dimensional picture appropriately reflects the situation i
 \end{enumerate}
 %%%
 
-In the latter case it can be argued that the entire task of predicting Airbnb prices is flawed in the first place:
+In the latter case it can be argued that the entire task of predicting Airbnb prices is questionable in the first place:
 In order to draw connections from features to outputs the process implicitly assumes observations whose listed price can be justified and explained by characteristics of the joint feature distribution.
 
 Moreover, discriminating between these two options is nontrivial.
-One idea is to use features like availability or the number of reviews to approximate demand and classify price outliers with low demand as overpriced.
+One idea is to use features like \emph{availability} or the \emph{number of reviews} to approximate demand and classify price outliers with low demand as overpriced.
 However, it is entirely possible that an extremely expensive observation with very low demand is listed according to its true value, yet nobody is willing to pay such a high amount for an accomodation, regardless of its quality.
 As a consequence, a blind removal of such outliers is difficult to justify when obeying correct statistical methodology.
 

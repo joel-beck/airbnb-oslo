@@ -69,7 +69,7 @@ def get_mlp_data(
     y_train_val = y_train_val.loc[keep_index]
     X_train_val = X_train_val.loc[keep_index]
 
-    # currently 59 transformed columns
+    # 59 transformed columns for Oslo / 92 transformed columns for Munich
     column_transformer = get_column_transformer()
 
     X_train, X_val, y_train, y_val = train_test_split(
@@ -94,7 +94,7 @@ def get_mlp_data(
 hidden_features_list = [64, 128, 256, 128, 64, 8]
 
 batch_size = 128
-num_epochs = 200
+num_epochs = 300
 dropout_prob = 0.5
 use_skip_connections = True
 lr = 0.01

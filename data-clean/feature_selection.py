@@ -126,6 +126,9 @@ listings_cols = [
     "shared_bathrooms",
 ]
 
+listings_subset = listings_df[listings_cols]
+
+#%%
 reviews_cols = [
     "frac_negative",
     "frac_norwegian",
@@ -133,21 +136,23 @@ reviews_cols = [
     "number_languages",
 ]
 
+reviews_subset = reviews_features[reviews_cols]
+
+#%%
 # add numeric features from reviews dataframe to listings_subset,
 # join() merges by index
-listings_subset = (
-    listings_df[listings_cols]
-    .join(reviews_features[reviews_cols])
-    .loc[(listings_df["price"] > 0) & (listings_df["price"] < 80000)]
+listings_reviews = (
+    listings_subset.join(reviews_subset)
+    .loc[(listings_subset["price"] > 0) & (listings_subset["price"] < 80000)]
     .dropna()
 )
 
-listings_subset.to_pickle("listings_subset.pkl")
+listings_reviews.to_pickle("listings_subset.pkl")
 
 #%%
 # SUBSECTION: Split in Dataset for Model Training and separate Dataset for Evaluation
-X = listings_subset.drop(columns="price")
-y = listings_subset["price"]
+X = listings_reviews.drop(columns="price")
+y = listings_reviews["price"]
 
 X_train_val, X_test, y_train_val, y_test = train_test_split(
     X, y, test_size=0.2, random_state=123, shuffle=True

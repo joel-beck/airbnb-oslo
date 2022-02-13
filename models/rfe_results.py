@@ -208,6 +208,7 @@ best_models = (
 best_models
 
 #%%
+# NOTE: Set Hyperparameters for each Model Class manually
 # SUBSECTION: Best Linear Regression Model
 column_transformer = get_column_transformer()
 rfe = RFE(SVR(kernel="linear"), n_features_to_select=50, step=0.5)
@@ -223,9 +224,11 @@ linearreg_predictions = log_transform.predict(X_test)
 #%%
 # SUBSECTION: Best Ridge Model
 column_transformer = get_column_transformer()
+rfe = RFE(SVR(kernel="linear"), n_features_to_select=50, step=0.5)
+preprocessor = get_preprocessor(column_transformer, rfe)
 
 ridge = Ridge(alpha=14)
-pipeline = make_pipeline(column_transformer, ridge)
+pipeline = make_pipeline(preprocessor, ridge)
 log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
 
 log_transform.fit(X_train_val, y_train_val)
@@ -234,11 +237,9 @@ ridge_predictions = log_transform.predict(X_test)
 #%%
 # SUBSECTION: Best Random Forest Model
 column_transformer = get_column_transformer()
-rfe = RFE(SVR(kernel="linear"), n_features_to_select=25, step=0.5)
-preprocessor = get_preprocessor(column_transformer, rfe)
+randomforest = RandomForestRegressor(n_estimators=6, min_samples_leaf=4, max_depth=5)
 
-randomforest = RandomForestRegressor(n_estimators=6, min_samples_leaf=7, max_depth=4)
-pipeline = make_pipeline(preprocessor, randomforest)
+pipeline = make_pipeline(column_transformer, randomforest)
 log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
 
 log_transform.fit(X_train_val, y_train_val)
@@ -247,10 +248,10 @@ randomforest_predictions = log_transform.predict(X_test)
 #%%
 # SUBSECTION: Best HistGradientBoosting Model
 column_transformer = get_column_transformer()
-
 histgradientboosting = HistGradientBoostingRegressor(
     min_samples_leaf=4, max_leaf_nodes=30, max_iter=40, max_depth=18, learning_rate=0.09
 )
+
 pipeline = make_pipeline(column_transformer, histgradientboosting)
 log_transform = TransformedTargetRegressor(pipeline, func=np.log, inverse_func=np.exp)
 
@@ -310,7 +311,7 @@ top5_average = np.mean(
 )
 
 #%%
-# SECTION: Evaluate All Predictions from Test Set
+# SECTION: Evaluate All Predictions on Test Set
 df_index = [
     "Linear Regression",
     "Ridge",
