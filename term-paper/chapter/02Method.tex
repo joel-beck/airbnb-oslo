@@ -241,7 +241,7 @@ In fact, due to the different behaviour of dropout during training and inference
 
 More specifically, the network overfitted drastically by setting $p$ to zero.
 This actually provided the valuable insight that the current function class is flexible enough to model the task at hand properly.
-Thus, there was no need to artificially expand the network size beyond the current quite compact architecture with roughly $280.000$ trainable parameters, saving computation time as a nice side-effect.
+Thus, there was no need to artificially expand the network size beyond the current quite compact architecture with roughly $280,000$ trainable parameters, saving computation time as a nice side-effect.
 
 \Cref{fig:dropout} in the Appendix displays the shift in performance metrics on training and validation set when steadily increasing the dropout probability $p$.
 While not beneficial for overall performance, dropout delivers a leverage to make the model perform much better on out-of-sample data compared to the dataset that it was actually trained on.
