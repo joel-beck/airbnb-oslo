@@ -6,8 +6,10 @@ pd.set_option("display.max_columns", 100)
 
 #%%
 munich_listings = pd.read_pickle("munich_listings.pkl")
+munich_reviews_features = pd.read_pickle("munich_reviews_features.pkl")
 
 #%%
+# SUBSECTION: Select Listings Features for Modeling
 subset_cols = [
     "accommodates",
     "availability_30",
@@ -52,12 +54,27 @@ subset_cols = [
     "shared_bathrooms",
 ]
 
-munich_listings_subset = munich_listings[subset_cols].dropna()
+munich_listings_subset = munich_listings[subset_cols]
+
+#%%
+reviews_cols = [
+    "frac_negative",
+    "frac_german",
+    "median_review_length",
+    "number_languages",
+]
+
+reviews_subset = munich_reviews_features[reviews_cols]
+
+#%%
+# SUBSECTION: Combine Listings and Reviews Features for Munich
+munich_listings_reviews = munich_listings_subset.join(reviews_subset).dropna()
+munich_listings_reviews.to_pickle("munich_listings_subset.pkl")
 
 #%%
 # SUBSECTION: Split in Dataset for Model Training and separate Dataset for Evaluation
-X = munich_listings_subset.drop(columns="price")
-y = munich_listings_subset["price"]
+X = munich_listings_reviews.drop(columns="price")
+y = munich_listings_reviews["price"]
 
 X_train_val, X_test, y_train_val, y_test = train_test_split(
     X, y, test_size=0.2, random_state=123, shuffle=True

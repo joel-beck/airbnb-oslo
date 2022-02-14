@@ -55,7 +55,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def get_data_subset(
     X_train_val: pd.DataFrame, y_train_val: pd.DataFrame, num_features: int
 ) -> tuple[TensorDataset, TensorDataset]:
-    # 59 transformed columns for Oslo, 88 transformed columns for Munich
+    # 59 transformed columns for Oslo / 92 transformed columns for Munich
     column_transformer = get_column_transformer()
 
     if num_features is not None:

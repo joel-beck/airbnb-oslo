@@ -1,36 +1,37 @@
 \documentclass[ngerman,inputenc]{beamer}
 
+\usepackage{amsmath, amssymb}
 \usepackage{appendix}
 \usepackage{pstricks}
 \usepackage[utf8]{inputenc}
 \usepackage{tikz}
-\usepackage{amsmath, amssymb}
+
 \usepackage{graphicx} %package to manage images
 \graphicspath{{images/}}
+
 \definecolor{darkblue}{cmyk}{1.0,0.3,0,0.5}
 \definecolor{darkred}{cmyk}{0.25,1,0.1,0.1}
 \definecolor{uniblau}{cmyk}{1.0,0.7,0.1,0.6}
 \definecolor{unihellblau}{cmyk}{0.2,0.14,0,0}
 \definecolor{unihellhellblau}{cmyk}{0.05,0.035,0,0}
 \definecolor{darkerblue}{cmyk}{1.0,0.3,0,0.7}
+
 \setbeamertemplate{headline}{
 \setbeamercolor{author in head/foot}{fg=white,bg=uniblau!80}
  \hbox{%
   \begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=1ex,left]{author in head/foot}%
     \usebeamerfont{author in head/foot} \hspace{3pt} \insertsection%
   \end{beamercolorbox}
-
   }
-  }
+}
 
 \setbeamertemplate{frametitle}
 {
     \setbeamercolor{frametitle}{fg=white,bg=uniblau}
     \vspace{-0.1em}
   \begin{beamercolorbox}[wd=\paperwidth,ht=3ex,dp=2ex,left]{frametitle}%
-    \usebeamerfont{frametitle}\hspace{0.7em} \textbf{\insertframetitle}% 
+    \usebeamerfont{frametitle}\hspace{0.7em} \textbf{\insertframetitle}%
   \end{beamercolorbox}%
-
 }
 
 \setbeamertemplate{footline}
@@ -55,20 +56,52 @@
     \inserttotalframenumber\hspace*{2ex}
   \end{beamercolorbox}}%
   \vskip0pt%
-} 
+}
 
 \let\ueberschrift=\frametitle
 \renewcommand\frametitle[1]{%
-\ueberschrift{
-\rput[l](0,0){#1}
+  \ueberschrift{
+  \rput[l](0,0){#1}
+  }
 }
-}
-   \usecolortheme[named=uniblau]{structure}
-\title[Airbnb Oslo]{Price Predictions on Airbnb Accomodations in Oslo, Norway}
-\date{\today}
-\author[Freitag, Beck]{Marei Freitag, Joel Beck}
-\institute[University Göttingen]{Georg-August-Universität Göttingen}
 
+\usecolortheme[named=uniblau]{structure}
+
+\title[Airbnb Oslo]{Price Predictions on Airbnb Accomodations in Oslo, Norway}
+\date{21.02.2022}
+\author[Freitag, Beck]{Marei Freitag, Joel Beck}
+\institute[University Göttingen]{Georg-August-University of Göttingen}
+
+% display TOC before every section and subsection without duplicates
+% https://stackoverflow.com/questions/2795478/latex-beamer-prevent-showing-the-toc-at-one-occasion
+
+\RequirePackage{ifthen}
+\newboolean{sectiontoc}
+\setboolean{sectiontoc}{true} % default to true
+
+\AtBeginSection[]
+{
+  \ifthenelse{\boolean{sectiontoc}}{
+  \begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection, currentsubsection, subsubsectionstyle={show/show/shaded/shaded}]
+  \end{frame}
+  }
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection, currentsubsection, subsubsectionstyle={show/show/shaded/shaded}]
+  \end{frame}
+}
+
+\newcommand{\toclesssection}[1]{
+  \setboolean{sectiontoc}{false}
+  \section{#1}
+  \setboolean{sectiontoc}{true}
+}
 
 
 \begin{document}
@@ -79,28 +112,13 @@
 
 
 \begin{frame}
-\frametitle{Table of Contents}
-    \tableofcontents
+  \frametitle{Table of Contents}
+  \tableofcontents
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 1 %%%%%%%%%%%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 1 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \begin{frame}
-% Aims of \dots
-%     \begin{itemize}
-%         \item 
-%     \end{itemize}
-% \end{frame}
-    
-
-
-\section{1. Introduction}
-
-
-% \begin{frame}
-% \frametitle{Table of Contents}
-% \tableofcontents[currentsection]
-% \end{frame}
+\toclesssection{1. Introduction}
 
 \begin{frame}{Introduction}
 
@@ -111,23 +129,17 @@
   \end{itemize}
   \hspace{12pt}
 
-  $\rightarrow$ Underlying Data: provided by AirBnB, contatins various information about the listings in Oslo, Norway
+  $\rightarrow$ Underlying Data: provided by Airbnb, contains various information about the listings in Oslo, Norway
 
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 2: Methods %%%%%%%%%%%%%%%%%%%%%%%%% 
 
+%%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 2: Methods %%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{2. Methods}
+\toclesssection{2. Methods}
 
 %%% Data Preprocessing %%%
 \subsection{2.1 Preprocessing}
-
-\begin{frame}
-  \frametitle{Table of Contents}
-  \tableofcontents[currentsection]
-\end{frame}
-
 
 \subsubsection{Feature Engineering}
 
@@ -141,17 +153,17 @@
 
   \hspace{5pt}
 
-  Results: 
+  Results:
   \begin{itemize}
     \item pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the Validation Set
     \item But \emph{correlation} of the CNN predictions with the true price was $0.41$
   \end{itemize}
-    
+
 \end{frame}
 
 \begin{frame}{Image Predictions}
 
-  Beispiel Bilder der Predictions! 
+  Beispiel Bilder der Predictions!
   % COMMENT: 2 x 4 wäre gut!
   \begin{figure}[H]
     \centering
@@ -159,13 +171,12 @@
     \caption{CNN example predictions}
   \end{figure}
 
-    
+
 \end{frame}
 
 
-
 \begin{frame}{Feature Engineering: Reviews}
-    % Language and Sentiment
+  % Language and Sentiment
   \begin{itemize}
     \item Language: Detect language of each review
     \item Sentiment analysis: Get the sentiment of each review
@@ -185,19 +196,19 @@
 \end{frame}
 
 \begin{frame}{Feature Engineering: Reviews}
-  
+
   % Wordcloud
-\begin{figure}[t]
-\centering
-\begin{minipage}{6.7cm}
-  \includegraphics[width=\columnwidth]{wordcloud_eng.png}
-\end{minipage}
-\begin{minipage}{6.7cm}
-  \includegraphics[width=\columnwidth]{wordcloud_nor.png}
-\end{minipage}
-\caption{Wordclouds in English and Norwegian}
-\label{fig:wordclouds}
-\end{figure}
+  \begin{figure}[t]
+    \centering
+    \begin{minipage}{6.7cm}
+      \includegraphics[width=\columnwidth]{wordcloud_eng.png}
+    \end{minipage}
+    \begin{minipage}{6.7cm}
+      \includegraphics[width=\columnwidth]{wordcloud_nor.png}
+    \end{minipage}
+    \caption{Wordclouds in English and Norwegian}
+    \label{fig:wordclouds}
+  \end{figure}
 
 \end{frame}
 
@@ -221,7 +232,7 @@
     \item Aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation
     \item One-Hot Encoding of categorial variables and standardization of numerical variables
   \end{itemize}
-    
+
 \end{frame}
 
 
@@ -229,24 +240,19 @@
 
 \subsection{2.2 Models}
 
-\begin{frame}
-  \frametitle{Table of Contents}
-  \tableofcontents[currentsection]
-\end{frame}
-
 \subsubsection{Classical Models}
 
 \begin{frame}{Classical Models}
   % In order to get some insights, we selected four classical Machine Learning models of varying complexity from the \texttt{scikit-learn} library \citep{pedregosa2011} to serve as benchmark models for our custom Neural Net.
 
   \begin{itemize}
-  \item[1.] \textbf{Linear Regression}: simple, well understood in terms of underlying theory and highly interpretable.
-  \item[2.] \textbf{Ridge Regression}: still very interpretable with a closed form analytical solution, adds one hyperparameter to the equation
-  \item[3.] \textbf{Random Forest}: very flexible model with many hyperparameters determining e.g. the number of regression trees and the tree depth. Can be applied to many contexts and often works 'out of the box'.
-  \item[4.] \textbf{Histogram-Based Gradient Boosting}: modern and fast tree-based gradient boosting algorithm.Comes with a large number of tunable hyperparameters, some of them similar to the Random Forest parameters, some of them more specific to the \emph{Boosting} instead of the \emph{Bagging} approach such as the learning rate. 
-  %Similar to the very popular \href{https://xgboost.readthedocs.io/en/stable/}{XGBoost} \citep{chen2016} and \href{https://lightgbm.readthedocs.io/en/latest/}{LightGBM} \citep{ke2017} implementations that regularly outperform deep Neural Networks in Kaggle competitions on tabular data.
-\end{itemize}
-    
+    \item[1.] \textbf{Linear Regression}: simple, well understood in terms of underlying theory and highly interpretable.
+    \item[2.] \textbf{Ridge Regression}: still very interpretable with a closed form analytical solution, adds one hyperparameter to the equation
+    \item[3.] \textbf{Random Forest}: very flexible model with many hyperparameters determining e.g. the number of regression trees and the tree depth. Can be applied to many contexts and often works 'out of the box'.
+    \item[4.] \textbf{Histogram-Based Gradient Boosting}: modern and fast tree-based gradient boosting algorithm.Comes with a large number of tunable hyperparameters, some of them similar to the Random Forest parameters, some of them more specific to the \emph{Boosting} instead of the \emph{Bagging} approach such as the learning rate.
+      %Similar to the very popular \href{https://xgboost.readthedocs.io/en/stable/}{XGBoost} \citep{chen2016} and \href{https://lightgbm.readthedocs.io/en/latest/}{LightGBM} \citep{ke2017} implementations that regularly outperform deep Neural Networks in Kaggle competitions on tabular data.
+  \end{itemize}
+
 \end{frame}
 
 
@@ -254,8 +260,8 @@
 
 \begin{frame}{Neural Network}
 
-explain Hyperparameter and Architecture
-      
+  explain Hyperparameter and Architecture
+
 \end{frame}
 
 \begin{frame}{Model Architecture}
@@ -266,33 +272,23 @@ explain Hyperparameter and Architecture
     \caption{Architecture of each Block in the Fully Connected Neural Network}
     \label{fig:linear-block}
   \end{figure}
-        
+
 \end{frame}
 
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 3: Results %%%%%%%%%%%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 3: Results %%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{3. Results}
 
-\begin{frame}
-  \frametitle{Table of Contents}
-  \tableofcontents[currentsection]
-\end{frame}
-
 \begin{frame}{Test - Slide 1}
-    
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 4: Conclusion %%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{4. Conclusion}
-
-\begin{frame}
-  \frametitle{Table of Contents}
-  \tableofcontents[currentsection]
-\end{frame}
 
 \begin{frame}{Test - Slide 2}
 
@@ -302,10 +298,10 @@ explain Hyperparameter and Architecture
 \begin{frame}
 
   \begin{center}
-  \LARGE{\textbf{Thanks for listening!}}\\[10mm]
-  \large{Questions?}
+    \LARGE{\textbf{Thanks for listening!}}\\[10mm]
+    \large{Questions?}
   \end{center}
-  
+
 \end{frame}
 
 
