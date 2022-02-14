@@ -19,6 +19,30 @@
 % \end{tabular}
 % \end{table}
 
+\subsection{Error Metrics}
+
+As noted in \Cref{appendix:hyperparameters} the Mean Squared Error Loss was used for \emph{training} the Neural Network due to its convenient differentiability with regards to backpropagation.
+For \emph{evaluating} the different models, we preferred the Mean Absolute Error and the $R^2$ value.
+The MAE measures absolute deviations between true and predicted price and is therefore interpretable on the same scale as the original data.
+While the $R^2$ certainly has some inherent flaws, it provides a scale-independent and highly interpretable measure of overall model fit.
+
+When using the \emph{log} price for model fitting, all error metrics were computed on the \emph{original} price scale to obtain an interpretable MAE value.
+More specifically, all computations were performed \emph{after} backtransforming the fitted values for the log-price to the raw price scale.
+Since the results for the MAE and $R^2$ are highly dependent on the exact transformation procedure, they are in particular \emph{not comparable} with groups that chose a different evaluation strategy.
+
+To illustrate this difference in more detail, denote the error metrics as functions of the true and predicted values:
+%%%
+\begin{align*}
+  MAE(\mathbf{y}, \hat{\mathbf{y}})
+   & = \frac{1}{n}\sum_{i = 1}^{n} \left| y_i - \hat{y}_i \right|                                               \\
+  R^2(\mathbf{y}, \hat{\mathbf{y}})
+   & = \frac{\sum_{i=1}^{n} \left( \hat{y}_i - \bar{y}\right)^2}{\sum_{i=1}^{n} \left( y_i - \bar{y} \right)^2}
+\end{align*}
+%%%
+With this notation we computed $MAE(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right))$ which is of course not identical to backtransforming the error on the log-scale $\exp \left(MAE(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}) \right)$.
+To stay consistent we similarly computed $R^2(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right))$ on the original scale with the backtransformed fitted values instead of  $R^2(\log(\mathbf{y}), \widehat{\log(\mathbf{y})})$, where the latter usually leads to a better score.
+
+
 
 \subsection{Predictive Performance}
 
@@ -32,11 +56,7 @@
 %%%
 
 \Cref{fig:model-comparison} shows performance metrics for all fitted models on both the Training Set and the Validation Set.
-Whereas we used the Mean Squared Error Loss for \emph{training} the Neural Net due to its convenient differentiability with regards to backpropagation, we focused on the Mean Absolute Error and the $R^2$ value for \emph{evaluating} all regression models.
-The MAE measures absolute deviations between true and predicted price and is therefore interpretable on the same scale as the original data.
-While the $R^2$ certainly has some inherent flaws, it provides a scale-independent and highly interpretable measure of overall model fit.
-
-The different colors in \Cref{fig:model-comparison} indicate how many features were selected by the \texttt{RFE} algorithm for this particular fit with $59$ total predictor variables.
+The different colors indicate how many features were selected by the \texttt{RFE} algorithm for this particular fit with $59$ total predictor variables.
 Unsurprisingly, one or two features (in case of the \texttt{RFE} the number of bedrooms and the (number of) accomodates) provide too little information to model the task appropriately.
 However, including merely $5$ features (in this case adding the $30$ day availability, the indicator variable for the \emph{Frogner} neighbourhood and, notably, the price predictions from the Convolutional Net based on the image data) results in a very competitive performance for most models on the validation set.
 
