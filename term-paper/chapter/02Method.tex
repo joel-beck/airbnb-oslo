@@ -235,13 +235,13 @@ Of all individual components of the \texttt{Linear Block} structure, Batchnorm w
 Out of the numerous options for including nonlinearities into the network and thus expanding the function space that the network is able to learn, we settled for the default choice of the \emph{Rectified Linear Unit} activation.
 While briefly experimenting with the related \texttt{Leaky ReLU} and \texttt{Exponential ReLU}, the differences were insignificant and could be easily attributed to other factors such as random weight initialization.
 
-\textbf{Dropout} \\ \label{dropout}
+\textbf{Dropout} \label{dropout} \\ 
 The \texttt{Dropout} Layer \citep{srivastava2014} at the end of each cycle turned out to be the single most impactful factor for the network's \emph{generalization} ability.
 In fact, due to the different behaviour of dropout during training and inference, we could directly control the relative performance on training and validation set by varying the dropout probability $p$.
 
 More specifically, the network overfitted drastically by setting $p$ to zero.
 This actually provided the valuable insight that the current function class is flexible enough to model the task at hand properly.
-Thus, there was no need to artificially expand the network size beyond the current quite compact architecture with roughly $280.000$ trainable parameters, saving computation time as a nice side-effect.
+Thus, there was no need to artificially expand the network size beyond the current quite compact architecture with roughly $280,000$ trainable parameters, saving computation time as a nice side-effect.
 
 \Cref{fig:dropout} in the Appendix displays the shift in performance metrics on training and validation set when steadily increasing the dropout probability $p$.
 While not beneficial for overall performance, dropout delivers a leverage to make the model perform much better on out-of-sample data compared to the dataset that it was actually trained on.

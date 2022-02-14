@@ -39,8 +39,8 @@ To illustrate this difference in more detail, denote the error metrics as functi
    & = \frac{\sum_{i=1}^{n} \left( \hat{y}_i - \bar{y}\right)^2}{\sum_{i=1}^{n} \left( y_i - \bar{y} \right)^2}
 \end{align*}
 %%%
-With this notation we computed $MAE(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right))$ which is of course not identical to backtransforming the error on the log-scale $\exp \left(MAE(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}) \right)$.
-To stay consistent we similarly computed $R^2(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right))$ on the original scale with the backtransformed fitted values instead of  $R^2(\log(\mathbf{y}), \widehat{\log(\mathbf{y})})$, where the latter usually leads to a better score.
+With this notation we computed $MAE \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)$ which is of course not identical to backtransforming the error on the log-scale $\exp \left(MAE \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right) \right)$.
+To stay consistent we similarly computed $R^2 \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)$ on the original scale with the backtransformed fitted values instead of  $R^2 \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right)$, where the latter usually leads to a better score.
 
 
 
@@ -56,8 +56,9 @@ To stay consistent we similarly computed $R^2(\mathbf{y}, \exp \left(\widehat{\l
 %%%
 
 \Cref{fig:model-comparison} shows performance metrics for all fitted models on both the Training Set and the Validation Set.
-The different colors indicate how many features were selected by the \texttt{RFE} algorithm for this particular fit with $59$ total predictor variables.
+The different colors indicate how many features were selected by the \texttt{RFE} algorithm for this particular fit out of $59$ total predictor variables.
 Unsurprisingly, one or two features (in case of the \texttt{RFE} the number of bedrooms and the (number of) accomodates) provide too little information to model the task appropriately.
+
 However, including merely $5$ features (in this case adding the $30$ day availability, the indicator variable for the \emph{Frogner} neighbourhood and, notably, the price predictions from the Convolutional Net based on the image data) results in a very competitive performance for most models on the validation set.
 
 The two subplots on the left displaying the MAE tell a very similar story to the subplots on the right that show the $R^2$:
@@ -79,7 +80,7 @@ This finding emphasizes two aspects:
 \end{enumerate}
 %%%
 In comparison to all \texttt{scikit-learn} models our custom Neural Net appears to underperform.
-We have to keep in mind, though, that evaluation on the validation set is overly optimistic for those models whose hyperparameters were tuned on this data during cross validation.
+We have to keep in mind though, that evaluation on the validation set is overly optimistic for those models whose hyperparameters were tuned on this data during cross validation.
 The best simulation to performance on truly unseen data is thus provided by the \emph{test} set that was not used in any step up to this point.
 
 \begin{table}[th]
