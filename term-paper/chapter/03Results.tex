@@ -31,13 +31,14 @@
 \end{figure}
 %%%
 
-\Cref{fig:model-comparison} shows performance metrics for all fitted models on both the Training Set and the Validation Set.
-Whereas we used the Mean Squared Error Loss for \emph{training} the Neural Net due to its convenient differentiability with regards to backpropagation, we focused on the Mean Absolute Error and the $R^2$ value for \emph{evaluating} all regression models.
+\Cref{fig:model-comparison} shows performance metrics for all fitted models on both, the Training Set and the Validation Set.
+Whereas we used the Mean Squared Error Loss for \emph{training} the Neural Net due to its convenient differentiability with regards to backpropagation, we focused on the Mean Absolute Error (MAE) and the $R^2$ value for \emph{evaluating} all regression models.
 The MAE measures absolute deviations between true and predicted price and is therefore interpretable on the same scale as the original data.
 While the $R^2$ certainly has some inherent flaws, it provides a scale-independent and highly interpretable measure of overall model fit.
 
 The different colors in \Cref{fig:model-comparison} indicate how many features were selected by the \texttt{RFE} algorithm for this particular fit with $59$ total predictor variables.
-Unsurprisingly, one or two features (in case of the \texttt{RFE} the number of bedrooms and the (number of) accomodates) provide too little information to model the task appropriately.
+% COMMENT: wie viele Variablen ausgehend von 59 möglichen gewählt wurden? 'out of 59 total predictor variables'?
+Unsurprisingly, one or two features (in case of the \texttt{RFE} the number of bedrooms and the number of accomodates) provide too little information to model the task appropriately.
 However, including merely $5$ features (in this case adding the $30$ day availability, the indicator variable for the \emph{Frogner} neighbourhood and, notably, the price predictions from the Convolutional Net based on the image data) results in a very competitive performance for most models on the validation set.
 
 The two subplots on the left displaying the MAE tell a very similar story to the subplots on the right that show the $R^2$:
@@ -59,7 +60,7 @@ This finding emphasizes two aspects:
 \end{enumerate}
 %%%
 In comparison to all \texttt{scikit-learn} models our custom Neural Net appears to underperform.
-We have to keep in mind, though, that evaluation on the validation set is overly optimistic for those models whose hyperparameters were tuned on this data during cross validation.
+We have to keep in mind though, that evaluation on the validation set is overly optimistic for those models whose hyperparameters were tuned on this data during cross validation.
 The best simulation to performance on truly unseen data is thus provided by the \emph{test} set that was not used in any step up to this point.
 
 \begin{table}[th]
