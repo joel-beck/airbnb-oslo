@@ -67,7 +67,7 @@ In case of the flexible Histogram-based Gradient Boosting algorithm and, to some
 In contrast, models with few parameters such as Linear Regression or Ridge Regression generalize very well to the validation set with virtually no performance drop.
 
 One exception to this rule is the highly complex Neural Network which appears to perform \emph{better} on out-of-sample data.
-This phenomenon can be explained to some extent by the different behaviour of Dropout and Batchnorm during training and inference and was already discussed in the previous chapter.
+This phenomenon can be explained to some extent by the different behaviour of Dropout and Batchnorm during training and inference
 
 When comparing the models within each subplot, all classical Machine Learning models perform similarly on the validation data.
 This finding emphasizes two aspects:
@@ -126,8 +126,8 @@ Second, we reduce the \emph{dimensionality} by leveraging a different Neural Net
 
 \subsubsection{Feature Importance}
 
-In order to draw conclusions about which features were most important for the Neural Network one could imagine to compute gradients of the single output node with respect to each input node by backpropagating through the entire network.
-We chose to analyze the feature importance of an auxiliary Linear Regression model instead to provide some suggestions that could potentially apply to the Neural Network as well.
+In order to draw conclusions about which features were most important for the Neural Network one could imagine to start with a random noise input combination and optimize for artificial inputs which maximally or minimally activate the output neuron, i.e. leading to very low or very high price predictions.
+We chose a conceptually simpler approach and analyzed the feature importance of an auxiliary Linear Regression model instead to provide some suggestions that could potentially apply to the Neural Network as well.
 
 Therefore we preselected $25$ of the network's input features with the \texttt{RFE} algorithm introduced in the previous chapter and compared the coefficient magnitudes.
 As noted before, all predictors were standardized such that a meaningful comparison is feasible.
@@ -235,7 +235,8 @@ In order to draw connections from features to outputs the process implicitly ass
 Moreover, discriminating between these two options is nontrivial.
 One idea is to use features like \emph{availability} or the \emph{number of reviews} to approximate demand and classify price outliers with low demand as overpriced.
 However, it is entirely possible that an extremely expensive observation with very low demand is listed according to its true value, yet nobody is willing to pay such a high amount for an accomodation, regardless of its quality.
-As a consequence, a blind removal of such outliers is difficult to justify when obeying correct statistical methodology.
+Since such accommodations might very well be contained in a new data during deployment, the model should have learned to handle them appropriately during training.
+As a consequence, a blind removal of such outliers is difficult to justify and narrows down the set of feasible target distributions.
 
 
 
