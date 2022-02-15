@@ -124,12 +124,12 @@
 
   Aims of this work:
   \begin{itemize}
-    \item Establish a deep learning approach to predict the price of an accomodation per night
+    \item Establish a deep learning approach to predict the price of an Airbnb accomodation per night in Oslo, Norway
     \item Focus on explainability and interpretability
   \end{itemize}
   \hspace{12pt}
 
-  $\rightarrow$ Underlying data: provided by Airbnb, contains various information about the listings in Oslo, Norway
+  $\rightarrow$ Underlying data: provided by Airbnb, contains various information about the listings in Oslo
 
 \end{frame}
 
@@ -146,7 +146,7 @@
 \begin{frame}{Feature Engineering: Images}
 
   \begin{itemize}
-    \item Use transfer learning on a pretrained CNN (ResNet18) with the first 5 images per listing as input data
+    \item Use transfer learning on a pretrained CNN (\texttt{ResNet18}) with the first 5 images per listing as input data
     \item Added Fully Connected Network at the end containing three layers and \texttt{ReLU} activation functions to be sure the CNN is able to generalize
     \item Also implemented CNN manually as a benchmark model to compare the results
           % COMMENT: Ergebnisse des selber implementierten CNN?
@@ -156,7 +156,7 @@
 
   Results:
   \begin{itemize}
-    \item pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the Validation Set
+    \item pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the validation set
           %null model has MAE 630 NOK without log transformation, but 569 NOK with
     \item But correlation of the CNN predictions with the true price is $0.41$
           % at least positive tendencies of the CNN predictions
@@ -267,11 +267,11 @@
     \begin{column}{0.5\textwidth}
       \begin{itemize}
         %\item Starting from roughly $60$ input features, the network width is first blown up to $256$ features before steadily decreasing it again to a single output neuron in the final layer.
-        \item linear input layer (about $60$ features)
+        \item Linear input layer (about $60$ features)
         \item $6$ intermediary \textbf{blocks} with $64$, $128$, $256$, $128$, $64$ and $8$ output features:
               \begin{itemize}
-                \item[–] residual connection
-                \item[–] linear layer with BatchNorm, \texttt{ReLU} activation function and dropout
+                \item[–] Residual connection
+                \item[–] Linear layer with BatchNorm, \texttt{ReLU} activation function and dropout
               \end{itemize}
         \item $1$ output neuron
       \end{itemize}
@@ -291,9 +291,20 @@
 \begin{frame}{Neural Network: Model Training}
 
   \begin{itemize}
-    \item \texttt{Adam} optimizer with learning rate set to 0.01
+    \item Optimizer: \texttt{Adam} with learning rate set to 0.01
     \item Loss function: \textit{Mean Squared Error} Loss
-    \item Epochs: % COMMENT: wie viele Epochen wurden trainiert?
+    \item Epochs: Number of epochs vary; stopped training if Loss stagnated or model began to overfit
+  \end{itemize}
+
+  \hspace{5pt}
+
+  Most impactful hyperparameter: \textbf{Dropout rate}
+
+  \begin{itemize}
+    \item[–] high influence of the network's generalizatioin availability
+    \item[–] model overfitted significantly by setting dropout rate to zero \\
+    $\rightarrow$ that shows the current model structure is flexible enough to model the task properly
+    \item[–] increasing the rate leads to higher training MAE but also improves the model's performance on the validation set
   \end{itemize}
 
   % COMMENT: hier auf den Einfluss des Dropouts eingehen?
