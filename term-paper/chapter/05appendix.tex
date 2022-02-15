@@ -25,7 +25,7 @@ In contrast to classification tasks however, where Data Augmentation is used to 
 Thus, we decided against standard transformations such as rotating the images or manipulating the color composition.
 
 We did use image \emph{cropping}, however, which, in our opinion, is one of the few applicable augmentations in regression contexts.
-After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image \textbf{center} in the validation set to avoid any randomness during inference.
+After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image \emph{center} in the validation set to avoid any randomness during inference.
 
 At a final step all images were normalized, separately for each color channel.
 In case of the pretrained model \texttt{ResNet} we used the same values for normalization that were used during training on the large \texttt{ImageNet} database \citep{russakovsky2015}.

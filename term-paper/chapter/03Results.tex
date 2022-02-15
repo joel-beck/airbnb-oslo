@@ -219,7 +219,10 @@ For this reason, latent space visualizations of the VAE appear to be more spread
 \Cref{fig:latent-representation} visualizes the two-dimensional feature embedding.
 Already a \emph{single} dimension seems so be sufficient for a general understanding of price segments.
 While some of the most expensive apartments are located on the far left, surrounded by highly-priced neighbours, the other half shares a similar feature representation to \emph{medium to low} priced listings.
+% the other half shows a a similar picture to the medium- and low-priced apartement listings. 
+% COMMENT: was ist in diesem Abschnitt gemeint? Ich kann dir da nicht ganz folgen
 Hence, the network likely maps this second half to comparably low price predictions resulting in large residuals with a high influence on the MAE and the $R^2$ value.
+% COMMENT: large residuals?
 
 Assuming that the two-dimensional picture appropriately reflects the situation in the full feature space there are two possible explanations for this lack of separability:
 %%%
@@ -233,7 +236,9 @@ In the latter case it can be argued that the entire task of predicting Airbnb pr
 In order to draw connections from features to outputs the process implicitly assumes observations whose listed price can be justified and explained by characteristics of the joint feature distribution.
 
 Moreover, discriminating between these two options is nontrivial.
+% COMMENT: two options = 2 Erklärungsmöglichkeiten ?
 One idea is to use features like \emph{availability} or the \emph{number of reviews} to approximate demand and classify price outliers with low demand as overpriced.
+% COMMENT: idea um Punkt 2 zu lösen?
 However, it is entirely possible that an extremely expensive observation with very low demand is listed according to its true value, yet nobody is willing to pay such a high amount for an accomodation, regardless of its quality.
 As a consequence, a blind removal of such outliers is difficult to justify when obeying correct statistical methodology.
 
