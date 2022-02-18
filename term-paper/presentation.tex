@@ -155,7 +155,7 @@
   \pause
 
   \hspace{5pt}
-  
+
   Results:
   \begin{itemize}
     \item pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the validation set
@@ -185,7 +185,7 @@
   \pause
 
   \hspace{5pt}
-  
+
   New features per listing:
   \begin{itemize}
     \item[1.] Number of reviews
@@ -220,7 +220,7 @@
   Feature Selection:
   \begin{itemize}
     \item[1.] Manually selected features based on background knowledge, correlation analysis and the number of missing values
-    \item[2.] Adjusted these features by analyzing the results of different feature selection algorithms and fitted auxiliary linear regression 
+    \item[2.] Adjusted these features by analyzing the results of different feature selection algorithms and fitted auxiliary linear regression
   \end{itemize}
 
   \pause
@@ -293,7 +293,7 @@
   \pause
 
   \hspace{5pt}
-  
+
   Most impactful hyperparameter: \textbf{Dropout rate}
 
   \begin{itemize}
@@ -307,9 +307,6 @@
 \end{frame}
 
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 3: Results %%%%%%%%%%%%%%%%%%%%%%%%%
 
 \toclesssection{3. Results}
 
@@ -480,7 +477,8 @@
     \item About twice as large as Oslo Data \\
           $\Rightarrow$ Flexible Models like Gradient Boosting and the Neural Network benefit most
     \item However: Overall Performance \emph{not} significantly better than for Oslo Data
-    \item Gradient Boosting model with best test set performance: MAE of $32.8$, $R^2$ of $0.453$
+    \item MAE of Neural Net on validation set from $44.3$ Euros for Oslo to $42.5$ Euros for Munich
+    \item Gradient Boosting model with best test set performance: MAE of $32.8$ (Oslo: $41.2$) and $R^2$ of $0.453$
     \item Deeper/Wider architecture of neural net that is specifically designed for larger data set might lead to performance boost
   \end{itemize}
 \end{frame}
@@ -526,6 +524,13 @@
     \large{Questions?}
   \end{center}
 
+\end{frame}
+
+\begin{frame}{References}
+  \tiny
+  \nocite{he2015, ioffe2015,kingma2014,kingma2017,srivastava2014,goodfellow2015}
+  \bibliographystyle{apalike}
+  \bibliography{bib.bib}
 \end{frame}
 
 
