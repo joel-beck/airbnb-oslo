@@ -37,7 +37,7 @@
 
 \setbeamertemplate{footline}
 {
-  \leavevmode%
+  \leavevmode
    \hspace{-1em}
   \hbox{%
     \setbeamercolor{author in head/foot}{fg=white,bg=uniblau!60}
@@ -207,8 +207,6 @@
     \begin{minipage}{6.7cm}
       \includegraphics[width=\columnwidth]{wordcloud_nor.png}
     \end{minipage}
-    \caption{Wordclouds in English and Norwegian}
-    \label{fig:wordclouds}
   \end{figure}
 
 \end{frame}
@@ -252,7 +250,7 @@
     \item[2.] \textbf{Ridge Regression}: still very interpretable with a closed form analytical solution; one hyperparameter
     \item[3.] \textbf{Random Forest}: very flexible model with many hyperparameters determining e.g. the number of regression trees and the tree depth, but can be applied to many contexts and often works 'out of the box'
     \item[4.] \textbf{Histogram-Based Gradient Boosting}: modern and fast tree-based gradient boosting algorithm; large number of tunable hyperparameters
-    % Boosting statt Bagging 
+    % Boosting statt Bagging
       %, some of them similar to the Random Forest parameters, some of them more specific to the \emph{Boosting} instead of the \emph{Bagging} approach such as the learning rate.
       %Similar to the very popular \href{https://xgboost.readthedocs.io/en/stable/}{XGBoost} \citep{chen2016} and \href{https://lightgbm.readthedocs.io/en/latest/}{LightGBM} \citep{ke2017} implementations that regularly outperform deep Neural Networks in Kaggle competitions on tabular data.
   \end{itemize}
@@ -281,7 +279,6 @@
       \begin{center}
         \begin{figure}
           \includegraphics[width=0.9\columnwidth]{mlp_architecture.png}
-          \caption{Linear Block in the FC-NN}
         \end{figure}
       \end{center}
     \end{column}
