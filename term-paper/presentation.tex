@@ -321,9 +321,9 @@
 
 \begin{frame}{Evaluation Metrics}
   \begin{itemize}
-    \item Mean Squared Error for \emph{Training}
-    \item Mean Absolute Error and $R^2$ for \emph{Evaluation}
-    \item When using log-price for model fitting, MAE and $R^2$ are computed on the \emph{original} price scale for better interpretability of the MAE
+    \item Mean Squared Error for \emph{Training} \pause
+    \item Mean Absolute Error and $R^2$ for \emph{Evaluation} \pause
+    \item When using log-price for model fitting, MAE and $R^2$ are computed on the \emph{original} price scale for better interpretability of the MAE \pause
     \item Note that both metrics highly depend on the exact evaluation procedure:
           %%%
           \begin{align*}
@@ -333,6 +333,7 @@
              & \neq R^2 \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right)
           \end{align*}
           %%%
+          \pause
     \item Direct comparisons across groups have to be taken with care
   \end{itemize}
 \end{frame}
