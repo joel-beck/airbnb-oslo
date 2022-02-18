@@ -150,17 +150,16 @@
     \item Use transfer learning on a pretrained CNN (\texttt{ResNet18}) with the first 5 images per listing as input data
     \item Added Fully Connected Network at the end containing three layers and \texttt{ReLU} activation functions to be sure the CNN is able to generalize
     \item Also implemented CNN manually as a benchmark model to compare the results
-          % COMMENT: Ergebnisse des selber implementierten CNN?
   \end{itemize}
 
-  \hspace{5pt}
+  \pause
 
+  \hspace{5pt}
+  
   Results:
   \begin{itemize}
     \item pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the validation set
-          %null model has MAE 630 NOK without log transformation, but 569 NOK with
     \item But correlation of the CNN predictions with the true price is $0.41$
-          % at least positive tendencies of the CNN predictions
   \end{itemize}
 
 \end{frame}
@@ -183,8 +182,10 @@
     \item Sentiment analysis: Get the sentiment of each review
   \end{itemize}
 
-  \hspace{5pt}
+  \pause
 
+  \hspace{5pt}
+  
   New features per listing:
   \begin{itemize}
     \item[1.] Number of reviews
@@ -201,10 +202,10 @@
   % Wordcloud
   \begin{figure}[t]
     \centering
-    \begin{minipage}{6.7cm}
+    \begin{minipage}{7cm}
       \includegraphics[width=\columnwidth]{wordcloud_eng.png}
     \end{minipage}
-    \begin{minipage}{6.7cm}
+    \begin{minipage}{7cm}
       \includegraphics[width=\columnwidth]{wordcloud_nor.png}
     \end{minipage}
   \end{figure}
@@ -219,9 +220,10 @@
   Feature Selection:
   \begin{itemize}
     \item[1.] Manually selected features based on background knowledge, correlation analysis and the number of missing values
-      %based on three criteria: background knowledge, there exists correlation between feature and price, not too many missing values because of small dataset
-    \item[2.] Adjusted these features by analyzing the results of different feature selection algorithms and fitted auxiliary linear regression % mainly focused on Principal Component Analysis and Recursive Feature Selection
+    \item[2.] Adjusted these features by analyzing the results of different feature selection algorithms and fitted auxiliary linear regression 
   \end{itemize}
+
+  \pause
 
   \hspace{5pt}
 
@@ -229,7 +231,7 @@
   \begin{itemize}
     \item Converting data types
     \item Splitting text-based variables into more convenient numeric or boolean features
-    \item Aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation % example: property type, just one House Boat with very high price (outlier?)
+    \item Aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation
     \item One-Hot encoding of categorial variables and standardization of numerical variables
   \end{itemize}
 
@@ -243,16 +245,11 @@
 \subsubsection{Classical Models}
 
 \begin{frame}{Classical Models}
-  % In order to get some insights, we selected four classical Machine Learning models of varying complexity from the \texttt{scikit-learn} library \citep{pedregosa2011} to serve as benchmark models for our custom Neural Net.
-
   \begin{itemize}
     \item[1.] \textbf{Linear Regression}: simple, well understood in terms of underlying theory and highly interpretable.
-    \item[2.] \textbf{Ridge Regression}: still very interpretable with a closed form analytical solution; one hyperparameter
-    \item[3.] \textbf{Random Forest}: very flexible model with many hyperparameters determining e.g. the number of regression trees and the tree depth, but can be applied to many contexts and often works 'out of the box'
-    \item[4.] \textbf{Histogram-Based Gradient Boosting}: modern and fast tree-based gradient boosting algorithm; large number of tunable hyperparameters
-    % Boosting statt Bagging
-      %, some of them similar to the Random Forest parameters, some of them more specific to the \emph{Boosting} instead of the \emph{Bagging} approach such as the learning rate.
-      %Similar to the very popular \href{https://xgboost.readthedocs.io/en/stable/}{XGBoost} \citep{chen2016} and \href{https://lightgbm.readthedocs.io/en/latest/}{LightGBM} \citep{ke2017} implementations that regularly outperform deep Neural Networks in Kaggle competitions on tabular data.
+    \item[2.] \textbf{Ridge Regression}: still very interpretable with a closed form analytical solution
+    \item[3.] \textbf{Random Forest}: very flexible model, can be applied to many contexts and often works 'out of the box'
+    \item[4.] \textbf{Histogram-Based Gradient Boosting}: modern and fast tree-based gradient boosting algorithm; similar to Random Forest, but uses Boosting instead of Bagging
   \end{itemize}
 
 \end{frame}
@@ -265,7 +262,6 @@
   \begin{columns}
     \begin{column}{0.5\textwidth}
       \begin{itemize}
-        %\item Starting from roughly $60$ input features, the network width is first blown up to $256$ features before steadily decreasing it again to a single output neuron in the final layer.
         \item Linear input layer (about $60$ features)
         \item $6$ intermediary \textbf{blocks} with $64$, $128$, $256$, $128$, $64$ and $8$ output features:
               \begin{itemize}
@@ -278,7 +274,7 @@
     \begin{column}{0.5\textwidth}
       \begin{center}
         \begin{figure}
-          \includegraphics[width=0.9\columnwidth]{mlp_architecture.png}
+          \includegraphics[width=0.95\columnwidth]{mlp_architecture.png}
         \end{figure}
       \end{center}
     \end{column}
@@ -294,8 +290,10 @@
     \item Epochs: Number of epochs vary; stopped training if Loss stagnated or model began to overfit
   \end{itemize}
 
-  \hspace{5pt}
+  \pause
 
+  \hspace{5pt}
+  
   Most impactful hyperparameter: \textbf{Dropout rate}
 
   \begin{itemize}
@@ -304,8 +302,6 @@
     $\rightarrow$ that shows the current model structure is flexible enough to model the task properly
     \item[–] increasing the rate leads to higher training MAE but also improves the model's performance on the validation set
   \end{itemize}
-
-  % COMMENT: hier auf den Einfluss des Dropouts eingehen?
 
 
 \end{frame}
