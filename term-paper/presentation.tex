@@ -117,7 +117,6 @@
   \tableofcontents
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 1 %%%%%%%%%%%%%%%%%%%%%%%%%
 
 \toclesssection{1. Introduction}
 
@@ -135,11 +134,8 @@
 \end{frame}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%% Kapteil 2: Methods %%%%%%%%%%%%%%%%%%%%%%%%%
-
 \toclesssection{2. Methods}
 
-%%% Data Preprocessing %%%
 \subsection{2.1 Preprocessing}
 
 \subsubsection{Feature Engineering}
@@ -299,7 +295,7 @@
   \begin{itemize}
     \item[–] high influence of the network's generalizatioin availability
     \item[–] model overfitted significantly by setting dropout rate to zero \\
-    $\rightarrow$ that shows the current model structure is flexible enough to model the task properly
+      $\rightarrow$ that shows the current model structure is flexible enough to model the task properly
     \item[–] increasing the rate leads to higher training MAE but also improves the model's performance on the validation set
   \end{itemize}
 
@@ -314,10 +310,9 @@
 
 \begin{frame}{Evaluation Metrics}
   \begin{itemize}
-    \item Mean Squared Error for \emph{Training} \pause
-    \item Mean Absolute Error and $R^2$ for \emph{Evaluation} \pause
-    \item When using log-price for model fitting, MAE and $R^2$ are computed on the \emph{original} price scale for better interpretability of the MAE \pause
-    \item Note that both metrics highly depend on the exact evaluation procedure:
+    \item Mean Squared Error for \emph{Training}, Mean Absolute Error and $R^2$ for \emph{Evaluation} \pause
+    \item When using \textbf{log-price} for model fitting, MAE and $R^2$ are computed on the \textbf{original} price scale for better interpretability \pause
+    \item Metrics highly depend on the exact evaluation procedure:
           %%%
           \begin{align*}
             MAE \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)
@@ -326,7 +321,6 @@
              & \neq R^2 \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right)
           \end{align*}
           %%%
-          \pause
     \item Direct comparisons across groups have to be taken with care
   \end{itemize}
 \end{frame}
@@ -343,18 +337,18 @@
 
 \begin{frame}{Main Findings}
   \begin{itemize}
-    \item More features tend to work better with diminishing returns ($5$ vs. all $59$ features)
-    \item Classical Models: Comparable performance of linear and nonlinear models, linear models generalize better to validation set
-    \item Neural Net: At first sight worst performance but best generalization
-    \item The latter can be explained by differing behaviour of \emph{Dropout} and \emph{Batchnorm} layers during training and inference as well as the presence of outliers (covered later)
+    \item More features tend to work better with diminishing returns ($5$ vs. all $59$ features) \pause
+    \item Price prediction task with small tabular data does not require overly complex models \\
+          $\Rightarrow$ similar performance of linear and nonlinear classical models,  linear models generalize better to validation set \pause
+    \item Neural Net: At first sight worst performance but best generalization \\
+          $\Rightarrow$ Differing behaviour of \emph{Dropout} and \emph{Batchnorm} layers during training and inference $+$ presence of outliers
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Main Findings}
   \begin{itemize}
-    \item The price prediction task with our small tabular data does not seem to require overly complex models
-    \item When including \emph{all} observations (no outlier removal) we can expect predictions within a distance of roughly $400$ NOK (40 Euros) on average to the true price and a $R^2$ value of around $0.4$.
-    \item Caveat: Validation erformance is biased towards models whose hyperparameters were tuned during cross validation
+    \item Without outlier removal we can expect a MAE of $400$ NOK (40 Euros) and a $R^2$ value of around $0.4$. \pause
+    \item Validation performance is biased towards models whose hyperparameters were tuned during cross validation
   \end{itemize}
 \end{frame}
 
@@ -418,31 +412,23 @@
       5.0                & 240.57 & 0.54  \\
       10.0               & 214.76 & 0.49  \\ \bottomrule
     \end{tabular}
-    \caption{Mean Absolute Error and $R^2$ value of the Neural Network on the validation set after removing the highest quantiles of the price distribution from the data set}
+    \caption{MAE and $R^2$ value of the Neural Network on the validation set}
     \label{tab:mlp-outliers}
   \end{table}
+  \pause
+  \begin{itemize}
+    \item \textbf{Not} fixed by log-transformation!
+    \item Explains performance boost of Neural Network from training to validation to test set
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Impact of Outliers}
   \begin{itemize}
-    \item Price outliers single most influential factor of predictive power
-    \item \textbf{Not} fixed by log-transformation!
-    \item Explains performance boost of Neural Network from training to validation to test set
-    \item Due to different sizes and randomness, training set contains the most outliers that drive the error metrics up whereas test set contains the fewest outliers
-    \item Impact diminished for classical models due to cross-validation: Extreme outliers were contained in the validation fold \emph{only once} out of multiple evaluations and metrics are averaged across all folds
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Making Sense of the Data}
-  \begin{itemize}
-    \item Neural Net clearly lacks ability to capture entire price range accurately
-    \item However, in theory the model should be flexible enough to approximate any arbitrary function reasonably well
-    \item Two possible explanations:
-          \begin{enumerate}
-            \item The model is inherently flawed
-            \item The model is faced with a nearly impossible task
-          \end{enumerate}
-    \item To discriminate the observations with the highest prices from the remaining ones, the corresponding feature combinations must be separable in feature space
+    \item In theory the Neural Net should be flexible enough to approximate any arbitrary function reasonably well
+    \item Why is it not able to capture entire price range? \pause
+    \item Model only uses features during prediction \\
+          $\Rightarrow$ To \textbf{discriminate} between outliers and non-outliers, the corresponding feature combinations must be \textbf{separable} in high-dimensional feature space
+    \item Idea: approximate full feature space by two-dimensional \textbf{embedding}
   \end{itemize}
 \end{frame}
 
@@ -456,16 +442,18 @@
 
 \begin{frame}{Takeaways}
   \begin{itemize}
-    \item Two explanations for the lack of separability:
+    \item Why is there no separability?
           \begin{enumerate}
-            \item The collected data is not rich or expressive enough to capture all factors that contribute to very high prices
-            \item Some apartments are listed at a price that does not represent their true value
+            \item Data is not rich/expressive enough to capture all factors that contribute to very high prices
+            \item Some apartments are listed at a price that does not represent their \textbf{true} value
           \end{enumerate}
-    \item Latter case makes entire prediction task questionable: Implicit assumption that listed prices can be justified and explained by characteristics of the joint feature distribution
-    \item How to detect truly overpriced observations?
-    \item Model might face expensive but fairly priced observations on new data in production \\
-          $\Rightarrow$ should learn to handle those cases during training
-    \item Blind removal of outliers is difficult to justify and narrows down the set of feasible target distributions!
+          \pause
+    \item Can't we just remove those outliers?
+          \begin{itemize}
+            \item Expensive, but \textbf{fairly priced} observations should be kept \\
+                  $\Rightarrow$ Might be contained in prediction tasks on new data, thus model should learn to handle those cases during training
+            \item Detecting (and removing) truly \textbf{overpriced} observations is difficult (many reasons for e.g. low demand)
+          \end{itemize}
   \end{itemize}
 \end{frame}
 
@@ -475,17 +463,18 @@
 \begin{frame}{Munich - Predictive Performance}
   \begin{itemize}
     \item About twice as large as Oslo Data \\
-          $\Rightarrow$ Flexible Models like Gradient Boosting and the Neural Network benefit most
+          $\Rightarrow$ Flexible Models like Gradient Boosting and the Neural Network
+          benefit most \pause
     \item However: Overall Performance \emph{not} significantly better than for Oslo Data
     \item MAE of Neural Net on validation set from $44.3$ Euros for Oslo to $42.5$ Euros for Munich
-    \item Gradient Boosting model with best test set performance: MAE of $32.8$ (Oslo: $41.2$) and $R^2$ of $0.453$
+    \item Gradient Boosting model with best test set performance: MAE of $32.8$ (Oslo: $41.2$) and $R^2$ of $0.453$ \pause
     \item Deeper/Wider architecture of neural net that is specifically designed for larger data set might lead to performance boost
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Munich - Understanding \& Interpretation}
   \begin{itemize}
-    \item Most important features in Linear Regression: \emph{Property Type}, \emph{Neighbourhood} and \emph{Accomodates}
+    \item Most important features: \emph{Property Type}, \emph{Neighbourhood} and \emph{Accomodates} \pause
     \item Munich Data again contains large price outliers with high impact on the evaluation metrics
           \vspace{1em}
           \begin{table}[h]
@@ -511,11 +500,18 @@
   \begin{itemize}
     \item Linear Models show competitive predictive performance for small Oslo data
     \item Top 3 Ensemble leads to lowest test set error
-    \item Large impact of outliers
-    \item Possible extension to gain further understanding of the network's behaviour: \emph{Adversarial Examples} in the regression context
+    \item Large impact of outliers \pause
+    \item Extension to gain further understanding of the network's behaviour: \emph{Adversarial Examples} in regression context  \\
+          $\Rightarrow$ Find small input \textbf{perturbations} which lead to spike in price predictions
   \end{itemize}
 \end{frame}
 
+\begin{frame}{References}
+  \tiny
+  \nocite{he2015, ioffe2015,kingma2014,kingma2017,srivastava2014,goodfellow2015}
+  \bibliographystyle{apalike}
+  \bibliography{bib.bib}
+\end{frame}
 
 \begin{frame}
 
@@ -526,12 +522,6 @@
 
 \end{frame}
 
-\begin{frame}{References}
-  \tiny
-  \nocite{he2015, ioffe2015,kingma2014,kingma2017,srivastava2014,goodfellow2015}
-  \bibliographystyle{apalike}
-  \bibliography{bib.bib}
-\end{frame}
 
 
 \end{document}
