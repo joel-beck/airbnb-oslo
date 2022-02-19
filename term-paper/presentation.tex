@@ -310,18 +310,16 @@
 
 \begin{frame}{Evaluation Metrics}
   \begin{itemize}
-    \item Mean Squared Error for \emph{Training}, Mean Absolute Error and $R^2$ for \emph{Evaluation} \pause
-    \item When using \textbf{log-price} for model fitting, MAE and $R^2$ are computed on the \textbf{original} price scale for better interpretability \pause
-    \item Metrics highly depend on the exact evaluation procedure:
-          %%%
+    \item Focus on Mean Absolute Error and $R^2$ for higher \textbf{interpretability} \pause
+    \item Computations of MAE and $R^2$ on \textbf{original} price scale  \\
+          $\Rightarrow$ requires backtransformation of fitted values when using \textbf{log-price}\pause
+    \item Values depend on exact evaluation procedure, direct comparisons across groups have to be taken with care
           \begin{align*}
             MAE \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)
              & \neq \exp \left(MAE \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right) \right) \\
             R^2 \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)
              & \neq R^2 \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right)
           \end{align*}
-          %%%
-    \item Direct comparisons across groups have to be taken with care
   \end{itemize}
 \end{frame}
 
@@ -337,9 +335,9 @@
 
 \begin{frame}{Main Findings}
   \begin{itemize}
-    \item More features tend to work better with diminishing returns ($5$ vs. all $59$ features) \pause
+    \item More features tend to work better with diminishing returns ($5$ vs. all features)
     \item Price prediction task with small tabular data does not require overly complex models \\
-          $\Rightarrow$ similar performance of linear and nonlinear classical models,  linear models generalize better to validation set \pause
+          $\Rightarrow$ similar performance of linear and nonlinear classical models,  linear models generalize better to validation set
     \item Neural Net: At first sight worst performance but best generalization \\
           $\Rightarrow$ Differing behaviour of \emph{Dropout} and \emph{Batchnorm} layers during training and inference $+$ presence of outliers
   \end{itemize}
@@ -347,7 +345,7 @@
 
 \begin{frame}{Main Findings}
   \begin{itemize}
-    \item Without outlier removal we can expect a MAE of $400$ NOK (40 Euros) and a $R^2$ value of around $0.4$. \pause
+    \item Without outlier removal we can expect a MAE of $400$ NOK (40 Euros) and a $R^2$ value of around $0.4$.
     \item Validation performance is biased towards models whose hyperparameters were tuned during cross validation
   \end{itemize}
 \end{frame}
@@ -500,7 +498,7 @@
   \begin{itemize}
     \item Linear Models show competitive predictive performance for small Oslo data
     \item Top 3 Ensemble leads to lowest test set error
-    \item Large impact of outliers \pause
+    \item Large impact of outliers
     \item Extension to gain further understanding of the network's behaviour: \emph{Adversarial Examples} in regression context  \\
           $\Rightarrow$ Find small input \textbf{perturbations} which lead to spike in price predictions
   \end{itemize}
