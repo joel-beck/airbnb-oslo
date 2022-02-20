@@ -143,9 +143,8 @@
 \begin{frame}{Feature Engineering: Images}
 
   \begin{itemize}
-    \item Use transfer learning on a pretrained CNN (\texttt{ResNet18}) with the first 5 images per listing as input data
+    \item Use transfer learning on a pretrained CNN (\texttt{ResNet18})
     \item Added Fully Connected Network at the end containing three layers and \texttt{ReLU} activation functions to be sure the CNN is able to generalize
-    \item Also implemented CNN manually as a benchmark model to compare the results
   \end{itemize}
 
   \pause
@@ -154,7 +153,8 @@
 
   Results:
   \begin{itemize}
-    \item pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the validation set
+    \item Pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the validation set
+    \item For comparison: Null model has MAE of $630$ NOK without log-transformation of the price and $569$ NOK with log-transformation
     \item But correlation of the CNN predictions with the true price is $0.41$
   \end{itemize}
 
@@ -216,7 +216,7 @@
   Feature Selection:
   \begin{itemize}
     \item[1.] Manually selected features based on background knowledge, correlation analysis and the number of missing values
-    \item[2.] Adjusted these features by analyzing the results of different feature selection algorithms and fitted auxiliary linear regression
+    \item[2.] Adjusted these features by analyzing the results of different feature selection algorithms
   \end{itemize}
 
   \pause
@@ -270,7 +270,7 @@
     \begin{column}{0.5\textwidth}
       \begin{center}
         \begin{figure}
-          \includegraphics[width=0.95\columnwidth]{mlp_architecture.png}
+          \includegraphics[width=\columnwidth]{mlp_architecture.png}
         \end{figure}
       \end{center}
     \end{column}
