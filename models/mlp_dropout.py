@@ -13,7 +13,7 @@ from pytorch_helpers import MLP, run_regression
 from sklearn_helpers import ResultContainer, get_column_transformer
 
 sns.set_theme(style="whitegrid")
-pd.set_option("precision", 3)
+pd.set_option("display.precision", 3)
 
 #%%
 X_train_val = pd.read_pickle("../data-clean/X_train_val.pkl")

@@ -20,9 +20,8 @@ tqdm.pandas()
 listings = pd.read_pickle("listings.pkl")
 listings = pd.DataFrame(listings)
 
-GET_FRONT_URLS = False
+GET_FRONT_URLS = True
 GET_RESPONSES = True
-GET_ALL_URLS = False
 
 #%%
 # urls of webpages with only (usually 5) front pictures for each apartment

@@ -242,16 +242,6 @@ def get_models(
         log_y=log_y,
     )
 
-    ada_boost = ModelContainer(
-        AdaBoostRegressor(random_state=random_state),
-        preprocessor,
-        {
-            "learning_rate": np.arange(1, 5),
-            "n_estimators": np.arange(2, 20, 2),
-        },
-        log_y=log_y,
-    )
-
     bagging = ModelContainer(
         BaggingRegressor(random_state=random_state),
         preprocessor,
@@ -282,7 +272,6 @@ def get_models(
         "ridge": ridge,
         "random_forest": random_forest,
         "gradient_boosting": gradient_boosting,
-        # "ada_boost": ada_boost,
         "bagging": bagging,
         "hist_gradient_boosting": hist_gradient_boosting,
     }

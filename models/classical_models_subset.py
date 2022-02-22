@@ -26,7 +26,7 @@ from sklearn_helpers import (
 )
 
 simplefilter(action="ignore", category=FutureWarning)
-pd.set_option("precision", 3)
+pd.set_option("display.precision", 3)
 
 #%%
 # BOOKMARK: Hyperparameters
@@ -198,17 +198,6 @@ for (sfm_threshold, log_y) in itertools.product(sfm_threshold_list, log_y_list):
     sfm_results.append(try_feature_selectors(sfm, log_y=log_y))
 
 pd.concat(sfm_results).to_pickle("../results-pickle/sfm_results.pkl")
-
-#%%
-# takes way to much time, maybe fit with a single combination of log_y and sfs_components
-# sfs_results = []
-# for (sfs_components, log_y) in itertools.product(sfs_components_list, log_y_list):
-#     sfs = SequentialFeatureSelector(
-#         SVR(kernel="linear"), n_features_to_select=sfs_components
-#     )
-#     sfs_results.append(try_feature_selectors(sfs, log_y=log_y))
-
-# pd.concat(sfs_results).to_pickle("sfs_results.pkl")
 
 #%%
 vt_results = []

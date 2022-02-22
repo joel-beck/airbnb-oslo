@@ -21,12 +21,12 @@ from sklearn_helpers import get_column_transformer, get_preprocessor, show_coeff
 
 simplefilter(action="ignore", category=FutureWarning)
 sns.set_theme(style="whitegrid")
-pd.set_option("precision", 3)
+pd.set_option("display.precision", 3)
 pd.set_option("display.max_columns", 100)
 
 #%%
 # Analysis for Munich or Oslo Data
-MUNICH = True
+MUNICH = False
 
 if MUNICH:
     listings_path = "../data-munich/munich_listings.pkl"

@@ -20,12 +20,12 @@ from sklearn_helpers import (
 )
 
 simplefilter(action="ignore", category=FutureWarning)
-pd.set_option("precision", 3)
+pd.set_option("display.precision", 3)
 pd.set_option("display.max_columns", 100)
 
 #%%
 # Analysis for Munich or Oslo Data
-MUNICH = True
+MUNICH = False
 
 if MUNICH:
     X_train_val_path = "../data-munich/munich_X_train_val.pkl"

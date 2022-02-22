@@ -22,7 +22,7 @@ from sklearn_helpers import (
 )
 
 simplefilter(action="ignore", category=FutureWarning)
-pd.set_option("precision", 3)
+pd.set_option("display.precision", 3)
 pd.set_option("display.max_columns", 100)
 sns.set_theme(style="whitegrid")
 

@@ -9,6 +9,7 @@ from warnings import simplefilter
 import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.pipeline import Pipeline
 
 from sklearn_helpers import (
     ResultContainer,
@@ -18,7 +19,7 @@ from sklearn_helpers import (
 )
 
 simplefilter(action="ignore", category=FutureWarning)
-pd.set_option("precision", 3)
+pd.set_option("display.precision", 3)
 
 #%%
 # BOOKMARK: Hyperparameters
@@ -72,7 +73,11 @@ def initialize_with_baseline(y_train_val: pd.Series, log_y: bool) -> ResultConta
 full_features_results = []
 for log_y in [True, False]:
     result_container = initialize_with_baseline(y_train_val, log_y=log_y)
-    models = get_models(column_transformer, random_state=random_state, log_y=log_y)
+    models = get_models(
+        Pipeline([("column_transformer", column_transformer)]),
+        random_state=random_state,
+        log_y=log_y,
+    )
     result = fit_models(
         X_train_val,
         y_train_val,
@@ -85,6 +90,8 @@ for log_y in [True, False]:
     )
     full_features_results.append(result.display_df())
 
-pd.concat(full_features_results).to_pickle("../results-pickle/full_features_results.pkl")
+pd.concat(full_features_results).to_pickle(
+    "../results-pickle/full_features_results.pkl"
+)
 
 #%%
