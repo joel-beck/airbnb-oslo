@@ -57,8 +57,7 @@ These convenience functions are then imported and leveraged in the remaining fil
 This folder is structured into a `chapter` subfolder, which collects all contents for the term paper that are later imported into the main `paper.tex` file, as well as self-explaining `images` and `tables` subfolders.
 
 
-*Remarks*:
-
+*Remarks*: <br/>
 The top-level notebooks `Data_Set_Introduction.ipynb`, `Model_Introduction.ipynb` and `MLP.ipynb` were provided by our course instructors as guidelines that can be build upon.
 
 
