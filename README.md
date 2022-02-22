@@ -2,10 +2,11 @@
 
 The goal of this project is to create price-prediction models for Airbnb accomodations located in Oslo, Norway.
 
-The underlying data is provided by Airbnb and [freely available on the web](http://insideairbnb.com/get-the-data.html).
-This repository was created in context of the *Statistical and Deep Learning* seminar offered by the University of Göttingen in Winter Term 2021/22 such that the project focuses on the application of modern Machine Learning and Deep Learning methods that we implemented via the popular Python libraries [scikit-learn](https://scikit-learn.org/stable/) and [pytorch](https://pytorch.org/).
+The underlying data is provided by Airbnb and is [freely available on the web](http://insideairbnb.com/get-the-data.html).
+This repository was created in context of the *Statistical and Deep Learning* seminar offered by Chair of Statistics of the University of Göttingen in Winter Term 2021/22.
+Thus, the project focuses on the application of modern Machine Learning and Deep Learning methods that we implemented via the popular Python libraries [scikit-learn](https://scikit-learn.org/stable/) and [pytorch](https://pytorch.org/).
 
-If you want to jump straight to the results of our project, please refer to the `paper.pdf` and the `presentation.pdf` files in the `term-paper` folder for either a detailed description of our methods and findings in text form or a more compact summary on slides, respectively.
+If you want to jump straight to the results of our project, please refer to the `paper.pdf` and the `presentation.pdf` files in the `term-paper` folder.The former entails a detailed description of our methods and findings in text form whereas the latter provides a compact summary on slides.
 
 ## Installation
 
@@ -56,6 +57,7 @@ This folder is structured into a `chapter` subfolder, which collects all content
 
 
 *Remarks*:
+
 The top-level notebooks `Data_Set_Introduction.ipynb`, `Model_Introduction.ipynb` and `MLP.ipynb` were provided by our course instructors as guidelines that can be build upon.
 
 
