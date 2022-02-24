@@ -219,9 +219,7 @@ For this reason, latent space visualizations of the VAE appear to be more spread
 \Cref{fig:latent-representation} visualizes the two-dimensional feature embedding.
 Already a \emph{single} dimension seems so be sufficient for a general understanding of price segments.
 While some of the most expensive apartments are located on the far left, surrounded by highly-priced neighbours, the other half shares a similar feature representation to \emph{medium to low} priced listings.
-% COMMENT: was ist in diesem Abschnitt gemeint? Ich kann dir da nicht ganz folgen
 Hence, the network likely maps this second half to comparably low price predictions resulting in large residuals with a high influence on the MAE and the $R^2$ value.
-% COMMENT: large residuals?
 
 Assuming that the two-dimensional picture appropriately reflects the situation in the full feature space there are two possible explanations for this lack of separability:
 %%%
@@ -235,16 +233,34 @@ In the latter case it can be argued that the entire task of predicting Airbnb pr
 In order to draw connections from features to outputs the process implicitly assumes observations whose listed price can be justified and explained by characteristics of the joint feature distribution.
 
 Moreover, discriminating between these two options is nontrivial.
-% COMMENT: two options = 2 Erklärungsmöglichkeiten ?
 One idea is to use features like \emph{availability} or the \emph{number of reviews} to approximate demand and classify price outliers with low demand as overpriced.
-% COMMENT: idea um Punkt 2 zu lösen?
 However, it is entirely possible that an extremely expensive observation with very low demand is listed according to its true value, yet nobody is willing to pay such a high amount for an accomodation, regardless of its quality.
 Since such accommodations might very well be contained in a new data during deployment, the model should have learned to handle them appropriately during training.
 As a consequence, a blind removal of such outliers is difficult to justify and narrows down the set of feasible target distributions.
 
 
+\subsection{Price Predictions on Munich Dataset}
 
+In addition, we tested our implemented models on the Munich dataset, which was also published by the \emph{"Inside Airbnb"} project.
+This dataset includes twice as many accommodations as the previous dataset for Oslo. As expected, the flexible models, such as gradient boosting and the neural network, have benefited most from this increase in data size. Nevertheless, the overall performance is not significantly better compared to the originally used Oslo data.
+The MAE of the neural network on the validation data has decreased from $44.3$ Euros for Oslo to $42.5$ Euros for Munich. To further improve the performance of the neural network, a deeper and broader architecture of the network could be considered, specifically designed for the larger data set.
+Overall, the gradient boosting model performed the best on the test set with an MAE of $32.8$ Euros and an $R^2$ of $0.453$. For comparison, using the Oslo data, the MAE of the model was $41.2$ Euros.
+The most important predictors of the Munich data set were \emph{Property Type}, \emph{Neighborhood}, and \emph{Accommodates}. Furthermore, this dataset also contains some outliers, whose influence is shown in \Cref{tab:munich-outliers}. Excluding the top $1\%$ of prices when fitting the model again leads to a significant improvement in MAE and $R^2$, but not quite as much as was previously the case with the Oslo data.
 
+\begin{table}[t]
+  \centering
+  \begin{tabular}{@{}ccc@{}}
+    \toprule
+    Quantile Threshold & MAE   & R2   \\ \midrule
+    0.0                & 42.49 & 0.31 \\
+    1.0                & 35.32 & 0.44 \\
+    2.5                & 30.26 & 0.42 \\
+    5.0                & 25.2  & 0.45 \\
+    10.0               & 22.94 & 0.4  \\ \bottomrule
+  \end{tabular}
+  \caption{Mean Absolute Error and $R^2$ value of the Neural Network on the validation set after removing the highest quantiles of the price distribution from the Munich data set}
+  \label{tab:munich-outliers}
+\end{table}
 
 
 
