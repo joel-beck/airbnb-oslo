@@ -2,7 +2,7 @@
 
 The goal of this project is to create price-prediction models for Airbnb accomodations located in Oslo, Norway.
 
-The underlying data is provided by Airbnb and is [freely available on the web](http://insideairbnb.com/get-the-data.html).
+The underlying data is provided by the *Inside Airbnb Project* and [freely available on the web](http://insideairbnb.com/get-the-data.html).
 This repository was created in context of the *Statistical and Deep Learning* seminar offered by the Chair of Statistics at the University of Göttingen during Winter Term 2021/22.
 Thus, the project focuses on the application of modern Machine Learning and Deep Learning methods that we implemented via the popular Python libraries [scikit-learn](https://scikit-learn.org/stable/) and [pytorch](https://pytorch.org/).
 
