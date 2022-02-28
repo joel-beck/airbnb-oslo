@@ -8,7 +8,7 @@ However, feature \emph{selection} and transformation of the price variable turne
 
 In addition, some basic data cleaning steps at the very beginning were necessary.
 These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation.
-In order to later use the predictor variables as model inputs, all features of categorical nature were transformed to Dummy variables whereas all numeric features were standardized.
+In order to later use the predictor variables as model inputs, all features of categorical nature were transformed to dummy variables whereas all numeric features were standardized.
 
 Extending the original feature set with new informative covariates, which are created from (combinations of) existing variables, is a central aspect of every data analysis.
 Besides many numeric features, the Airbnb data contains \emph{images} as well as \emph{reviews} in raw text form.
@@ -16,8 +16,8 @@ These data types in particular require some extra care which will be the focus o
 
 \subsubsection{Image Processing and Modeling}
 
-Besides the metric and text-based features, the Airbnb Data contains \emph{images} of the listed apartments as well as of the corresponding hosts.
-This section describes how we used these images (while focusing on the apartment pictures) for the purpose of price prediction.
+Besides the metric and text-based features, the Airbnb data contains \emph{images} of the listed apartments as well as of the corresponding hosts.
+This section describes how we used these images, while focusing on the apartment pictures, for the purpose of price prediction.
 
 The main idea was to build a Convolutional Neural Network (CNN) that predicts the price solely based on the image content itself and add these predictions as well as the number of available images for each listing to the main feature set.
 Since there exist multiple images per apartment, the predictions were averaged afterwards within each group to obtain an output array of equal length to all remaining features.
@@ -33,7 +33,7 @@ Ideally, due to learning from a large collection of labeled images in a supervis
 As usual in \emph{transfer learning}, the weights of the pretrained model are frozen and the output layer is replaced by a trainable custom layer specific to our needs.
 
 One potential issue arises if the dataset used for pretraining differs from the new custom data:
-If the pretrained network is very deep, the learned features before the final layer could be very specific to the Output Classes of \texttt{ImageNet} and do not generalize well to our images.
+If the pretrained network is very deep, the learned features before the final layer could be very specific to the output classes of \texttt{ImageNet} and do not generalize well to our images.
 
 There are multiple options to handle this scenario:
 \begin{itemize}
@@ -47,19 +47,19 @@ There are multiple options to handle this scenario:
 \end{itemize}
 
 It turned out that a \emph{single} custom layer, mapping from $512$ directly to a single neuron representing the scalar price prediction, was not expressive enough.
-The performance improved by instead appending a (small) Fully Connected Network at the end, containing three layers and \texttt{ReLU} activation functions.
+The performance improved by instead appending a small Fully Connected Network at the end, containing three layers and \texttt{ReLU} activation functions.
 
-To ensure that the chosen design is not majorly flawed, we constructed a separate much smaller CNN with only a handful of Convolutional Blocks as a benchmark model.
+To ensure that the chosen design is not majorly flawed, we constructed a separate much smaller CNN with only a handful of convolutional blocks as a benchmark model.
 Although the performance differences were not as large as desired, the pretrained \texttt{ResNet} indeed indicated more promising results.
 
 
 \textbf{Image Results} \\
 Using only the content of the available images, the pretrained \texttt{ResNet18} achieved a Mean Absolute Error (MAE) of $579$ NOK (approx. $58$ Euros) on the validation set.
-In comparison, the \emph{Null Model} of always predicting the mean price achieved an MAE of $630$ NOK without a log-transformation of the price and a MAE of $569$ NOK with a log-transformation.
+In comparison, the \emph{Null Model} of always predicting the mean price achieved a MAE of $630$ NOK without a log-transformation of the price and a MAE of $569$ NOK with a log-transformation.
 Thus, the raw predictive power of the images alone was very small.
 
 However, the \emph{correlation} of the CNN predictions with the true price was $0.41$.
-This indicates some limitations of the correlation as useful metric on the one hand, but at least positive tendencies of the CNN predictions on the other hand.
+This indicates some limitations of the correlation as a useful metric on the one hand, but at least positive tendencies of the CNN predictions on the other hand.
 In fact, the network struggled the most with capturing the wide \emph{range} of prices and almost always predicted values close to the center of the (log) price distribution.
 
 Although the general idea of categorizing images into price ranges based on image features sounds very appealing, taking a look at the actual input images reveals how challenging this task actually is.
@@ -70,7 +70,7 @@ Considering the difficulty of the task, it is actually highly doubtful that huma
 
 \subsubsection{Reviews}
 
-In order to extract the most important information from the reviews, we have performed the following analyses.
+In order to extract the most important information from the reviews, the following analysis steps were performed.
 
 First, we used the \href{https://pypi.org/project/langdetect/}{langdetect} package to determine the language of each review.
 With this information, we tried to get some insights about the internationality of the guests.
@@ -159,7 +159,7 @@ The network's design is restricted by two factors:
   \item The number of output features in the \emph{last} layer is fixed to $1$ since the network directly predicts the price as a scalar quantity.
 \end{enumerate}
 %%%
-All intermediary layers and thus both the \emph{width} and the \emph{depth} of the network are free to choose.
+All intermediary layers and thus both, the \emph{width} and the \emph{depth} of the network, are free to choose.
 After experimenting with many different configurations, mostly inspired by empirical findings in the literature, we finally settled with a fairly simple \emph{block structure}.
 
 Starting from roughly $60$ input features, the network width is first blown up to $256$ features before steadily decreasing it again to a single output neuron in the final layer.
@@ -179,15 +179,15 @@ We now explain the reasoning behind including or excluding elements in this conf
 
 \textbf{Linear Layer} \\
 Each \texttt{Linear Block} is based on a four-element cycle that is repeated twice.
-Each cycle starts with a Fully-Connected Layer containing the majority of trainable weights in the network.
+Each cycle starts with a fully-connected layer containing the majority of trainable weights in the network.
 The first linear layer determines the output dimension of this block, in our case mostly doubling or halving the number of input features.
 Since both linear layers are immediately followed by a \texttt{Batchnorm} Layer, the additional \texttt{Bias} term is redundant and thus omitted.
 
 \textbf{Batchnorm} \\
 \texttt{Batchnorm} Layers \citep{ioffe2015} often lead to a more well-behaved training process.
 By means of first standardizing the activations within each minibatch and rescaling them afterwards, the network \emph{learns} a convenient magnitude of the activations.
-This tends to be particularly effective for \emph{saturating} activation functions such as \texttt{sigmoid} or \texttt{tanh} activations, positive effects for training, however, have also been observed for the \texttt{ReLU} activation function, which is used in our design.
-Of all individual components of the \texttt{Linear Block} structure, Batchnorm was the least important and provided only marginal benefits.
+This tends to be particularly effective for \emph{saturating} activation functions such as \texttt{sigmoid} or \texttt{tanh} activations. However, positive effects for training have also been observed for the \texttt{ReLU} activation function, which is used in our design.
+Of all individual components of the \texttt{Linear Block} structure, batch normalization was the least important and provided only marginal benefits.
 
 \textbf{ReLU} \\
 Out of the numerous options for including nonlinearities into the network and thus expanding the function space that the network is able to learn, we settled for the default choice of the \emph{Rectified Linear Unit} activation.
@@ -215,7 +215,7 @@ Although there is no influence on the model \emph{weights} in this stage, the mo
 One special feature of the \texttt{Linear Block} architecture in \Cref{fig:linear-block} is the \emph{Residual Connection} which adds the block input to the output of the second linear layer within each block.
 This component was originally implemented having a fairly deep network in mind since \emph{Residual Blocks} introduced by the famous \texttt{ResNet} architecture \citep{he2015} are a very popular tool for stable gradient flow by preventing the issue of vanishing gradients.
 
-As mentioned above the actual depth of the final model turned out to be limited.
+As mentioned above, the actual depth of the final model turned out to be limited.
 Therefore we decided to enable inclusion and exclusion of skip-connections in the network by a \texttt{boolean} parameter allowing for easy comparisons between the model designs.
 Although the residual component did not have a major impact on performance, it was slightly beneficial in most settings such that there was no reason to remove it from the architecture.
 
@@ -225,10 +225,10 @@ There are two aspects worth mentioning about the residual connection in \Cref{fi
   \item The addition of the input with the output of the second linear layer is performed \textbf{before} the final \texttt{Batchnorm} and \texttt{ReLU} layers of this block.
         This guarantees a nonnegative input in the expected range for the next \texttt{Linear Block} since the raw outputs of a fully connected layer are (in theory) unbounded.
 
-  \item One caveat of the residual architecture is to ensure that at addition time all contributing terms share the same dimensions.
+  \item One constraint of the residual architecture is that in addition all contributing terms must share the same dimensions.
         In case of a fully connected layer dealing with two-dimensional tensors, this amounts to an equal number of features in the second dimension.
         As illustrated by the annotations in \Cref{fig:linear-block}, this restriction requires an extra step if the number of input features is different from the number of output features in this particular block.
-        In our case the dimensions adjustment is performed by an additional linear layer exclusively for the block input $x$.
+        In our case, the dimensions adjustment is performed by an additional linear layer exclusively for the block input $x$.
 \end{enumerate}
 %%%
 

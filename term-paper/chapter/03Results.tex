@@ -55,7 +55,7 @@ To stay consistent, we similarly computed $R^2 \left(\mathbf{y}, \exp \left(\wid
 \end{figure}
 %%%
 
-\Cref{fig:model-comparison} shows performance metrics for all fitted models on both the training set and the validation set.
+\Cref{fig:model-comparison} shows performance metrics for all fitted models on both, the training set and the validation set.
 The different colors indicate how many features were selected by the \texttt{RFE} algorithm for this particular fit out of $59$ total predictor variables.
 Unsurprisingly, one or two features (in case of the \texttt{RFE} the number of bedrooms and the (number of) accomodates) provide too little information to model the task appropriately.
 
@@ -129,8 +129,7 @@ Second, we reduce the \emph{dimensionality} by leveraging a different Neural Net
 In order to draw conclusions about which features were most important for the Neural Network, one could imagine to start with a random noise input combination and optimize for artificial inputs which maximally or minimally activate the output neuron, i.e. leading to very low or very high price predictions.
 We chose a conceptually simpler approach and analyzed the feature importance of an auxiliary Linear Regression model instead to provide some suggestions that could potentially apply to the Neural Network as well.
 
-Therefore, we preselected $25$ of the network's input features with the \texttt{RFE} algorithm introduced in the previous chapter and compared the coefficient magnitudes.
-% COMMENT: die Erklärung steht im Appendix
+Therefore, we preselected $25$ of the network's input features with the \texttt{RFE} algorithm, which is introduced in the \Cref{appendix:feature-selection}, and compared the coefficient magnitudes.
 As noted before, all predictors were standardized such that a meaningful comparison is feasible.
 The results are shown in \Cref{fig:coefficient-plot}.
 
@@ -182,7 +181,7 @@ More precisely, the first row refers to the entire data whereas the last row exc
 By omitting just the top $1$\%, the MAE reduces by over $100$ NOK (about $10$ Euros) and the $R^2$ rapidly jumps to over $0.5$.
 This sensitivity to outliers in the price distribution is \textbf{not} solved by log-transforming the price, all classical models from the previous chapter suffer from the same effect.
 
-The values in \Cref{tab:mlp-outliers} also suggest an explanation why the Neural Network performs much better in the test set compared to the validation set which can not be observed for all other models.
+The values in \Cref{tab:mlp-outliers} also suggest an explanation why the Neural Network performs much better in the test set compared to the validation set, which can not be observed for all other models.
 When partitioning the entire data into training, validation and test set, it just happened by chance that the test set contains fewer price outliers which drive the error metrics up compared to the validation set, even though the model is exactly the same.
 In fact, when \emph{training} the Neural Network with some of the outliers removed, the training and validation metrics are much closer as well, such that we detected an additional factor besides \emph{Dropout} (see \Cref{dropout}) for the diverging behaviour.
 
@@ -243,9 +242,9 @@ As a consequence, a blind removal of such outliers is difficult to justify and n
 \subsection{Price Predictions on Munich Dataset}
 
 In addition, we tested our implemented models on the Munich dataset, which was also published by the \emph{"Inside Airbnb"} project.
-This dataset includes twice as many accommodations as the previous dataset for Oslo. As expected, the flexible models, such as gradient boosting and the neural network, have benefited most from this increase in data size. Nevertheless, the overall performance is not significantly better compared to the originally used Oslo data.
-The MAE of the neural network on the validation data has decreased from $44.3$ Euros for Oslo to $42.5$ Euros for Munich. To further improve the performance of the neural network, a deeper and broader architecture of the network could be considered, specifically designed for the larger data set.
-Overall, the gradient boosting model performed the best on the test set with an MAE of $32.8$ Euros and an $R^2$ of $0.453$. For comparison, using the Oslo data, the MAE of the model was $41.2$ Euros.
+This dataset includes twice as many accommodations as the previous dataset for Oslo. As expected, the flexible models, such as Gradient Boosting and the Neural Network, have benefited most from this increase in data size. Nevertheless, the overall performance is not significantly better compared to the originally used Oslo data.
+The MAE of the Neural Network on the validation data has decreased from $44.3$ Euros for Oslo to $42.5$ Euros for Munich. To further improve the performance of this model, a deeper and broader architecture of the network could be considered, specifically designed for the larger data set.
+Overall, the Gradient Boosting model performed the best on the test set with a MAE of $32.8$ Euros and a $R^2$ of $0.453$. For comparison, using the Oslo data, the MAE of the model was $41.2$ Euros.
 The most important predictors of the Munich data set were \emph{Property Type}, \emph{Neighborhood}, and \emph{Accommodates}. Furthermore, this dataset also contains some outliers, whose influence is shown in \Cref{tab:munich-outliers}. Excluding the top $1\%$ of prices when fitting the model again leads to a significant improvement in MAE and $R^2$, but not quite as much as was previously the case with the Oslo data.
 
 \begin{table}[t]

@@ -4,7 +4,7 @@ In order to predict Airbnb prices in Oslo, we constructed our own Deep Neural Ne
 Since we extracted numeric features out of the unstructured image and text data as part of the preprocessing pipeline, the input data fed into the models was of tabular nature.
 
 In summary we can say that price prediction with a small tabular data set does not require overly complex models. Therefore, if we first look at the results of the classical Machine Learning approaches, a similar convincing performance of the linear and non-linear models can be seen there. However, the linear models seem to generalize even better, at least when applied to the validation set. Thus, classical Machine Learning models and in particular highly intepretable linear models indicated a competitive predictive performance on out-of-sample data. 
-The neural network, in contrast, seems to provide the worst results at first glance. But further analysis of the results revealed that the Deep Learning approach shows the best generalization ability overall. 
+The Neural Network, in contrast, seems to provide the worst results at first glance. But further analysis of the results revealed that the Deep Learning approach shows the best generalization ability overall. 
 Nevertheless, the lowest achieved error on the test set is shown by a straightforward ensemble of multiple individual predictive models. 
 %In particular an ensemble of ...
 % COMMENT: welche Modelle wurden da zusammen verwendet? find es weiterhin sinnvoll, die einmal zu nennen oder war da nicht klar zu erkennen, welche Modelle es sind?
@@ -14,15 +14,15 @@ Nevertheless, the lowest achieved error on the test set is shown by a straightfo
 % Further, we emphasized the impact of using different feature set \emph{sizes} both on the training and validation set and used a two-dimensional feature embedding to visualize and explain the sensitivity of the network's predictions with respect to outliers in the price distribution.
 % The lowest \emph{test} set error was achieved by a straightforward ensemble of multiple individual predictive models.
 
-Further, we emphasized the impact of using different feature set sizes both on the training and validation set by using different feature selection algorithms.
-We then focused on the influence of the existing outliers in the data set. Here it was very clear to see how drastically the results of the neural network improved when the top $1\%$ of the price was excluded from the model fitting. To get a better understanding of this behavior, we implemented a Variational Autoencoder that outputs latent representations of the input values. These two-dimensional feature embeddings are then used to visualize and explain the sensitivity of the network's predictions with respect to outliers in the price distribution.
+Further, we emphasized the impact of using different feature set sizes both on the training and validation set by using several feature selection algorithms.
+We then focused on the influence of the existing outliers in the data set. Here it was very clear to see how drastically the results of the Neural Network improved when the top $1\%$ of the price was excluded from the model fitting. To get a better understanding of this behavior, we implemented a Variational Autoencoder that outputs latent representations of the input values. These two-dimensional feature embeddings are then used to visualize and explain the sensitivity of the network's predictions with respect to outliers in the price distribution.
 
 In addition, there are various options to extend our work.
 One particularly appealing idea for understanding the Neural Net's behaviour is the construction of \emph{adversarial examples}.
 In the regression context one could try to leverage steep areas in the high-dimensional loss surface such that small perturbations of each input feature result in exploding price predictions.
 
 Bounding the magnitude of each perturbation by a constant might not be directly transferable to regression tasks in presence of categorical features.
-As an alternative to the traditional approach borrowed from image classification which is often based on the \emph{Fast Gradient Sign Method} \citep{goodfellow2015}, a well-behaved Linear Regression model could again be used as a benchmark model.
+As an alternative to the traditional approach borrowed from image classification, which is often based on the \emph{Fast Gradient Sign Method} \citep{goodfellow2015}, a well-behaved Linear Regression model could again be used as a benchmark model.
 Then, any popular gradient \emph{ascent} algorithm can be used to find feature combinations that maximize the distance between the Linear Regression prediction and the Neural Net prediction.
 Since this approach does not naturally bound the input changes, the resulting loss function has to be heavily regularized to prevent pathological solutions.
 
