@@ -21,7 +21,7 @@
 
 \subsection{Evaluation Metrics}
 
-As noted in \Cref{appendix:hyperparameters} the Mean Squared Error Loss was used for \emph{training} the Neural Network due to its convenient differentiability with regards to backpropagation.
+As noted in \Cref{appendix:hyperparameters}, the Mean Squared Error Loss was used for \emph{training} the Neural Network due to its convenient differentiability with regards to backpropagation.
 For \emph{evaluating} the different models, we preferred the Mean Absolute Error and the $R^2$ value.
 The MAE measures absolute deviations between true and predicted price and is therefore interpretable on the same scale as the original data.
 While the $R^2$ certainly has some inherent flaws, it provides a scale-independent and highly interpretable measure of overall model fit.
@@ -39,8 +39,8 @@ To illustrate this difference in more detail, denote the error metrics as functi
    & = \frac{\sum_{i=1}^{n} \left( \hat{y}_i - \bar{y}\right)^2}{\sum_{i=1}^{n} \left( y_i - \bar{y} \right)^2}
 \end{align*}
 %%%
-With this notation we computed $MAE \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)$ which is of course not identical to backtransforming the error on the log-scale $\exp \left(MAE \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right) \right)$.
-To stay consistent we similarly computed $R^2 \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)$ on the original scale with the backtransformed fitted values instead of  $R^2 \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right)$, where the latter usually leads to a better score.
+With this notation, we computed $MAE \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)$ which is of course not identical to backtransforming the error on the log-scale $\exp \left(MAE \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right) \right)$.
+To stay consistent, we similarly computed $R^2 \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)$ on the original scale with the backtransformed fitted values instead of  $R^2 \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right)$, where the latter usually leads to a better score.
 
 
 
@@ -55,7 +55,7 @@ To stay consistent we similarly computed $R^2 \left(\mathbf{y}, \exp \left(\wide
 \end{figure}
 %%%
 
-\Cref{fig:model-comparison} shows performance metrics for all fitted models on both the Training Set and the Validation Set.
+\Cref{fig:model-comparison} shows performance metrics for all fitted models on both the training set and the validation set.
 The different colors indicate how many features were selected by the \texttt{RFE} algorithm for this particular fit out of $59$ total predictor variables.
 Unsurprisingly, one or two features (in case of the \texttt{RFE} the number of bedrooms and the (number of) accomodates) provide too little information to model the task appropriately.
 
@@ -67,7 +67,7 @@ In case of the flexible Histogram-based Gradient Boosting algorithm and, to some
 In contrast, models with few parameters such as Linear Regression or Ridge Regression generalize very well to the validation set with virtually no performance drop.
 
 One exception to this rule is the highly complex Neural Network which appears to perform \emph{better} on out-of-sample data.
-This phenomenon can be explained to some extent by the different behaviour of Dropout and Batchnorm during training and inference
+This phenomenon can be explained to some extent by the different behaviour of \emph{Dropout} and \emph{Batchnorm} during training and inference
 
 When comparing the models within each subplot, all classical Machine Learning models perform similarly on the validation data.
 This finding emphasizes two aspects:
@@ -79,7 +79,7 @@ This finding emphasizes two aspects:
         These statements hold for fitting on the \emph{entire} training set, \Cref{outliers} reveals how the performance radically improves when excluding some observations.
 \end{enumerate}
 %%%
-In comparison to all \texttt{scikit-learn} models our custom Neural Net appears to underperform.
+In comparison to all \texttt{scikit-learn} models, our custom Neural Net appears to underperform.
 We have to keep in mind though, that evaluation on the validation set is overly optimistic for those models whose hyperparameters were tuned on this data during cross validation.
 The best simulation to performance on truly unseen data is thus provided by the \emph{test} set that was not used in any step up to this point.
 
@@ -105,12 +105,12 @@ The best simulation to performance on truly unseen data is thus provided by the 
 \Cref{tab:test-set} compares test set metrics for the best performing models on the validation set within each class (i.e. the Neural Net version with all $59$ features and the Random Forest model with only $25$ features were selected).
 In addition, we added some simple ensemble models that predict the average estimate from the top $2$, $3$, $4$ or all five models, respectively.
 
-The hyperparameter configuration of the Random Forest Model that performed best for the validation data generalizes worst to the test set.
+The hyperparameter configuration of the Random Forest Model, that performed best for the validation data, generalizes worst to the test set.
 Quite surpringly, the Neural Net shows a significant performance boost on the test data and is now very competitive with all other models.
 One plausible explanation for this phenomenon is provided in \Cref{outliers}.
 
 Averaging predictions from multiple algorithms indicates promising results:
-The Top $3$ Average achieves the lowest out-of-sample Mean Absolute Error of slightly below $400$ NOK.
+The Top $3$ Average achieves the lowest out-of-sample MAE of slightly below $400$ NOK.
 
 
 
@@ -120,16 +120,17 @@ The Top $3$ Average achieves the lowest out-of-sample Mean Absolute Error of sli
 Interpreting the results of high-dimensional and complex statistical models is notoriously difficult.
 This section approaches the challenge from two opposite angles.
 
-First, we reduce the \emph{complexity} by fitting a simple and well-understood Linear Regression Model with the same features that were selected for the best-performing Neural Network and analyze the coefficients.
+First, we reduce the \emph{complexity} by fitting a simple and well-understood Linear Regression model with the same features that were selected for the best-performing Neural Network and analyze the coefficients.
 
 Second, we reduce the \emph{dimensionality} by leveraging a different Neural Network and visualize the results in two-dimensional space.
 
 \subsubsection{Feature Importance}
 
-In order to draw conclusions about which features were most important for the Neural Network one could imagine to start with a random noise input combination and optimize for artificial inputs which maximally or minimally activate the output neuron, i.e. leading to very low or very high price predictions.
+In order to draw conclusions about which features were most important for the Neural Network, one could imagine to start with a random noise input combination and optimize for artificial inputs which maximally or minimally activate the output neuron, i.e. leading to very low or very high price predictions.
 We chose a conceptually simpler approach and analyzed the feature importance of an auxiliary Linear Regression model instead to provide some suggestions that could potentially apply to the Neural Network as well.
 
-Therefore we preselected $25$ of the network's input features with the \texttt{RFE} algorithm introduced in the previous chapter and compared the coefficient magnitudes.
+Therefore, we preselected $25$ of the network's input features with the \texttt{RFE} algorithm introduced in the previous chapter and compared the coefficient magnitudes.
+% COMMENT: die Erklärung steht im Appendix
 As noted before, all predictors were standardized such that a meaningful comparison is feasible.
 The results are shown in \Cref{fig:coefficient-plot}.
 
@@ -143,7 +144,7 @@ The results are shown in \Cref{fig:coefficient-plot}.
 It is worth noting that the two most important features based on various different feature selectors of the \texttt{scikit-learn} library were always the number of \emph{bedrooms} and the (number of) \emph{accomodates} in this order, both measuring the apartment's \emph{capacity}.
 
 The coefficient plot, however, is dominated by categorical features:
-In agreement with human intuition the \emph{room} type, the \emph{property} type and the \emph{neighbourhood} strongly influence the predicted price.
+In agreement with human intuition, the \emph{room} type, the \emph{property} type and the \emph{neighbourhood} strongly influence the predicted price.
 Unsurprisingly, the property types \emph{entire home} and \emph{entire villa} are connected with high prices, whereas the the room type \emph{shared room} correlates with cheaper apartments.
 Notably, the price predictions from the Convolutional Network fitted on the image data indicates a significant positive effect, conditioned on all other selected features.
 
@@ -152,7 +153,7 @@ When analyzing the \emph{marginal} effect of neighbourhood on price by e.g. orde
 Interestingly, apartments in the \emph{Sentrum} (central area) have a large positive coefficient in the regression, yet the second to lowest median price.
 This finding indicates the presence of \emph{confounders}:
 The city center might plausibly be connected to fewer rooms and smaller apartment sizes overall pulling the median price down.
-These confounding effects are controlled for in the regression model but not in the naive bivariate analysis.
+These confounding effects are controlled for in the regression model, but not in the naive bivariate analysis.
 
 
 \subsubsection{Sensitivity to Outliers} \label{outliers}
@@ -175,7 +176,7 @@ These confounding effects are controlled for in the regression model but not in 
 \end{table}
 
 \Cref{tab:mlp-outliers} shows performance metrics for the Neural Network fitted on a subset of the data in the validation set.
-As indicated by the first column the dataset was reduced by successively cutting off observations from the top of the price distribution.
+As indicated by the first column, the dataset was reduced by successively cutting off observations from the top of the price distribution.
 More precisely, the first row refers to the entire data whereas the last row excludes the top $10$\% most expensive apartments.
 
 By omitting just the top $1$\%, the MAE reduces by over $100$ NOK (about $10$ Euros) and the $R^2$ rapidly jumps to over $0.5$.
@@ -187,9 +188,9 @@ In fact, when \emph{training} the Neural Network with some of the outliers remov
 
 In contrast, the classical Machine Learning models were fitted with the more robust cross-validation approach.
 Hence, extreme outliers were contained in the validation fold only once out of multiple evaluations.
-By ultimately averaging the error metrics across all folds their impact is diminished.
+By ultimately averaging the error metrics across all folds, their impact is diminished.
 
-As we have seen the Neural Network (just like all remaining models) lacks the ability to capture the entire price range accurately, yet in theory it is supposed to be flexible enough to approximate any arbitrary function reasonably well.
+As we have seen, the Neural Network (just like all remaining models) lacks the ability to capture the entire price range accurately, yet in theory it is supposed to be flexible enough to approximate any arbitrary function reasonably well.
 There exist two possible explanations with very different implications:
 %%%
 \begin{enumerate}
@@ -203,8 +204,8 @@ If the price outliers are clearly separated from the rest in this embedded space
 If, however, the outliers are located in the \emph{middle} of the latent distribution, there is little hope to discriminate the most expensive apartments from any of their potentially much lower priced embedded neighbours.
 
 Modern Machine Learning methods provide a large toolbox for low-dimensional embeddings.
-Since the project is mainly focused on Deep Learning we decided to use a \emph{Variatonal Autoencoder} \citep{kingma2014}.
-In contrast to deterministic Autoencoders the VAE contains an additional loss term apart from the usual reconstruction loss that pulls the encoded latent space distribution towards an isotropic multivariate Gaussian distribution.
+Since the project is mainly focused on Deep Learning, we decided to use a \emph{Variatonal Autoencoder} \citep{kingma2014}.
+In contrast to deterministic Autoencoders, the VAE contains an additional loss term apart from the usual reconstruction loss that pulls the encoded latent space distribution towards an isotropic multivariate Gaussian distribution.
 For this reason, latent space visualizations of the VAE appear to be more spread out and output classes (that are not used for training the VAE) tend to be easier to identify.
 
 %%%
@@ -221,7 +222,7 @@ Already a \emph{single} dimension seems so be sufficient for a general understan
 While some of the most expensive apartments are located on the far left, surrounded by highly-priced neighbours, the other half shares a similar feature representation to \emph{medium to low} priced listings.
 Hence, the network likely maps this second half to comparably low price predictions resulting in large residuals with a high influence on the MAE and the $R^2$ value.
 
-Assuming that the two-dimensional picture appropriately reflects the situation in the full feature space there are two possible explanations for this lack of separability:
+Assuming that the two-dimensional picture appropriately reflects the situation in the full feature space, there are two possible explanations for this lack of separability:
 %%%
 \begin{enumerate}
   \item The collected data is simply not rich or expressive enough to capture all factors that contribute to very high prices.
@@ -229,8 +230,8 @@ Assuming that the two-dimensional picture appropriately reflects the situation i
 \end{enumerate}
 %%%
 
-In the latter case it can be argued that the entire task of predicting Airbnb prices is questionable in the first place:
-In order to draw connections from features to outputs the process implicitly assumes observations whose listed price can be justified and explained by characteristics of the joint feature distribution.
+In the latter case, it can be argued that the entire task of predicting Airbnb prices is questionable in the first place:
+In order to draw connections from features to outputs, the process implicitly assumes observations whose listed price can be justified and explained by characteristics of the joint feature distribution.
 
 Moreover, discriminating between these two options is nontrivial.
 One idea is to use features like \emph{availability} or the \emph{number of reviews} to approximate demand and classify price outliers with low demand as overpriced.

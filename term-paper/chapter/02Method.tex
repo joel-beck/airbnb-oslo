@@ -4,25 +4,25 @@
 
 This section covers all necessary preprocessing steps that build the foundation for all further modeling tasks.
 Here, we mostly focus on feature \emph{engineering} by extracting information from the image and text data contained in the Airbnb Dataset.
-However, feature \emph{selection} and transformations of the price variable turned out to be essential components of the preprocessing pipeline and are discussed in \Cref{appendix:feature-selection} and \Cref{appendix:price-distribution}.
+However, feature \emph{selection} and transformation of the price variable turned out to be essential components of the preprocessing pipeline and are discussed in \Cref{appendix:feature-selection} and \Cref{appendix:price-distribution}.
 
 In addition, some basic data cleaning steps at the very beginning were necessary.
 These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation.
-In order to later use the predictor variables as model inputs all features of categorical nature were transformed to Dummy variables whereas all numeric features were standardized.
+In order to later use the predictor variables as model inputs, all features of categorical nature were transformed to Dummy variables whereas all numeric features were standardized.
 
-Extending the original feature set with new informative covariates which are created from (combinations of) existing variables is a central aspect of every data analysis.
-Besides many numeric features the Airbnb data contains \emph{images} as well as \emph{reviews} in raw text form.
+Extending the original feature set with new informative covariates, which are created from (combinations of) existing variables, is a central aspect of every data analysis.
+Besides many numeric features, the Airbnb data contains \emph{images} as well as \emph{reviews} in raw text form.
 These data types in particular require some extra care which will be the focus of this section.
 
 \subsubsection{Image Processing and Modeling}
 
-Besides the metric and text-based features the Airbnb Data contains \emph{images} of the listed apartments as well as of the corresponding hosts.
+Besides the metric and text-based features, the Airbnb Data contains \emph{images} of the listed apartments as well as of the corresponding hosts.
 This section describes how we used these images (while focusing on the apartment pictures) for the purpose of price prediction.
 
 The main idea was to build a Convolutional Neural Network (CNN) that predicts the price solely based on the image content itself and add these predictions as well as the number of available images for each listing to the main feature set.
 Since there exist multiple images per apartment, the predictions were averaged afterwards within each group to obtain an output array of equal length to all remaining features.
 
-Before the images can be used as model input they had to be \emph{scraped} from each listing's webpage.
+Before the images can be used as model input, they had to be \emph{scraped} from each listing's webpage.
 Further, some basic transformations were necessary.
 Details about these image proprocessing steps can be found in \Cref{appendix:images}.
 
@@ -30,10 +30,10 @@ Details about these image proprocessing steps can be found in \Cref{appendix:ima
 \textbf{Image Modeling} \\
 As mentioned above, we used a pretrained CNN for modeling.
 Ideally, due to learning from a large collection of labeled images in a supervised setting, this model is able to extract meaningful features from our own much smaller input data out of the box.
-As usual in \emph{transfer learning} the weights of the pretrained model are frozen and the output layer is replaced by a trainable custom layer specific to our needs.
+As usual in \emph{transfer learning}, the weights of the pretrained model are frozen and the output layer is replaced by a trainable custom layer specific to our needs.
 
 One potential issue arises if the dataset used for pretraining differs from the new custom data:
-If the pretrained network is very deep, the learned features before the final layer could be very specific to the Output Classes of \texttt{ImageNet} and not generalize well to our images.
+If the pretrained network is very deep, the learned features before the final layer could be very specific to the Output Classes of \texttt{ImageNet} and do not generalize well to our images.
 
 There are multiple options to handle this scenario:
 \begin{itemize}
@@ -47,24 +47,24 @@ There are multiple options to handle this scenario:
 \end{itemize}
 
 It turned out that a \emph{single} custom layer, mapping from $512$ directly to a single neuron representing the scalar price prediction, was not expressive enough.
-The performance improved by instead appending a (small) Fully Connected Network at the end containing three layers and \texttt{ReLU} activation functions.
+The performance improved by instead appending a (small) Fully Connected Network at the end, containing three layers and \texttt{ReLU} activation functions.
 
 To ensure that the chosen design is not majorly flawed, we constructed a separate much smaller CNN with only a handful of Convolutional Blocks as a benchmark model.
 Although the performance differences were not as large as desired, the pretrained \texttt{ResNet} indeed indicated more promising results.
 
 
 \textbf{Image Results} \\
-Using only the content of the available images, the pretrained \texttt{ResNet18} achieved a Mean Absolute Error of $579$ NOK (approx. $58$ Euros) on the Validation Set.
+Using only the content of the available images, the pretrained \texttt{ResNet18} achieved a Mean Absolute Error (MAE) of $579$ NOK (approx. $58$ Euros) on the validation set.
 In comparison, the \emph{Null Model} of always predicting the mean price achieved an MAE of $630$ NOK without a log-transformation of the price and a MAE of $569$ NOK with a log-transformation.
 Thus, the raw predictive power of the images alone was very small.
 
 However, the \emph{correlation} of the CNN predictions with the true price was $0.41$.
-This indicates some limitations of the correlation as useful metric on the one hand but at least positive tendencies of the CNN predictions on the other hand.
+This indicates some limitations of the correlation as useful metric on the one hand, but at least positive tendencies of the CNN predictions on the other hand.
 In fact, the network struggled the most with capturing the wide \emph{range} of prices and almost always predicted values close to the center of the (log) price distribution.
 
 Although the general idea of categorizing images into price ranges based on image features sounds very appealing, taking a look at the actual input images reveals how challenging this task actually is.
 \Cref{fig:cnn-examples} in the Appendix displays a random collection of input images.
-Considering the difficulty of the task it is actually highly doubtful that humans could provide much more accurate predictions.
+Considering the difficulty of the task, it is actually highly doubtful that humans could provide much more accurate predictions.
 
 %%%%%%
 
@@ -106,13 +106,15 @@ Our implementation is inspired by \citep{selvaraj2020}.
 
 Finally, we used the sentiment analysis to determine the ratio of negative reviews to the total number of reviews per listings, which is also saved for the subsequent feature selection.
 
+
+%%%%%%%%%%%%%%%%%%%
 \subsection{Models}
 
 This section describes the statistical models that we used to predict apartment prices based on their feature set.
 The goal is to construct different models of varying complexity and compare both their in-sample and their out-of-sample performance on the Airbnb data.
 
-At this point in the data pipeline all preprocessing steps are completed such that all covariates have the correct data type to be used by the models.
-Whereas the selected classical Machine Learning models described in \Cref{classical-models} use input features as \texttt{numpy} arrays, the Neural Network in \Cref{neural-network} first converts them to \emph{Tensors}, the canonical data type across all popular Deep Learning Frameworks.
+At this point in the data pipeline, all preprocessing steps are completed such that all covariates have the correct data type to be used by the models.
+Whereas the selected classical Machine Learning models described in \Cref{classical-models} use input features as \texttt{numpy} arrays, the Neural Network in \Cref{neural-network} first converts them to \emph{Tensors}, the canonical data type across all popular Deep Learning frameworks.
 
 \subsubsection{Classical Models} \label{classical-models}
 
@@ -139,16 +141,16 @@ These include:
 %%%
 
 All models were fitted with \emph{Cross Validation}.
-Except for the Linear Regression this included (extensive) \emph{Hyperparameter Tuning}.
-Since the parameter space for both of the tree-based models is very high-dimensional we used a \emph{Randomized Search} algorithm \citep{bergstra2012} rather than the more common \emph{Grid Search} approach.
+Except for the Linear Regression, this included (extensive) \emph{Hyperparameter Tuning}.
+Since the parameter space for both of the tree-based models is very high-dimensional, we used a \emph{Randomized Search} algorithm \citep{bergstra2012} rather than the more common \emph{Grid Search} approach.
 This allows for greater variation along more 'important' dimensions while still keeping the computation time feasible.
 
 
 \subsubsection{Neural Network} \label{neural-network}
 
-In concurrence with the Seminar's topic the focus of our project is centered around constructing a custom Neural Network that is trained in a supervised setting and learns to map feature combinations to price predictions for the Airbnb data set.
+In concurrence with the Seminar's topic, the focus of our project is centered around constructing a custom Neural Network that is trained in a supervised setting and learns to map feature combinations to price predictions for the Airbnb data set.
 The following section highlights the key components of the model's architecture.
-A brief overview of additional (hyper-)parameters that were of minor importance can be found in \Cref{appendix:hyperparameters}.
+A brief overview of additional (hyper-)parameters, that were of minor importance, can be found in \Cref{appendix:hyperparameters}.
 
 The network's design is restricted by two factors:
 %%%
