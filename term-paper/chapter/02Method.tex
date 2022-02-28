@@ -72,7 +72,7 @@ Considering the difficulty of the task, it is actually highly doubtful that huma
 
 In order to extract the most important information from the reviews, the following analysis steps were performed.
 
-First, we used the \href{https://pypi.org/project/langdetect/}{langdetect} package to determine the language of each review.
+First, we used the \texttt{langdetect}\footnote{\url{https://pypi.org/project/langdetect/}} package to determine the language of each review.
 With this information, we tried to get some insights about the internationality of the guests.
 Since English and Norwegian are the most commonly used languages, we then created two so-called word clouds in these languages to visualize the most frequently used words in the reviews and to give us a short overview of the given ratings.
 To just have the important words in this representation, a list of given stop words are used to extract them.
@@ -100,7 +100,7 @@ In addition, to obtain a more informed analysis of the reviews, we also performe
 Sentiment analysis is used to detect the underlying emotion of a text.
 Therefore, it classifies the text as either positive or negative.
 
-To do this, we used the \href{https://huggingface.co/transformers/v3.0.2/model_doc/distilbert.html}{transformers} package, more specifically we used the \href{https://huggingface.co/transformers/v3.0.2/main_classes/pipelines.html}{pipeline} function with the \texttt{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences according to positive or negative sentiments.
+To do this, we used the \texttt{transformers}\footnote{\url{https://huggingface.co/transformers/v3.0.2/model_doc/distilbert.html}} package, more specifically we used the \texttt{pipeline}\footnote{\url{https://huggingface.co/transformers/v3.0.2/main_classes/pipelines.html}} function with the \texttt{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences according to positive or negative sentiments.
 The used model is DistilBERT \citep{sanh2020}, a small, fast and light Transformer model, a distilled version of BERT \citep{devlin2019} algorithm, which achieves significantly faster results.
 Our implementation is inspired by \citep{selvaraj2020}.
 
@@ -126,17 +126,17 @@ When attacking the prediction task directly with a Neural Network, there are two
         Maybe we can get away with a much simpler, more interpretable and, thus, preferable model?
 \end{enumerate}
 %%%
-In order to get some insights, we selected four classical Machine Learning models of varying complexity from the \texttt{scikit-learn} library \citep{pedregosa2011} to serve as benchmark models for our custom Neural Net.
+In order to get some insights, we selected four classical Machine Learning models of varying complexity from the \texttt{scikit-learn} library\footnote{\url{https://scikit-learn.org/stable/}} \citep{pedregosa2011} to serve as benchmark models for our custom Neural Net.
 These include:
 %%%
 \begin{itemize}
-  \item \href{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html}{Linear Regression}: simple, well understood in terms of underlying theory and highly interpretable.
-  \item \href{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html}{Ridge Regression}: still very interpretable with a closed form analytical solution, adds one hyperparameter to the equation.
-  \item \href{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html}{Random Forest}: very flexible model with many hyperparameters determining e.g. the number of regression trees and the tree depth.
+  \item \texttt{Linear Regression}: simple, well understood in terms of underlying theory and highly interpretable.
+  \item \texttt{Ridge Regression}: still very interpretable with a closed form analytical solution, adds one hyperparameter to the equation.
+  \item \texttt{Random Forest}: very flexible model with many hyperparameters determining e.g. the number of regression trees and the tree depth.
         Can be applied to many contexts and often works 'out of the box'.
-  \item \href{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html}{Histogram-Based Gradient Boosting}: modern and fast tree-based gradient boosting algorithm.
+  \item \texttt{Histogram-Based Gradient Boosting}: modern and fast tree-based gradient boosting algorithm.
         Comes with a large number of tunable hyperparameters, some of them similar to the Random Forest parameters, some of them more specific to the \emph{Boosting} instead of the \emph{Bagging} approach such as the learning rate.
-        Similar to the very popular \href{https://xgboost.readthedocs.io/en/stable/}{XGBoost} \citep{chen2016} and \href{https://lightgbm.readthedocs.io/en/latest/}{LightGBM} \citep{ke2017} implementations that regularly outperform deep Neural Networks in Kaggle competitions on tabular data.
+        Similar to the very popular \texttt{XGBoost}\footnote{\url{https://xgboost.readthedocs.io/en/stable/}} \citep{chen2016} and \texttt{LightGBM}\footnote{\url{https://lightgbm.readthedocs.io/en/latest/}} \citep{ke2017} implementations that regularly outperform deep Neural Networks in Kaggle competitions on tabular data.
 \end{itemize}
 %%%
 
