@@ -5,13 +5,26 @@
 The \emph{Inside Airbnb}\footnote{\url{http://insideairbnb.com/get-the-data.html}} project \citep{cox2022} was created to quantify the impact of short-term apartment rentals enabled by the Airbnb company.
 In what follows, we will use this published data to model the prices per night for an Airbnb apartment in Oslo, Norway, using a Deep Learning approach.
 
-The uploaded dataset includes various information about the offered accommodations in Oslo. More precisely, it contains the details of the offer, such as the number of beds, what kind of bathroom is available or in which neighborhood the apartment is located. Furthermore, it provides information about the uploaded pictures and the assigned reviews of the accommodations.
-The goal of this work now is to establish a Deep Learning model to predict the price of an accommodation per night in this city. Thereby, especially the explainability and interpretability of the implemented model is in focus.
+The publicly available dataset includes various information about the offered accommodations in Oslo.
+More precisely, it contains the details of the offer, such as the number of beds, what kind of bathroom is available or in which neighborhood the apartment is located.
+Furthermore, it provides information about the uploaded pictures and the assigned reviews for each accommodation.
+The goal of this work now is to establish a Deep Learning model to predict the price of an accommodation per night in this city.
+Thereby, especially the explainability and interpretability of the implemented model is in focus.
 
-First, to get all the relevant information from the data, we performed feature engineering to mainly extract additional features from the given images of the accommodations and the ratings. Then we selected the relevant predictors for our model from these and the already given data using different feature selection algorithms. After preprocessing the data, we set up a fully connected feed-forward neural network to predict the prices of the accommodations per night. We also implemented several classical Machine Learning models to be able to evaluate the performance of our neural network.
-Subsequently, we considered the results. To do so, we compared the performance of these different approaches and determined the significance of each predictor variable. In a further step, we focused on the sensitivity of our neural network to outliers in the data and how the model is able to deal with them. In particular, we used a variational autoencoder to create two-dimensional latent space representations that illustrate the difficulties caused by the outliers.
+First, to get all the relevant information from the data, we performed feature engineering to mainly extract additional features from the given images of the accommodations and the ratings.
+From these and the already given data we selected the relevant predictors for our model using different feature selection algorithms.
+After preprocessing the data, we set up a fully connected feed-forward neural network to predict the prices of the accommodations per night.
+We also implemented several classical Machine Learning models to be able to evaluate the performance of our neural network.
 
-This work is structured accordingly. In the first chapter, we will focus on the data and the associated preprocessing steps as well as give an overview of the methods used. Then, in the next section, we will have a detailed look on the predictive performance of the different models and their possible interpretability. Finally, we will discuss the results in the conclusion.
+Subsequently, we considered the results.
+To do so, we compared the performance of these different approaches and determined the impact of each predictor variable.
+In a further step, we focused on the sensitivity of our neural network to outliers in the data and how the model is able to deal with them.
+In particular, we used a Variational Autoencoder to create two-dimensional latent space representations that illustrate the difficulties caused by the outliers.
+
+This work is structured accordingly.
+In the first chapter, we focus on the data as well as the associated preprocessing steps and provide an overview of the methods used.
+Then, in the next section, we take a detailed look on the predictive performance of the different models and analyze their interpretability.
+Finally, we will discuss the results and suggest possible extensions to this project in the conclusion.
 
 
 

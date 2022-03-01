@@ -1,24 +1,5 @@
 \section{Results} \label{results}
 
-% Beispiel des gewünschten Tabellen Layouts:
-
-% \begin{table}[h] \centering
-%   \caption{Calculated weight for M1 ($ w_{1}$) for different given variance ratios}
-%   \label{tab:chapter522_results_sigma_01}
-% \begin{tabular}{@{\extracolsep{5pt}}ccc}
-% \\[-1.8ex]\hline
-% \hline \\[-1.8ex]
-% $\tau_{1}^{2}$ & Mean & Std.Error \\
-% \hline \\[-1.8ex]
-% 0     & 0.069 & 0.059  \\
-% 0.25  & 0.205 & 0.096  \\
-% 0.50  & 0.499 & 0.125  \\
-% 0.75  & 0.795 & 0.097  \\
-%  1    & 0.933 & 0.061  \\
-% \hline \\[-1.8ex]
-% \end{tabular}
-% \end{table}
-
 \subsection{Evaluation Metrics}
 
 As noted in \Cref{appendix:hyperparameters}, the Mean Squared Error Loss was used for \emph{training} the Neural Network due to its convenient differentiability with regards to backpropagation.
@@ -241,7 +222,7 @@ As a consequence, a blind removal of such outliers is difficult to justify and n
 
 \subsection{Price Predictions on Munich Dataset}
 
-In addition, we tested our implemented models on the Munich dataset, which was also published by the \emph{"Inside Airbnb"} project.
+In addition, we tested our implemented models on the Munich dataset, which was also published by the \emph{Inside Airbnb} project.
 This dataset includes twice as many accommodations as the previous dataset for Oslo. As expected, the flexible models, such as Gradient Boosting and the Neural Network, have benefited most from this increase in data size. Nevertheless, the overall performance is not significantly better compared to the originally used Oslo data.
 The MAE of the Neural Network on the validation data has decreased from $44.3$ Euros for Oslo to $42.5$ Euros for Munich. To further improve the performance of this model, a deeper and broader architecture of the network could be considered, specifically designed for the larger data set.
 Overall, the Gradient Boosting model performed the best on the test set with a MAE of $32.8$ Euros and a $R^2$ of $0.453$. For comparison, using the Oslo data, the MAE of the model was $41.2$ Euros.

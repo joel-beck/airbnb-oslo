@@ -3,19 +3,15 @@
 In order to predict Airbnb prices in Oslo, we constructed our own Deep Neural Network and compared its performance to a collection of well-established Machine Learning algorithms.
 Since we extracted numeric features out of the unstructured image and text data as part of the preprocessing pipeline, the input data fed into the models was of tabular nature.
 
-In summary we can say that price prediction with a small tabular data set does not require overly complex models. Therefore, if we first look at the results of the classical Machine Learning approaches, a similar convincing performance of the linear and non-linear models can be seen there. However, the linear models seem to generalize even better, at least when applied to the validation set. Thus, classical Machine Learning models and in particular highly intepretable linear models indicated a competitive predictive performance on out-of-sample data. 
-The Neural Network, in contrast, seems to provide the worst results at first glance. But further analysis of the results revealed that the Deep Learning approach shows the best generalization ability overall. 
-Nevertheless, the lowest achieved error on the test set is shown by a straightforward ensemble of multiple individual predictive models. 
-%In particular an ensemble of ...
-% COMMENT: welche Modelle wurden da zusammen verwendet? find es weiterhin sinnvoll, die einmal zu nennen oder war da nicht klar zu erkennen, welche Modelle es sind?
+In summary we can conclude that price prediction with a small tabular data set does not require overly complex models. Therefore, if we first look at the results of the classical Machine Learning approaches, an equally convincing performance of the linear and non-linear models can be observed. However, in our analysis the linear models seem to generalize even better to the validation set. Thus, classical Machine Learning models and in particular highly interpretable linear models indicate a competitive predictive performance on out-of-sample data.
 
-% Thus, classical Machine Learning models and in particular highly intepretable linear models indicated a competitive predictive performance on out-of-sample data. 
-
-% Further, we emphasized the impact of using different feature set \emph{sizes} both on the training and validation set and used a two-dimensional feature embedding to visualize and explain the sensitivity of the network's predictions with respect to outliers in the price distribution.
-% The lowest \emph{test} set error was achieved by a straightforward ensemble of multiple individual predictive models.
+The Neural Network, in contrast, seems to provide the worst results at first glance. Although further analysis revealed that the Deep Learning approach shows the best generalization ability overall when taking outlier effects into account, the lowest test set error is achieved by a straightforward ensemble of multiple individual predictive models.
 
 Further, we emphasized the impact of using different feature set sizes both on the training and validation set by using several feature selection algorithms.
-We then focused on the influence of the existing outliers in the data set. Here it was very clear to see how drastically the results of the Neural Network improved when the top $1\%$ of the price was excluded from the model fitting. To get a better understanding of this behavior, we implemented a Variational Autoencoder that outputs latent representations of the input values. These two-dimensional feature embeddings are then used to visualize and explain the sensitivity of the network's predictions with respect to outliers in the price distribution.
+We then focused on the influence of the existing outliers in the data set.
+Here it was very clear to see how drastically the results of the Neural Network improved when the top $1$\% of prices were excluded prior to model fitting.
+To get a better understanding of this behavior we implemented a Variational Autoencoder that encodes the input feature space into a two-dimensional latent space.
+These embedded feature representations are then used to visualize and explain the sensitivity of the network's predictions with respect to outliers in the price distribution.
 
 In addition, there are various options to extend our work.
 One particularly appealing idea for understanding the Neural Net's behaviour is the construction of \emph{adversarial examples}.

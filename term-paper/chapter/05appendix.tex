@@ -2,7 +2,7 @@
 \appendix
 \section{Appendix}
 
-The code that produced all results, figures and table can be found at our GitLab Repository\footnote{\url{https://gitlab.gwdg.de/joel.beck/airbnb-oslo}}.
+The source code that produced all results, figures and tables is provided by our GitLab Repository\footnote{\url{https://gitlab.gwdg.de/joel.beck/airbnb-oslo}}.
 Please follow the instructions in the \texttt{README} file in order to use our code for your own purposes.
 
 \subsection{Image Processing and Modeling} \label{appendix:images}
@@ -29,15 +29,15 @@ We did use image \emph{cropping}, however, which, in our opinion, is one of the 
 After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image \emph{center} in the validation set to avoid any randomness during inference.
 
 At a final step, all images were normalized separately for each color channel.
-In case of the pretrained model \texttt{ResNet}, we used the same values for normalization that were used during training on the large \texttt{ImageNet} database \citep{russakovsky2015}.
+In case of the pretrained \texttt{ResNet}, we used the same values for normalization that were used during training on \texttt{ImageNet}.
 The mean values and standard deviations for each color channel are provided in the \texttt{PyTorch} documentation\footnote{\url{https://pytorch.org/vision/stable/models.html}}.
 
 %%%
 \begin{figure}[t]
-    \centering
-    \includegraphics[width=0.5\textwidth]{cnn_examples_small.png}
-    \caption{Images from Airbnb Apartments with true and predicted Prices}
-    \label{fig:cnn-examples}
+  \centering
+  \includegraphics[width=0.5\textwidth]{cnn_examples_small.png}
+  \caption{Images from Airbnb Apartments with true and predicted Prices}
+  \label{fig:cnn-examples}
 \end{figure}
 %%%
 
@@ -53,10 +53,10 @@ Thus, we agreed on a two-step strategy.
 First, we manually selected features based on three criteria:
 %%%
 \begin{enumerate}
-    \item The variable in consideration and the apartment price must have some connection based on human intuition and background knowledge. For instance, we included variables containing information about the apartment's \emph{size} such as the number of \emph{accomodates}, the number of \emph{bathrooms} and the number of \emph{bedrooms}.
-    \item There has to exist some correlation with the price in a bivariate visualization, e.g. a \emph{barplot} in case of categorical predictors or a \emph{scatterplot} in case of numeric features.
-    \item Since our dataset was comparably small with roughly $3000$ observations, we had to take care about missing values.
-          Therefore, each variable whose missing values could not be imputed in a meaningful and uncontroversial manner was either selected or dropped based on the trade-off of potential data reduction and its additional predictive value.
+  \item The variable in consideration and the apartment price must have some connection based on human intuition and background knowledge. For instance, we included variables containing information about the apartment's \emph{size} such as the number of \emph{accomodates}, the number of \emph{bathrooms} and the number of \emph{bedrooms}.
+  \item There has to exist some correlation with the price in a bivariate visualization, e.g. a \emph{barplot} in case of categorical predictors or a \emph{scatterplot} in case of numeric features.
+  \item Since our dataset was comparably small with roughly $3000$ observations, we had to take care about missing values.
+        Therefore, each variable whose missing values could not be imputed in a meaningful and uncontroversial manner was either selected or dropped based on the trade-off of potential data reduction and its additional predictive value.
 \end{enumerate}
 %%%
 
@@ -72,11 +72,11 @@ To circumvent this potential issue, we additionally used the \emph{algorithmic} 
 Thereby we focused on two algorithms:
 %%%
 \begin{itemize}
-    \item \texttt{Principal Component Analysis}:
-          Reduces dimensionality with the additional benefit of creating \emph{uncorrelated} linear combinations of existing features.
-    \item \texttt{Recursive Feature Elimination}:
-          Selects subset of original features by leveraging an external estimator (in our case a \emph{Support Vector Regressor}).
-          We chose the \texttt{RFE} algorithm for the main analysis, since the selected features can be immediately interpreted and the performance on the selected feature set was slightly better compared to \texttt{PCA}.
+  \item \texttt{Principal Component Analysis}:
+        Reduces dimensionality with the additional benefit of creating \emph{uncorrelated} linear combinations of existing features.
+  \item \texttt{Recursive Feature Elimination}:
+        Selects subset of original features by leveraging an external estimator (in our case a \emph{Support Vector Regressor}).
+        We chose the \texttt{RFE} algorithm for the main analysis, since the selected features can be immediately interpreted and the performance on the selected feature set was slightly better compared to \texttt{PCA}.
 
 \end{itemize}
 %%%
@@ -99,10 +99,10 @@ However, in contrast to the untransformed version, the network still suffered fr
 
 %%%
 \begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.8\textwidth]{price_distribution.png}
-    \caption{Distribution of Apartment Prices on original and logarithmic Scale}
-    \label{fig:price-distribution}
+  \centering
+  \includegraphics[width=0.8\textwidth]{price_distribution.png}
+  \caption{Distribution of Apartment Prices on original and logarithmic Scale}
+  \label{fig:price-distribution}
 \end{figure}
 %%%
 
@@ -130,8 +130,8 @@ As a consequence, all schedulers resulted in stagnating loss much faster than tr
 Moreover, since computation time was not too expensive due to the compact network size, we could make up for the slower initial progress that could be achieved with a scheduler by simply training the model for more epochs (while saving the model weights at the point of best performance on the validation set), which ultimately lead to a lower training and validation loss.
 
 \begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.9\textwidth]{dropout_performance.png}
-    \caption{Impact of Dropout Probability on Training and Validation Performance}
-    \label{fig:dropout}
+  \centering
+  \includegraphics[width=0.9\textwidth]{dropout_performance.png}
+  \caption{Impact of Dropout Probability on Training and Validation Performance}
+  \label{fig:dropout}
 \end{figure}
