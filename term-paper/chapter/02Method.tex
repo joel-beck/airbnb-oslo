@@ -28,7 +28,7 @@ Details about these image proprocessing steps can be found in \Cref{appendix:ima
 
 
 \textbf{Image Modeling} \\
-For extracting semantic features out of the images we used the \texttt{ResNet18} architecture that was pretrained on the large \texttt{ImageNet} database \citep{russakovsky2015}.
+For extracting semantic features out of the images we used the \texttt{ResNet18} architecture that was pretrained on the large \texttt{ImageNet}\footnote{\url{https://www.image-net.org/}} database \citep{russakovsky2015} and can be accessed in Python via the \texttt{PyTorch}\footnote{\url{https://pytorch.org/}} library \citep{paszke2019}.
 Ideally, due to learning from a large collection of labeled images in a supervised setting, this model is able to extract meaningful features from our own much smaller input data out of the box.
 As usual in \emph{transfer learning}, the weights of the pretrained model are frozen and the output layer is replaced by a trainable custom layer specific to our needs.
 
