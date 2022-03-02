@@ -2,14 +2,13 @@
 
 \subsection{Evaluation Metrics}
 
-As noted in \Cref{appendix:hyperparameters}, the Mean Squared Error Loss was used for \emph{training} the Neural Network due to its convenient differentiability with regards to backpropagation.
-For \emph{evaluating} the different models, we preferred the Mean Absolute Error and the $R^2$ value.
+Whereas the Mean Squared Error Loss was used for \emph{training} the Neural Network due to its convenient differentiability with regards to backpropagation, we preferred the Mean Absolute Error and the $R^2$ value for \emph{evaluating} the different models.
 The MAE measures absolute deviations between true and predicted price and is therefore interpretable on the same scale as the original data.
 While the $R^2$ certainly has some inherent flaws, it provides a scale-independent and highly interpretable measure of overall model fit.
 
-When using the \emph{log} price for model fitting, all error metrics were computed on the \emph{original} price scale to obtain an interpretable MAE value.
+When using the log-price for model fitting, all error metrics were computed on the \emph{original} price scale to obtain an interpretable MAE value.
 More specifically, all computations were performed \emph{after} backtransforming the fitted values for the log-price to the raw price scale.
-Since the results for the MAE and $R^2$ are highly dependent on the exact transformation procedure, they are in particular \emph{not comparable} with groups that chose a different evaluation strategy.
+Since the results for the MAE and $R^2$ are highly dependent on the exact transformation procedure, they are in particular \emph{not comparable} with approaches that use a different evaluation strategy.
 
 To illustrate this difference in more detail, denote the error metrics as functions of the true and predicted values:
 %%%
@@ -20,7 +19,7 @@ To illustrate this difference in more detail, denote the error metrics as functi
    & = \frac{\sum_{i=1}^{n} \left( \hat{y}_i - \bar{y}\right)^2}{\sum_{i=1}^{n} \left( y_i - \bar{y} \right)^2}
 \end{align*}
 %%%
-With this notation, we computed $MAE \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)$ which is of course not identical to backtransforming the error on the log-scale $\exp \left(MAE \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right) \right)$.
+With this notation, we computed $MAE \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)$ which is of course not identical to $\exp \left(MAE \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right) \right)$, i.e. backtransforming the error on the log-scale.
 To stay consistent, we similarly computed $R^2 \left(\mathbf{y}, \exp \left(\widehat{\log(\mathbf{y})}\right)\right)$ on the original scale with the backtransformed fitted values instead of  $R^2 \left(\log(\mathbf{y}), \widehat{\log(\mathbf{y})}\right)$, where the latter usually leads to a better score.
 
 
@@ -42,15 +41,15 @@ Unsurprisingly, one or two features (in case of the \texttt{RFE} the number of b
 
 However, including merely $5$ features (in this case adding the $30$ day availability, the indicator variable for the \emph{Frogner} neighbourhood and, notably, the price predictions from the Convolutional Net based on the image data) results in a very competitive performance for most models on the validation set.
 
-The two subplots on the left displaying the MAE tell a very similar story to the subplots on the right that show the $R^2$:
+The two subplots on the left display the MAE and tell a very similar story to the subplots on the right that show the $R^2$:
 Generally, more features lead to better performance on training and validation set.
-In case of the flexible Histogram-based Gradient Boosting algorithm and, to some minor extent, for the Random Forest, a high number of input features lead to \emph{overfitting} such that the performance on the training set is far superior to the values on out-of-sample data.
+In case of the flexible Gradient Boosting algorithm and, to some minor extent, for the Random Forest, a high number of input features lead to \emph{overfitting} such that the performance on the training set is far superior to the values on out-of-sample data.
 In contrast, models with few parameters such as Linear Regression or Ridge Regression generalize very well to the validation set with virtually no performance drop.
 
 One exception to this rule is the highly complex Neural Network which appears to perform \emph{better} on out-of-sample data.
-This phenomenon can be explained to some extent by the different behaviour of \emph{Dropout} and \emph{Batchnorm} during training and inference
+This phenomenon can be explained by the different behaviour of Dropout and Batchnorm layers in training and inference mode on the one hand and the presence of price outliers, which is discussed in \Cref{outliers}, on the other hand.
 
-When comparing the models within each subplot, all classical Machine Learning models perform similarly on the validation data.
+When comparing the models \emph{within} each subplot, all classical Machine Learning models perform similarly on the validation data.
 This finding emphasizes two aspects:
 %%%
 \begin{enumerate}
@@ -62,7 +61,7 @@ This finding emphasizes two aspects:
 %%%
 In comparison to all \texttt{scikit-learn} models, our custom Neural Net appears to underperform.
 We have to keep in mind though, that evaluation on the validation set is overly optimistic for those models whose hyperparameters were tuned on this data during cross validation.
-The best simulation to performance on truly unseen data is thus provided by the \emph{test} set that was not used in any step up to this point.
+The best simulation of performance on truly unseen data is thus provided by the \emph{test} set that remained untouched up to this point.
 
 \begin{table}[th]
   \centering
@@ -83,15 +82,23 @@ The best simulation to performance on truly unseen data is thus provided by the 
   \label{tab:test-set}
 \end{table}
 
-\Cref{tab:test-set} compares test set metrics for the best performing models on the validation set within each class (i.e. the Neural Net version with all $59$ features and the Random Forest model with only $25$ features were selected).
+\Cref{tab:test-set} compares test set metrics for the best performing models on the validation set within each function class, i.e. the Neural Net version with all $59$ features and the Random Forest model with only $25$ features were selected.
 In addition, we added some simple ensemble models that predict the average estimate from the top $2$, $3$, $4$ or all five models, respectively.
 
-The hyperparameter configuration of the Random Forest Model, that performed best for the validation data, generalizes worst to the test set.
+The Random Forest model indeed seems to have overfit on the validation set due to hyperparameter tuning, such that it now performs worst.
 Quite surpringly, the Neural Net shows a significant performance boost on the test data and is now very competitive with all other models.
-One plausible explanation for this phenomenon is provided in \Cref{outliers}.
+One plausible reason for this phenomenon is again related to outliers and explained in \Cref{outliers}.
 
-Averaging predictions from multiple algorithms indicates promising results:
-The Top $3$ Average achieves the lowest out-of-sample MAE of slightly below $400$ NOK.
+Averaging predictions from multiple independent algorithms indicates promising results:
+The Top $3$ ensemble achieves the lowest out-of-sample MAE of slightly below $400$ NOK.
+As indicated by \Cref{fig:model-comparison} this particular ensemble averages the price predictions of the following three model configurations:
+%%%
+\begin{enumerate}
+  \item Linear Regression with $50$ selected features.
+  \item Ridge Regression with $50$ selected features and a penalty weight of $\alpha = 14$.
+  \item Histogram Gradient Boosting Model with all $59$ features, a \emph{learning rate} of $0.09$, a \emph{maximum tree depth} of $18$, a \emph{maximum number of leaf nodes} within each tree of $30$ and a \emph{minimum number of samples} per leaf node of $4$.
+\end{enumerate}
+%%%
 
 
 
@@ -107,11 +114,11 @@ Second, we reduce the \emph{dimensionality} by leveraging a different Neural Net
 
 \subsubsection{Feature Importance}
 
-In order to draw conclusions about which features were most important for the Neural Network, one could imagine to start with a random noise input combination and optimize for artificial inputs which maximally or minimally activate the output neuron, i.e. leading to very low or very high price predictions.
-We chose a conceptually simpler approach and analyzed the feature importance of an auxiliary Linear Regression model instead to provide some suggestions that could potentially apply to the Neural Network as well.
+One idea to draw conclusions about which features were most important for the Neural Network is to start with a random noise input and leverage Gradient information to optimize for new artificial inputs that maximally or minimally activate the output neuron, i.e. leading to very low or very high price predictions.
+We chose a conceptually simpler approach and analyzed the feature importance of an auxiliary Linear Regression model instead based on the idea that important features for a simpler Linear Regression model might also be important for a more complex Neural Network.
 
-Therefore, we preselected $25$ of the network's input features with the \texttt{RFE} algorithm, which is introduced in the \Cref{appendix:feature-selection}, and compared the coefficient magnitudes.
-As noted before, all predictors were standardized such that a meaningful comparison is feasible.
+Therefore we preselected $25$ of the network's input features with the \texttt{RFE} algorithm, which is introduced in \Cref{appendix:feature-selection}, and compared the coefficient \emph{magnitudes}.
+As noted before, all predictors were standardized at the beginning of the data pipeline such that this comparison is meaningful.
 The results are shown in \Cref{fig:coefficient-plot}.
 
 \begin{figure}[t]
@@ -121,19 +128,18 @@ The results are shown in \Cref{fig:coefficient-plot}.
   \label{fig:coefficient-plot}
 \end{figure}
 
-It is worth noting that the two most important features based on various different feature selectors of the \texttt{scikit-learn} library were always the number of \emph{bedrooms} and the (number of) \emph{accomodates} in this order, both measuring the apartment's \emph{capacity}.
+It is worth noting that the two most important features based on various different feature selectors within the \texttt{scikit-learn} library were always the number of \emph{bedrooms} and the (number of) \emph{accomodates} in this order, both measuring the apartment's \emph{capacity}.
 
 The coefficient plot, however, is dominated by categorical features:
 In agreement with human intuition, the \emph{room} type, the \emph{property} type and the \emph{neighbourhood} strongly influence the predicted price.
-Unsurprisingly, the property types \emph{entire home} and \emph{entire villa} are connected with high prices, whereas the the room type \emph{shared room} correlates with cheaper apartments.
-Notably, the price predictions from the Convolutional Network fitted on the image data indicates a significant positive effect, conditioned on all other selected features.
+Unsurprisingly, the property types \emph{entire home} and \emph{entire villa} are connected with high prices, whereas the room type \emph{shared room} correlates with cheaper apartments.
+The price predictions from the CNN fitted on the image data indicates a significant positive effect, conditioned on all other selected features.
 
 When analyzing the \emph{marginal} effect of neighbourhood on price by e.g. ordering the neighbourhoods according to their median price, this order is nearly identical to the ranking in \Cref{fig:coefficient-plot} with \emph{Frogner} at the top and \emph{Grorud} at the bottom.
-
 Interestingly, apartments in the \emph{Sentrum} (central area) have a large positive coefficient in the regression, yet the second to lowest median price.
 This finding indicates the presence of \emph{confounders}:
 The city center might plausibly be connected to fewer rooms and smaller apartment sizes overall pulling the median price down.
-These confounding effects are controlled for in the regression model, but not in the naive bivariate analysis.
+These correlations are accounted for in the regression model but not in the naive bivariate analysis.
 
 
 \subsubsection{Sensitivity to Outliers} \label{outliers}
@@ -222,11 +228,8 @@ As a consequence, a blind removal of such outliers is difficult to justify and n
 
 \subsection{Price Predictions on Munich Dataset}
 
-In addition, we tested our implemented models on the Munich dataset, which was also published by the \emph{Inside Airbnb} project.
-This dataset includes twice as many accommodations as the previous dataset for Oslo. As expected, the flexible models, such as Gradient Boosting and the Neural Network, have benefited most from this increase in data size. Nevertheless, the overall performance is not significantly better compared to the originally used Oslo data.
-The MAE of the Neural Network on the validation data has decreased from $44.3$ Euros for Oslo to $42.5$ Euros for Munich. To further improve the performance of this model, a deeper and broader architecture of the network could be considered, specifically designed for the larger data set.
-Overall, the Gradient Boosting model performed the best on the test set with a MAE of $32.8$ Euros and a $R^2$ of $0.453$. For comparison, using the Oslo data, the MAE of the model was $41.2$ Euros.
-The most important predictors of the Munich data set were \emph{Property Type}, \emph{Neighborhood}, and \emph{Accommodates}. Furthermore, this dataset also contains some outliers, whose influence is shown in \Cref{tab:munich-outliers}. Excluding the top $1\%$ of prices when fitting the model again leads to a significant improvement in MAE and $R^2$, but not quite as much as was previously the case with the Oslo data.
+To test the generalization ability of our implemented models, we applied them to the Airbnb data for \emph{Munich}, which is also published by the \emph{Inside Airbnb} project.
+This data set includes roughly twice as many accommodations as the previous data set for Oslo.
 
 \begin{table}[t]
   \centering
@@ -242,6 +245,18 @@ The most important predictors of the Munich data set were \emph{Property Type}, 
   \caption{Mean Absolute Error and $R^2$ value of the Neural Network on the validation set after removing the highest quantiles of the price distribution from the Munich data set}
   \label{tab:munich-outliers}
 \end{table}
+
+As expected, the flexible models such as Gradient Boosting and the Neural Network benefit most from the larger number of observations.
+The overall performance, however, is \emph{not} significantly better compared to the original Oslo data:
+The Neural Net improved marginally from a MAE of $44.3$ Euros for Oslo to $42.5$ Euros for Munich on the validation set.
+One exception was the Gradient Boosting Model that now shows by far the best test set performance with a MAE of $32.8$ Euros and a $R^2$ of $0.453$.
+To further improve the Neural Network performance, a wider or deeper model architecture could be considered that is specifically designed for the larger data set.
+
+Similar to Oslo, the most important predictors of the Munich data set were \emph{Property Type}, \emph{Neighborhood}, and \emph{Accommodates}.
+Furthermore, the new data set also suffers from outliers whose influence is quantified in \Cref{tab:munich-outliers}.
+Excluding consecutive percentiles of the price distribution prior to fitting the model again leads to a significant improvements in MAE and $R^2$.
+In contrast to Oslo, however, we can not detect a huge jump from using the entire data to cutting off the top $1$\% of highest prices.
+
 
 
 
