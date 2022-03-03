@@ -162,7 +162,7 @@ These correlations are accounted for in the regression model but not in the naiv
 \end{table}
 
 \Cref{tab:mlp-outliers} shows performance metrics for the Neural Network on the validation set when fitted on a subset of the data.
-As indicated by the first column, the dataset was reduced by consecutively cutting off observations with the highest prices.
+As indicated by the first column the dataset was reduced by consecutively cutting off observations with the highest prices.
 More precisely, the first row refers to the entire data whereas the last row excludes the top $10$\% most expensive apartments.
 
 By omitting just the top $1$\%, the MAE reduces by over $100$ NOK (about $10$ Euros) and the $R^2$ rapidly jumps to over $0.5$.
@@ -170,33 +170,32 @@ Importantly, this high influence of outliers is \textbf{not} diminished by a tra
 
 The values in \Cref{tab:mlp-outliers} also suggest an explanation why the Neural Network performance increases from the training to the validation set and then again from the validation to the test set:
 When partitioning the entire data into training, validation and test set, most of the extreme outliers were assigned to the training set since it is the largest of the three.
-The validation and test set are similar in size, so it just happened by chance that the test set contains fewer price outliers which drive the error metrics up compared to the validation set, even though the model is exactly the same.
+The validation and test set are similar in size, so it just happened by chance that the test set contains fewer price outliers than the validation set which drive the error metrics up.
 
 In contrast, the classical Machine Learning models were fitted with the more robust cross-validation approach.
 Hence, extreme outliers were contained in the validation fold only once out of multiple evaluations.
 By ultimately averaging the error metrics across all folds their impact is diminished and we cannot detect a strong performance boost between training and validation set.
 
 Based on \Cref{tab:mlp-outliers} it is clear that the Neural Network lacks the ability to capture the entire price range accurately.
-In fact, the predicted prices are much more concentrated around the median price than their observed counterparts.
-\Cref{tab:mlp-outliers}
-Yet, in theory, the Neural Network should be flexible enough to approximate \textbf{any} function reasonably well.
-This raises the question why the Network is not able to learn during training to map the observations with the highest prices to corresponding high price predictions?
+In fact, the \emph{predicted} prices are much more concentrated around the median apartment price than the actual observed prices.
+Yet, in theory, the Neural Network should be flexible enough to approximate \emph{any} function reasonably well.
+This raises the question why the Network is not able to learn during training to map the most expensive observations to corresponding high price predictions.
 
 Recall that the Network only sees the feature \emph{inputs} during training.
 Thus, in order to discriminate between price outliers and non-outliers, their feature combinations must be \emph{separable} in the full high-dimensional feature space.
-One idea to analyze locations in the input space is to compute Nearest Neighbours for highly-priced listings e.g. via simple Euclidean distances or Cosine similarities.
+One idea to analyze locations in the input space is to compute Nearest Neighbours for price outliers, e.g. via simple Euclidean distances or Cosine similarities.
 This approach, however, is difficult to generalize beyond pairwise comparisons.
 
-To get a more global view of the feature space instead, we want to visualize it.
+To get a more global view of the feature space instead, we want to display it graphically.
 Since the full high-dimensional space cannot be visualized immediately, we approximate it with a two-dimensional \emph{embedding} or \emph{latent space}.
 If the price outliers are clearly separated from the remaining observations in this embedded space, the network is faced with a feasible task.
-If, however, the outliers are located in the \emph{center} of the latent distribution, there is little hope to discriminate the most expensive apartments from any of their potentially much lower priced embedded neighbours.
+In contrast, if we cannot detect such spatial petterns in the latent space distribution, there is little hope to discriminate the most expensive apartments from any of their potentially much lower priced embedded neighbours.
 Keep in mind that all conclusions of the following analysis are based on the assumption that the two-dimensional embedding approximates the full feature space sufficiently well!
 
 Modern Machine Learning methods provide a large toolbox for low-dimensional embeddings.
-Since the project is mainly focused on Deep Learning, we decided to use a \emph{Variatonal Autoencoder} \citep{kingma2014}.
+Since this project is focused on Deep Learning, we decided to use a \emph{Variatonal Autoencoder} \citep{kingma2014}.
 In contrast to deterministic Autoencoders, the VAE contains an additional loss term apart from the usual reconstruction loss that pulls the encoded latent space distribution towards an isotropic multivariate Gaussian distribution.
-For this reason, latent space visualizations of the VAE appear to be more spread out and output classes, such as price segments in our case, tend to be easier to identify.
+For this reason, latent space visualizations of the VAE tend to be more spread out and output classes, such as price segments in our case, are easier to identify.
 
 %%%
 \begin{figure}[t]
@@ -208,7 +207,7 @@ For this reason, latent space visualizations of the VAE appear to be more spread
 %%%
 
 \Cref{fig:latent-representation} visualizes the two-dimensional feature embedding.
-Already a \emph{single} dimension, here the horizontal axis, seems so be sufficient to categorize the observations into price segments.
+Already a \emph{single} dimension, here the horizontal axis, seems so be sufficient to categorize the observations into price ranges.
 Cheaper apartments in blue are clustered on the right, medium prices in orange in the middle and higher prices in green are located on the left.
 
 It is worth noting that the latent dimensions indeed \emph{combine} information from multiple features.
@@ -232,7 +231,7 @@ There might exist unmeasured variables like historic or cultural significance of
 
 If the latter reason is predominant, it can be argued that the entire task of predicting Airbnb prices is questionable in the first place:
 In order to draw connections from features to outputs, the process implicitly assumes observations whose listed price can be justified and explained by characteristics of the joint feature distribution.
-If there is no connection between features to response in the first place, there is obviously no way for the model to recover this connection.
+If there is no connection between features and response in the first place, there is obviously no way for the model to recover this connection.
 
 One question that needs to be addressed is why we are not simply removing the outliers completely prior to model fitting if they indicate such a large negative impact on the predictive performance.
 As alluded to above, we have to distinguish between two groups of outliers:
