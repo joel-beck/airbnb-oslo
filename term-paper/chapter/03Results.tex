@@ -162,37 +162,41 @@ These correlations are accounted for in the regression model but not in the naiv
 \end{table}
 
 \Cref{tab:mlp-outliers} shows performance metrics for the Neural Network fitted on a subset of the data in the validation set.
-As indicated by the first column, the dataset was reduced by successively cutting off observations from the top of the price distribution.
+As indicated by the first column, the dataset was reduced by consecutively cutting off observations with the highest prices.
 More precisely, the first row refers to the entire data whereas the last row excludes the top $10$\% most expensive apartments.
 
 By omitting just the top $1$\%, the MAE reduces by over $100$ NOK (about $10$ Euros) and the $R^2$ rapidly jumps to over $0.5$.
-This sensitivity to outliers in the price distribution is \textbf{not} solved by log-transforming the price, all classical models from the previous chapter suffer from the same effect.
+Importantly, this high influence of outliers is \textbf{not} diminished by a transformation of the response distribution like a log-transformation.
 
-The values in \Cref{tab:mlp-outliers} also suggest an explanation why the Neural Network performs much better in the test set compared to the validation set, which can not be observed for all other models.
-When partitioning the entire data into training, validation and test set, it just happened by chance that the test set contains fewer price outliers which drive the error metrics up compared to the validation set, even though the model is exactly the same.
-In fact, when \emph{training} the Neural Network with some of the outliers removed, the training and validation metrics are much closer as well, such that we detected an additional factor besides \emph{Dropout} (see \Cref{dropout}) for the diverging behaviour.
+The values in \Cref{tab:mlp-outliers} also suggest an explanation why the Neural Network performance increases from the training to the validation set and then again from the validation to the test set:
+When partitioning the entire data into training, validation and test set, most of the extreme outliers were assigned to the training set since it is the largest of the three.
+The validation and test set are similar in size, so it just happened by chance that the test set contains fewer price outliers which drive the error metrics up compared to the validation set, even though the model is exactly the same.
 
 In contrast, the classical Machine Learning models were fitted with the more robust cross-validation approach.
 Hence, extreme outliers were contained in the validation fold only once out of multiple evaluations.
-By ultimately averaging the error metrics across all folds, their impact is diminished.
+By ultimately averaging the error metrics across all folds their impact is diminished and we cannot detect a strong performance boost between training and validation set.
 
-As we have seen, the Neural Network (just like all remaining models) lacks the ability to capture the entire price range accurately, yet in theory it is supposed to be flexible enough to approximate any arbitrary function reasonably well.
-There exist two possible explanations with very different implications:
-%%%
-\begin{enumerate}
-  \item The model is inherently flawed.
-  \item The model is faced with a nearly impossible task.
-\end{enumerate}
-%%%
-In order to discriminate the observations with the highest prices from all other listings, the corresponding feature combinations must be separable in the full $59$-dimensional feature space.
-Since this high-dimensional space cannot be visualized, we approximate it with an two-dimensional \emph{embedding} or \emph{latent space}.
-If the price outliers are clearly separated from the rest in this embedded space, the network is faced with a feasible task.
-If, however, the outliers are located in the \emph{middle} of the latent distribution, there is little hope to discriminate the most expensive apartments from any of their potentially much lower priced embedded neighbours.
+Based on \Cref{tab:mlp-outliers} it is clear that the Neural Network lacks the ability to capture the entire price range accurately.
+In fact, the predicted prices are much more concentrated around the median price than their observed counterparts.
+\Cref{tab:mlp-outliers}
+Yet, in theory, the Neural Network should be flexible enough to approximate \textbf{any} function reasonably well.
+This raises the question why the Network is not able to learn during training to map the observations with the highest prices to corresponding high price predictions?
+
+Recall that the Network only sees the feature \emph{inputs} during training.
+Thus, in order to discriminate between price outliers and non-outliers, their feature combinations must be \emph{separable} in the full high-dimensional feature space.
+One idea to analyze locations in the input space is to compute Nearest Neighbours for highly-priced listings e.g. via simple Euclidean distances or Cosine similarities.
+This approach, however, is difficult to generalize beyond pairwise comparisons.
+
+To get a more global view of the feature space instead, we want to visualize it.
+Since the full high-dimensional space cannot be visualized immediately, we approximate it with a two-dimensional \emph{embedding} or \emph{latent space}.
+If the price outliers are clearly separated from the remaining observations in this embedded space, the network is faced with a feasible task.
+If, however, the outliers are located in the \emph{center} of the latent distribution, there is little hope to discriminate the most expensive apartments from any of their potentially much lower priced embedded neighbours.
+Keep in mind that all conclusions of the following analysis are based on the assumption that the two-dimensional embedding approximates the full feature space sufficiently well!
 
 Modern Machine Learning methods provide a large toolbox for low-dimensional embeddings.
 Since the project is mainly focused on Deep Learning, we decided to use a \emph{Variatonal Autoencoder} \citep{kingma2014}.
 In contrast to deterministic Autoencoders, the VAE contains an additional loss term apart from the usual reconstruction loss that pulls the encoded latent space distribution towards an isotropic multivariate Gaussian distribution.
-For this reason, latent space visualizations of the VAE appear to be more spread out and output classes (that are not used for training the VAE) tend to be easier to identify.
+For this reason, latent space visualizations of the VAE appear to be more spread out and output classes, such as price segments in our case, tend to be easier to identify.
 
 %%%
 \begin{figure}[t]
@@ -204,9 +208,12 @@ For this reason, latent space visualizations of the VAE appear to be more spread
 %%%
 
 \Cref{fig:latent-representation} visualizes the two-dimensional feature embedding.
-Already a \emph{single} dimension seems so be sufficient for a general understanding of price segments.
-While some of the most expensive apartments are located on the far left, surrounded by highly-priced neighbours, the other half shares a similar feature representation to \emph{medium to low} priced listings.
-Hence, the network likely maps this second half to comparably low price predictions resulting in large residuals with a high influence on the MAE and the $R^2$ value.
+Already a \emph{single} dimension, here the horizontal axis, seems so be sufficient to categorize the observations into price segments.
+Cheaper apartments in blue are clustered on the right, medium prices in orange in the middle and higher prices in green are located on the left.
+
+However, the Top $1$\% of highest prices, the large red circles, do not seem to build their own cluster, they are spread out across the entire feature space.
+When the Network has to predict prices for some of the outliers in the \emph{center} of the latent space, they appear indistinguishable to their medium or even low-priced Nearest-Neighbours based on their feature set.
+Hence, the network likely maps these outliers to comparably low price predictions resulting in large residuals with a high influence on the MAE and the $R^2$ value.
 
 Assuming that the two-dimensional picture appropriately reflects the situation in the full feature space, there are two possible explanations for this lack of separability:
 %%%
