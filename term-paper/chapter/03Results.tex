@@ -161,7 +161,7 @@ These correlations are accounted for in the regression model but not in the naiv
   \label{tab:mlp-outliers}
 \end{table}
 
-\Cref{tab:mlp-outliers} shows performance metrics for the Neural Network fitted on a subset of the data in the validation set.
+\Cref{tab:mlp-outliers} shows performance metrics for the Neural Network on the validation set when fitted on a subset of the data.
 As indicated by the first column, the dataset was reduced by consecutively cutting off observations with the highest prices.
 More precisely, the first row refers to the entire data whereas the last row excludes the top $10$\% most expensive apartments.
 
@@ -211,26 +211,43 @@ For this reason, latent space visualizations of the VAE appear to be more spread
 Already a \emph{single} dimension, here the horizontal axis, seems so be sufficient to categorize the observations into price segments.
 Cheaper apartments in blue are clustered on the right, medium prices in orange in the middle and higher prices in green are located on the left.
 
-However, the Top $1$\% of highest prices, the large red circles, do not seem to build their own cluster, they are spread out across the entire feature space.
+It is worth noting that the latent dimensions indeed \emph{combine} information from multiple features.
+At the very beginning of our analysis we performed a bivariate analysis of each input feature and the response variable.
+Since there was (by a large margin) no single variable with explanatory power comparable to the first latent dimension in \Cref{fig:latent-representation}, we can reject the hypothesis that the Encoder of the VAE simply maps original features of the data to the latent axes.
+
+In contrast to the majority of listings, the top $1$\% of highest prices indicated by the large red circles do \emph{not} seem to build their own cluster, they are rather spread out across the entire feature space.
 When the Network has to predict prices for some of the outliers in the \emph{center} of the latent space, they appear indistinguishable to their medium or even low-priced Nearest-Neighbours based on their feature set.
 Hence, the network likely maps these outliers to comparably low price predictions resulting in large residuals with a high influence on the MAE and the $R^2$ value.
 
-Assuming that the two-dimensional picture appropriately reflects the situation in the full feature space, there are two possible explanations for this lack of separability:
-%%%
+There are two possible explanations for this lack of separability in feature space with regards to the most expensive listings:
+
 \begin{enumerate}
   \item The collected data is simply not rich or expressive enough to capture all factors that contribute to very high prices.
   \item Some apartments are listed at a price that does not represent their true value.
 \end{enumerate}
-%%%
 
-In the latter case, it can be argued that the entire task of predicting Airbnb prices is questionable in the first place:
+
+The former reason illustrates why the outliers in the center of \Cref{fig:latent-representation} could still be worth their money:
+There might exist unmeasured variables like historic or cultural significance of the building or a welcoming local community that are difficult to quantify appropriately and are not included in the feature set.
+
+If the latter reason is predominant, it can be argued that the entire task of predicting Airbnb prices is questionable in the first place:
 In order to draw connections from features to outputs, the process implicitly assumes observations whose listed price can be justified and explained by characteristics of the joint feature distribution.
+If there is no connection between features to response in the first place, there is obviously no way for the model to recover this connection.
 
-Moreover, discriminating between these two options is nontrivial.
-One idea is to use features like \emph{availability} or the \emph{number of reviews} to approximate demand and classify price outliers with low demand as overpriced.
-However, it is entirely possible that an extremely expensive observation with very low demand is listed according to its true value, yet nobody is willing to pay such a high amount for an accomodation, regardless of its quality.
-Since such accommodations might very well be contained in a new data during deployment, the model should have learned to handle them appropriately during training.
-As a consequence, a blind removal of such outliers is difficult to justify and narrows down the set of feasible target distributions.
+One question that needs to be addressed is why we are not simply removing the outliers completely prior to model fitting if they indicate such a large negative impact on the predictive performance.
+As alluded to above, we have to distinguish between two groups of outliers:
+
+\begin{enumerate}
+  \item The first group contains expensive, but \emph{fairly priced} apartments.
+        Those listings should be \emph{kept} in the data since it is very plausible that a new data set that our trained model is applied to contains such observations as well.
+        To deliver useful results during inference, the model should have therefore learned to handle these cases appropriately during training.
+  \item The second group consists of \emph{overpriced} listings that we would indeed like to remove from the data.
+        However, it is actually very difficult to identify which observations exactly belong to this group.
+        Potential candidates could be price outliers that indicate a very low demand since guests naturally try to maximize their cost-benefit ratio.
+        Yet, it is entirely possible that few people want to pay that much money for \emph{any} apartment regardless of its true value, even if the price is actually justified.
+\end{enumerate}
+
+The differentiation between these two groups is nontrivial and remained a difficult problem throughout our analysis.
 
 
 \subsection{Price Predictions on Munich Dataset}
