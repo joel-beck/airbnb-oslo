@@ -117,7 +117,7 @@ Second, we reduce the \emph{dimensionality} by leveraging a different Neural Net
 One idea to draw conclusions about which features were most important for the Neural Network is to start with a random noise input and leverage Gradient information to optimize for new artificial inputs that maximally or minimally activate the output neuron, i.e. leading to very low or very high price predictions.
 We chose a conceptually simpler approach and analyzed the feature importance of an auxiliary Linear Regression model instead based on the idea that important features for a simpler Linear Regression model might also be important for a more complex Neural Network.
 
-Therefore we preselected $25$ of the network's input features with the \texttt{RFE} algorithm, which is introduced in \Cref{appendix:feature-selection}, and compared the coefficient \emph{magnitudes}.
+Therefore, we preselected $25$ of the network's input features with the \texttt{RFE} algorithm, which is introduced in \Cref{appendix:feature-selection}, and compared the coefficient \emph{magnitudes}.
 As noted before, all predictors were standardized at the beginning of the data pipeline such that this comparison is meaningful.
 The results are shown in \Cref{fig:coefficient-plot}.
 
@@ -162,7 +162,7 @@ These correlations are accounted for in the regression model but not in the naiv
 \end{table}
 
 \Cref{tab:mlp-outliers} shows performance metrics for the Neural Network on the validation set when fitted on a subset of the data.
-As indicated by the first column the dataset was reduced by consecutively cutting off observations with the highest prices.
+As indicated by the first column, the dataset was reduced by consecutively cutting off observations with the highest prices.
 More precisely, the first row refers to the entire data whereas the last row excludes the top $10$\% most expensive apartments.
 
 By omitting just the top $1$\%, the MAE reduces by over $100$ NOK (about $10$ Euros) and the $R^2$ rapidly jumps to over $0.5$.
@@ -174,9 +174,9 @@ The validation and test set are similar in size, so it just happened by chance t
 
 In contrast, the classical Machine Learning models were fitted with the more robust cross-validation approach.
 Hence, extreme outliers were contained in the validation fold only once out of multiple evaluations.
-By ultimately averaging the error metrics across all folds their impact is diminished and we cannot detect a strong performance boost between training and validation set.
+By ultimately averaging the error metrics across all folds, their impact is diminished and we cannot detect a strong performance boost between training and validation set.
 
-Based on \Cref{tab:mlp-outliers} it is clear that the Neural Network lacks the ability to capture the entire price range accurately.
+Based on \Cref{tab:mlp-outliers}, it is clear that the Neural Network lacks the ability to capture the entire price range accurately.
 In fact, the \emph{predicted} prices are much more concentrated around the median apartment price than the actual observed prices.
 Yet, in theory, the Neural Network should be flexible enough to approximate \emph{any} function reasonably well.
 This raises the question why the Network is not able to learn during training to map the most expensive observations to corresponding high price predictions.
@@ -211,7 +211,7 @@ Already a \emph{single} dimension, here the horizontal axis, seems so be suffici
 Cheaper apartments in blue are clustered on the right, medium prices in orange in the middle and higher prices in green are located on the left.
 
 It is worth noting that the latent dimensions indeed \emph{combine} information from multiple features.
-At the very beginning of our analysis we conducted a bivariate analysis of each input feature and the response variable.
+At the very beginning of our analysis, we conducted a bivariate analysis of each input feature and the response variable.
 Since there was (by a large margin) no single variable with explanatory power comparable to the first latent dimension in \Cref{fig:latent-representation}, we can reject the hypothesis that the Encoder of the VAE simply maps original features of the data to the latent axes.
 
 In contrast to the majority of listings, the top $1$\% of highest prices indicated by the large red circles do \emph{not} seem to build their own cluster, they are rather spread out across the entire feature space.
