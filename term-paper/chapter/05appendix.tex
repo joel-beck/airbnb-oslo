@@ -15,7 +15,7 @@ Therefore, we first used the \texttt{requests}\footnote{\url{https://docs.python
 Next, the \texttt{beautifulsoup}\footnote{\url{https://beautiful-soup-4.readthedocs.io/en/latest/}} library served as HTML parser to find and extract all embedded weblinks that lead to images located on the front page of the listing's website.
 With this strategy we could extract the first $5$ images for each apartment (if $5$ or more were available) that were accessible through the front page source code.
 
-Finally, we used the \texttt{requests} module again in combination with the \texttt{pillow}\footnote{\url{https://pillow.readthedocs.io/en/stable/}} package to decode the source content of all image adresses into two dimensional images.
+Finally, we used the \texttt{requests} module again in combination with the \texttt{pillow}\footnote{\url{https://pillow.readthedocs.io/en/stable/}} package to decode the source content of all image addresses into two dimensional images.
 
 \subsubsection{Image Transformations}
 
@@ -90,7 +90,7 @@ In our case, the price distribution is highly right-skewed with a few very expen
 Some statistical models, such as \emph{Linear Regression}, tend to perform better when the outcome distribution is symmetric and approximately normal, whereas some very flexible algorithms like \emph{Neural Networks} do not make any distributional assumptions and are capable of modeling any kind of distribution accurately.
 Figure \ref{fig:price-distribution} illustrates that an approximate normal distribution can be achieved with a simple logarithmic distribution.
 
-Whereas \emph{all} of the classical models benefitted from the log-transformation resulting in lower error metrics, this was not the case for the Neural Network we used.
+Whereas \emph{all} of the classical models benefited from the log-transformation resulting in lower error metrics, this was not the case for the Neural Network we used.
 In fact, training turned out to be more challenging, since the \emph{magnitude} of the losses, that were computed by comparing true and predicted price on the logarithmic scale, was drastically reduced.
 As a consequence the Network's gradients and the weight updates were smaller within each minibatch.
 This issue could be mitigated to some extent with a larger learning rate.

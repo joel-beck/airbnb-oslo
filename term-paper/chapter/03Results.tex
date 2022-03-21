@@ -86,7 +86,7 @@ The best simulation of performance on truly unseen data is thus provided by the 
 In addition, we added some simple ensemble models that predict the average estimate from the top $2$, $3$, $4$ or all five models, respectively.
 
 The Random Forest model indeed seems to have overfit on the validation set due to hyperparameter tuning, such that it now performs worst.
-Quite surpringly, the Neural Net shows a significant performance boost on the test data and is now very competitive with all other models.
+Quite surprisingly, the Neural Net shows a significant performance boost on the test data and is now very competitive with all other models.
 One plausible reason for this phenomenon is again related to outliers and explained in \Cref{outliers}.
 
 Averaging predictions from multiple independent algorithms indicates promising results:
@@ -106,7 +106,7 @@ As indicated by \Cref{fig:model-comparison} this particular ensemble averages th
 \subsection{Understanding and Interpretation}
 
 Interpreting the results of high-dimensional and complex statistical models is notoriously difficult.
-This section approaches the challenge from two opposite angles.
+This section approaches the challenge from two different angles.
 
 First, we reduce the \emph{complexity} by fitting a simple and well-understood Linear Regression model with the same features that were selected for the best-performing Neural Network and analyze the coefficients.
 
@@ -189,7 +189,7 @@ This approach, however, is difficult to generalize beyond pairwise comparisons.
 To get a more global view of the feature space instead, we want to display it graphically.
 Since the full high-dimensional space cannot be visualized immediately, we approximate it with a two-dimensional \emph{embedding} or \emph{latent space}.
 If the price outliers are clearly separated from the remaining observations in this embedded space, the network is faced with a feasible task.
-In contrast, if we cannot detect such spatial petterns in the latent space distribution, there is little hope to discriminate the most expensive apartments from any of their potentially much lower priced embedded neighbours.
+In contrast, if we cannot detect such spatial patterns in the latent space distribution, there is little hope to discriminate the most expensive apartments from any of their potentially much lower priced embedded neighbours.
 Keep in mind that all conclusions of the following analysis are based on the assumption that the two-dimensional embedding approximates the full feature space sufficiently well!
 
 Modern Machine Learning methods provide a large toolbox for low-dimensional embeddings.

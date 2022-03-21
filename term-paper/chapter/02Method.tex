@@ -3,7 +3,7 @@
 \subsection{Preprocessing}
 
 This section covers all necessary preprocessing steps that build the foundation for all further modeling tasks.
-Here, we mostly focus on feature \emph{engineering} by extracting information from the image and text data contained in the Airbnb Dataset.
+Here, we mostly focus on feature \emph{engineering} by extracting information from the image and text data contained in the Airbnb dataset.
 However, feature \emph{selection} and transformations of the response variable turned out to be essential components of the preprocessing pipeline and are discussed in \Cref{appendix:feature-selection} and \Cref{appendix:price-distribution}.
 
 In addition, some basic data cleaning steps were necessary right from the start.
@@ -24,7 +24,7 @@ Since there exist multiple images per apartment, the predictions were averaged w
 
 Before the images can be used as model input, they had to be \emph{scraped} from each listing's webpage.
 Further, some basic transformations were necessary.
-Details about these image proprocessing steps can be found in \Cref{appendix:images}.
+Details about these image preprocessing steps can be found in \Cref{appendix:images}.
 
 
 \textbf{Image Modeling} \\
@@ -49,8 +49,9 @@ There are multiple options to handle this issue:
 It turned out that a \emph{single} custom layer, mapping from $512$ neurons directly to a single neuron which represents the scalar price prediction, was not expressive enough.
 The performance improved by instead appending a small Fully Connected Network at the end, containing three layers and \texttt{ReLU} activation functions.
 
-To ensure that the chosen design is not majorly flawed, we constructed a separate much smaller CNN with only a handful of convolutional blocks as a benchmark model.
+To ensure that the chosen design is not severely flawed, we constructed a separate much smaller CNN with only a handful of convolutional blocks as a benchmark model.
 Although the performance differences were not as large as desired, the pretrained \texttt{ResNet} indeed indicated more promising results.
+% COMMENT "majorly flawed" scheinbar umgangssprachlich 
 
 
 \textbf{Image Results} \\
@@ -144,14 +145,14 @@ These include:
 %%%
 
 All models were fitted with \emph{Cross Validation}.
-Except for the Linear Regression this included (extensive) Hyperparameter Tuning.
+Except for the Linear Regression this included (extensive) hyperparameter tuning.
 Since the parameter space for both of the tree-based models is very high-dimensional, we used a \emph{Randomized Search} algorithm \citep{bergstra2012} rather than the traditional \emph{Grid Search} approach.
 This allows for greater variation along more 'important' dimensions while simultaneously keeping the computation time feasible.
 
 
 \subsubsection{Neural Network} \label{neural-network}
 
-In concurrence with the Seminar's topic, the focus of our project is centered around constructing a custom Neural Network that is trained in a supervised setting and learns to map feature combinations to price predictions for the Airbnb data set.
+The focus of our project is centered around constructing a custom Neural Network that is trained in a supervised setting and learns to map feature combinations to price predictions for the Airbnb data set.
 The following section highlights the key components of the model's architecture.
 A brief overview of additional (hyper-)parameters, that were of minor importance, is given in \Cref{appendix:hyperparameters}.
 
@@ -184,7 +185,7 @@ We now explain the reasoning behind including or excluding elements in this conf
 Each \texttt{Linear Block} is based on a four-element cycle that is repeated twice.
 Each cycle starts with a fully-connected layer containing the majority of trainable weights in the network.
 The first linear layer determines the output dimension of this block, in our case mostly doubling or halving the number of input features.
-Since both linear layers are immediately followed by a \texttt{Batchnorm} Layer, the additional \emph{Bias} term is redundant and thus omitted.
+Since both linear layers are immediately followed by a \texttt{Batchnorm} Layer, the additional \emph{bias} term is redundant and thus omitted.
 
 \textbf{Batchnorm} \\
 \texttt{Batchnorm} Layers \citep{ioffe2015} often lead to a more well-behaved training process.
@@ -196,7 +197,8 @@ Of all individual components of the \texttt{Linear Block} structure, batch norma
 Out of the numerous options for including nonlinearities into the network and thus expanding the function space that the network is able to learn, we settled for the default choice of the \emph{Rectified Linear Unit} activation.
 While briefly experimenting with the related \texttt{Leaky ReLU} and \texttt{Exponential ReLU}, the differences were insignificant and could be easily attributed to other factors such as random weight initialization.
 
-\textbf{Dropout} \label{dropout} \\
+\textbf{Dropout} \label{dropout} \\ 
+% COMMENT Header on same page as text!
 The \texttt{Dropout} Layer \citep{srivastava2014} at the end of each cycle turned out to be the most impactful factor for the network's \emph{generalization} ability.
 In fact, due to the different behaviour of dropout during training and inference, we could directly control the relative performance on training and validation set by varying the dropout probability $p$.
 
