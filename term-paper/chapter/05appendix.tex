@@ -71,9 +71,9 @@ To circumvent this potential issue, we additionally used the algorithmic feature
 Thereby we focused on two algorithms:
 %%%
 \begin{itemize}
-  \item \emph{Principal Component Analysis}:
+  \item \emph{Principal Component Analysis} (\texttt{PCA}):
         Reduces dimensionality with the additional benefit of creating uncorrelated linear combinations of existing features.
-  \item \emph{Recursive Feature Elimination}:
+  \item \emph{Recursive Feature Elimination} (\texttt{RFE}):
         Selects a subset of original features by leveraging an external estimator (in our case a \emph{Support Vector Regressor}).
         We chose the \texttt{RFE} algorithm for the main analysis, since the selected features can be immediately interpreted and the performance on the selected feature set was slightly better compared to \texttt{PCA}.
 

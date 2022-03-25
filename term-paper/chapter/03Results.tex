@@ -2,7 +2,7 @@
 
 \subsection{Evaluation Metrics}
 
-Whereas the \emph{Mean Squared Error} loss was used for training the Neural Network due to its convenient differentiability with regards to backpropagation, we preferred the \emph{Mean Absolute Error} and the $R^2$ value for evaluating the different models.
+Whereas the \emph{Mean Squared Error} (MSE) loss was used for training the Neural Network due to its convenient differentiability with regards to backpropagation, we preferred the \emph{Mean Absolute Error} (MAE) and the $R^2$ value for evaluating the different models.
 The MAE measures absolute deviations between true and predicted price and is therefore interpretable on the same scale as the original data.
 While the $R^2$ certainly has some inherent flaws, it provides a scale-independent and highly interpretable measure of overall model fit.
 
@@ -36,8 +36,8 @@ To stay consistent, we similarly computed $R^2 \left(\mathbf{y}, \exp \left(\wid
 %%%
 
 \Cref{fig:model-comparison} shows performance metrics for all fitted models on both, the training set and the validation set.
-The different colors indicate how many features were selected by the \texttt{RFE} algorithm for this particular fit out of $59$ total predictor variables.
-Unsurprisingly, one or two features (in case of the \texttt{RFE} the number of bedrooms and the (number of) accommodates) provide too little information to model the task appropriately.
+The different colors indicate how many features were selected by the \texttt{RFE} algorithm, which is introduced in \Cref{appendix:feature-selection}, for this particular fit out of $59$ total predictor variables.
+Unsurprisingly, one or two features (in case of the \texttt{RFE} the number of \emph{bedrooms} and the (number of) \emph{accommodates}) provide too little information to model the task appropriately.
 
 However, including merely $5$ features (in this case adding the $30$ day availability, the indicator variable for the \emph{Frogner} neighbourhood and, notably, the price predictions from the Convolutional Net based on the image data) results in a very competitive performance for most models on the validation set.
 
@@ -117,7 +117,7 @@ Second, we reduce the dimensionality by leveraging a different Neural Network an
 One idea to draw conclusions about which features were most important for the Neural Network is to start with a random noise input and leverage gradient information to optimize for new artificial inputs that maximally or minimally activate the output neuron, i.e. leading to very low or very high price predictions.
 We chose a conceptually simpler approach and analyzed the feature importance of an auxiliary Linear Regression model instead based on the idea that important features for a simpler Linear Regression model might also be important for a more complex Neural Network.
 
-Therefore, we preselected $25$ of the network's input features with the \texttt{RFE} algorithm, which is introduced in \Cref{appendix:feature-selection}, and compared the coefficient magnitudes.
+Therefore, we preselected $25$ of the network's input features with the \texttt{RFE} algorithm and compared the coefficient magnitudes.
 As noted before, all predictors were standardized at the beginning of the data pipeline such that this comparison is meaningful.
 The results are shown in \Cref{fig:coefficient-plot}.
 
@@ -131,7 +131,7 @@ The results are shown in \Cref{fig:coefficient-plot}.
 It is worth noting that the two most important features based on various different feature selectors within the \texttt{scikit-learn} library were always the number of \emph{bedrooms} and the (number of) \emph{accommodates} in this order, both measuring the apartment's capacity.
 
 The coefficient plot, however, is dominated by categorical features:
-In agreement with human intuition, the \emph{room} type, the \emph{property type} and the \emph{neighbourhood} strongly influence the predicted price.
+In agreement with human intuition, the \emph{room type}, the \emph{property type} and the \emph{neighbourhood} strongly influence the predicted price.
 Unsurprisingly, the property types \emph{entire home} and \emph{entire villa} are connected with high prices, whereas the room type \emph{shared room} correlates with cheaper apartments.
 The price predictions from the CNN fitted on the image data indicates a significant positive effect, conditioned on all other selected features.
 
@@ -172,7 +172,7 @@ The values in \Cref{tab:mlp-outliers} also suggest an explanation why the Neural
 When partitioning the entire data into training, validation and test set, most of the extreme outliers were assigned to the training set since it is the largest of the three.
 The validation and test set are similar in size, so it just happened by chance that the test set contains fewer price outliers than the validation set which drive the error metrics up.
 
-In contrast, the classical Machine Learning models were fitted with the more robust \emph{cross validation} approach.
+In contrast, the classical Machine Learning models were fitted with the more robust cross validation approach.
 Hence, extreme outliers were contained in the validation fold only once out of multiple evaluations.
 By ultimately averaging the error metrics across all folds, their impact is diminished and we cannot detect a strong performance boost between training and validation set.
 
@@ -215,7 +215,7 @@ At the very beginning of our analysis, we conducted a bivariate analysis of each
 Since there was (by a large margin) no single variable with explanatory power comparable to the first latent dimension in \Cref{fig:latent-representation}, we can reject the hypothesis that the encoder of the VAE simply maps original features of the data to the latent axes.
 
 In contrast to the majority of listings, the top $1$\% of highest prices indicated by the large red circles do not seem to build their own cluster, they are rather spread out across the entire feature space.
-When the Network has to predict prices for some of the outliers in the center of the latent space, they appear indistinguishable to their medium or even low-priced nearest neighbours based on their feature set.
+When the network has to predict prices for some of the outliers in the center of the latent space, they appear indistinguishable to their medium or even low-priced nearest neighbours based on their feature set.
 Hence, the network likely maps these outliers to comparably low price predictions resulting in large residuals with a high influence on the MAE and the $R^2$ value.
 
 There are two possible explanations for this lack of separability in feature space with regards to the most expensive listings:

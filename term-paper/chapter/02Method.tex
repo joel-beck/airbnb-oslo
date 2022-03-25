@@ -1,15 +1,16 @@
 \section{Data and Methods}
 
-kurze Vorstellung des Datensatzes!
+The dataset used is divided into five sub-datasets, which contain a variety of information about the offered accommodations in Oslo. Thus, the data contains details about the listings, such as the number of beds, the type of bathroom, or in which neighborhood the apartment is located. But also information about the host or details about the availability of the accommodation is provided. 
+In addition, it includes information about the uploaded pictures and the ratings given online for each accommodation. In the following, all these data are considered for the preparation of the study as well as for the analysis itself. 
 
-\subsection{Preprocessing}
+\subsection{Data Preprocessing}
 
 This section covers all necessary preprocessing steps that build the foundation for all further modeling tasks.
 Here, we mostly focus on feature engineering by extracting information from the image and text data contained in the Airbnb dataset.
 However, feature selection and transformations of the response variable turned out to be essential components of the preprocessing pipeline and are discussed in \Cref{appendix:feature-selection} and \Cref{appendix:price-distribution}.
 
 In addition, some basic data cleaning steps were necessary right from the start.
-These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation.
+These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{other} group to stabilize estimation.
 In order to use the predictor variables as model inputs later, all features of categorical nature were transformed to dummy variables whereas all numeric features were standardized.
 
 Extending the original feature set with new informative covariates, which are created from (combinations of) existing variables, is a central aspect of every data analysis.
@@ -49,7 +50,7 @@ There are multiple options to handle this issue:
 \end{itemize}
 
 It turned out that a single custom layer, mapping from $512$ neurons directly to a single neuron which represents the scalar price prediction, was not expressive enough.
-The performance improved by instead appending a small Fully Connected Network at the end, containing three layers and \texttt{ReLU} activation functions.
+The performance improved by instead appending a small fully connected Neural Network at the end, containing three layers and \texttt{ReLU} activation functions.
 
 To ensure that the chosen design is not severely flawed, we constructed a separate much smaller CNN with only a handful of convolutional blocks as a benchmark model.
 Although the performance differences were not as large as desired, the pretrained \texttt{ResNet} indeed indicated more promising results.
@@ -97,11 +98,11 @@ Similarly, in the Norwegian plot there are mainly positive expressions like \tex
 The results of the language detection are stored per listing along with the number of reviews per listing, the median length of a review, the number of different languages as well as a list of languages in which the reviews for that apartment were written.
 The percentages of Norwegian and English reviews are also recorded for each accomodation.
 
-In addition, to obtain a more informed analysis of the reviews, we also performed a detailed sentiment analysis for each review.
+In addition, to obtain a more informed analysis of the reviews, we also performed a detailed \emph{sentiment analysis} for each review.
 Sentiment analysis is used to detect the underlying emotion of a text.
 Therefore, it classifies the text as either positive or negative.
 
-To do this, we used the \texttt{transformers}\footnote{\url{https://huggingface.co/transformers/v3.0.2/model_doc/distilbert.html}} package, more specifically we used the \texttt{pipeline}\footnote{\url{https://huggingface.co/transformers/v3.0.2/main_classes/pipelines.html}} function with the \texttt{task} argument set to \textit{sentiment-analysis}, which is used for classifying sequences according to positive or negative sentiments.
+To do this, we used the \texttt{transformers}\footnote{\url{https://huggingface.co/transformers/v3.0.2/model_doc/distilbert.html}} package, more specifically we used the \texttt{pipeline}\footnote{\url{https://huggingface.co/transformers/v3.0.2/main_classes/pipelines.html}} function with the \texttt{task} argument set to "sentiment-analysis", which is used for classifying sequences according to positive or negative sentiments.
 The used model is DistilBERT \citep{sanh2020}, a small, fast and light Transformer model, a distilled version of BERT \citep{devlin2019}, which achieves significantly faster results.
 Our implementation is inspired by \citep{selvaraj2020}.
 
@@ -181,13 +182,12 @@ More precisely, the architecture consists of $6$ blocks with $64$, $128$, $256$,
 
 The structure of each so-called \texttt{Linear Block} is displayed in \Cref{fig:linear-block}.
 We now explain the reasoning behind including or excluding elements in this configuration.
-% COMMENT was ist mit linear Block? Residual Block?
 
 \textbf{Linear Layer} \\
 Each \texttt{Linear Block} is based on a four-element cycle that is repeated twice.
 Each cycle starts with a fully-connected layer containing the majority of trainable weights in the network.
 The first linear layer determines the output dimension of this block, in our case mostly doubling or halving the number of input features.
-Since both linear layers are immediately followed by a \texttt{Batchnorm} layer, the additional \emph{bias} term is redundant and thus omitted.
+Since both linear layers are immediately followed by a \texttt{Batchnorm} layer, the additional bias term is redundant and thus omitted.
 
 \textbf{Batchnorm} \\
 \texttt{Batchnorm} layers \citep{ioffe2015} often lead to a more well-behaved training process.
@@ -196,11 +196,10 @@ This tends to be particularly effective for saturating activation functions such
 Of all individual components of the \texttt{Linear Block} structure, batch normalization was the least important and provided only marginal benefits.
 
 \textbf{ReLU} \\
-Out of the numerous options for including nonlinearities into the network and thus expanding the function space that the network is able to learn, we settled for the default choice of the \emph{Rectified Linear Unit} activation.
+Out of the numerous options for including nonlinearities into the network and thus expanding the function space that the network is able to learn, we settled for the default choice of the \emph{rectified linear unit} activation.
 While briefly experimenting with the related \texttt{Leaky ReLU} and \texttt{Exponential ReLU}, the differences were insignificant and could be easily attributed to other factors such as random weight initialization.
 
 \textbf{Dropout} \label{dropout} \\ 
-% COMMENT Header on same page as text!
 The \texttt{Dropout} layer \citep{srivastava2014} at the end of each cycle turned out to be the most impactful factor for the network's generalization ability.
 In fact, due to the different behaviour of dropout during training and inference, we could directly control the relative performance on training and validation set by varying the dropout probability $p$.
 
@@ -220,7 +219,7 @@ Although there is no influence on the model weights in this stage, the model poo
 
 \textbf{Residual Connections} \\
 One special feature of the \texttt{Linear Block} architecture in \Cref{fig:linear-block} is the \emph{residual connection} which adds the block input to the output of the second linear layer within each block.
-This component was originally implemented with a fairly deep network in mind since \emph{Residual Blocks} introduced by the famous \texttt{ResNet} architecture \citep{he2015} are a very popular tool for stable gradient flow by preventing the issue of vanishing gradients.
+This component was originally implemented with a fairly deep network in mind since \emph{residual blocks} introduced by the famous \texttt{ResNet} architecture \citep{he2015} are a very popular tool for stable gradient flow by preventing the issue of vanishing gradients.
 
 As mentioned above, the actual depth of the final model turned out to be limited.
 Therefore we decided to enable inclusion and exclusion of skip-connections in the network by a boolean parameter which allows for easy comparisons between the model designs.
