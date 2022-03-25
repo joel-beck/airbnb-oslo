@@ -1,17 +1,19 @@
-\section{Methods}
+\section{Data and Methods}
+
+kurze Vorstellung des Datensatzes!
 
 \subsection{Preprocessing}
 
 This section covers all necessary preprocessing steps that build the foundation for all further modeling tasks.
-Here, we mostly focus on feature \emph{engineering} by extracting information from the image and text data contained in the Airbnb dataset.
-However, feature \emph{selection} and transformations of the response variable turned out to be essential components of the preprocessing pipeline and are discussed in \Cref{appendix:feature-selection} and \Cref{appendix:price-distribution}.
+Here, we mostly focus on feature engineering by extracting information from the image and text data contained in the Airbnb dataset.
+However, feature selection and transformations of the response variable turned out to be essential components of the preprocessing pipeline and are discussed in \Cref{appendix:feature-selection} and \Cref{appendix:price-distribution}.
 
 In addition, some basic data cleaning steps were necessary right from the start.
 These mostly consisted of converting data types, splitting text-based variables into more convenient numeric or boolean features and aggregating rare categories of categorical variables into one larger \emph{Other} group to stabilize estimation.
 In order to use the predictor variables as model inputs later, all features of categorical nature were transformed to dummy variables whereas all numeric features were standardized.
 
 Extending the original feature set with new informative covariates, which are created from (combinations of) existing variables, is a central aspect of every data analysis.
-Besides many numeric features, the Airbnb data contains \emph{images} as well as \emph{reviews} in raw text form.
+Besides many numeric features, the Airbnb data contains images as well as reviews in raw text form.
 These data types in particular require some extra care which will be the focus of this section.
 
 \subsubsection{Image Processing and Modeling}
@@ -22,7 +24,7 @@ This section describes how we used these images, with strong focus on the apartm
 The main idea was to build a Convolutional Neural Network (CNN) that predicts the price solely based on the image content itself and add these predictions as well as the number of available images for each listing to the main feature set.
 Since there exist multiple images per apartment, the predictions were averaged within each group to obtain an output array of one row per listing that is compatible with the dimensions of the remaining features.
 
-Before the images can be used as model input, they had to be \emph{scraped} from each listing's webpage.
+Before the images can be used as model input, they had to be scraped from each listing's webpage.
 Further, some basic transformations were necessary.
 Details about these image preprocessing steps can be found in \Cref{appendix:images}.
 
@@ -39,29 +41,28 @@ There are multiple options to handle this issue:
 \begin{itemize}
   \item Out of the vast collection of freely available pretrained models, choose one that is comparably shallow.
         With roughly $11$ million parameters \texttt{ResNet18} is much more 'lightweight' than the more commonly used \texttt{ResNet50} or \texttt{ResNet101}.
-  \item Do not freeze the weights of the pretrained model completely but rather fine tune them during training, i.e. modify \emph{all} weights by backpropagating through the entire network.
+  \item Do not freeze the weights of the pretrained model completely but rather fine tune them during training, i.e. modify all weights by backpropagating through the entire network.
         We did not investigate this option further due to its high computational cost.
   \item Cut the pretrained model at an earlier intermediate layer with the hope that, at this point, very generic and widely applicable feature representations are learned.
-        In Theory, these features might generalize better to our custom data.
+        In theory, these features might generalize better to our custom data.
         In practice, however, this option did not improve our results.
 \end{itemize}
 
-It turned out that a \emph{single} custom layer, mapping from $512$ neurons directly to a single neuron which represents the scalar price prediction, was not expressive enough.
+It turned out that a single custom layer, mapping from $512$ neurons directly to a single neuron which represents the scalar price prediction, was not expressive enough.
 The performance improved by instead appending a small Fully Connected Network at the end, containing three layers and \texttt{ReLU} activation functions.
 
 To ensure that the chosen design is not severely flawed, we constructed a separate much smaller CNN with only a handful of convolutional blocks as a benchmark model.
 Although the performance differences were not as large as desired, the pretrained \texttt{ResNet} indeed indicated more promising results.
-% COMMENT "majorly flawed" scheinbar umgangssprachlich 
 
 
 \textbf{Image Results} \\
-Using only the content of the available images, the pretrained \texttt{ResNet18} achieved a Mean Absolute Error (MAE) of $579$ NOK (approx. $58$ Euros) on the validation set.
+Using only the content of the available images, the pretrained \texttt{ResNet18} achieved a \emph{Mean Absolute Error} (MAE) of $579$ NOK (approx. $58$ Euros) on the validation set.
 In comparison, the \emph{Null Model} of always predicting the mean price achieved a MAE of $630$ NOK without a log-transformation of the price and a MAE of $569$ NOK with a log-transformation.
 Thus, the raw predictive power of the images alone was very small.
 
-However, the \emph{correlation} of the CNN predictions with the true price was $0.41$.
+However, the correlation of the CNN predictions with the true price was $0.41$.
 This indicates some limitations of the correlation as a useful metric on the one hand, but at least positive tendencies of the CNN predictions on the other hand.
-In fact, the network struggled the most with capturing the wide \emph{range} of prices and almost always predicted values close to the center of the (log-) price distribution.
+In fact, the network struggled the most with capturing the wide range of prices and almost always predicted values close to the center of the (log-) price distribution.
 
 Although the general idea of categorizing images into price ranges based on image features sounds very appealing, taking a look at the actual input images reveals how challenging this task actually is.
 \Cref{fig:cnn-examples} in the Appendix displays a random collection of input images with the corresponding true and predicted prices.
@@ -113,14 +114,14 @@ This section describes the statistical models that we used to predict apartment 
 The goal is to construct different models of varying complexity and compare both their in-sample and their out-of-sample performance on the Airbnb data.
 
 At this point in the data pipeline, all preprocessing steps are completed such that all covariates have the correct data type for the prediction models.
-Whereas the selected classical Machine Learning models described in \Cref{classical-models} use input features as \texttt{numpy}\footnote{\url{https://numpy.org/}} arrays, the Neural Network in \Cref{neural-network} first converts them to \emph{Tensors}, the canonical data type across all popular Deep Learning frameworks.
+Whereas the selected classical Machine Learning models described in \Cref{classical-models} use input features as \texttt{numpy}\footnote{\url{https://numpy.org/}} arrays, the Neural Network in \Cref{neural-network} first converts them to tensors, the canonical data type across all popular Deep Learning frameworks.
 
 \subsubsection{Classical Models} \label{classical-models}
 
 When attacking the prediction task directly with a Neural Network, there are two questions that we are not able to answer:
 %%%
 \begin{enumerate}
-  \item How do we know if a performance value is \emph{good}?
+  \item How do we know if a performance value is good?
   \item Is fitting a Neural Network appropriate in the first place?
         Maybe we can get away with a much simpler, more interpretable and, thus, preferable model?
 \end{enumerate}
@@ -129,24 +130,24 @@ To address these questions, we selected four classical Machine Learning models o
 These include:
 %%%
 \begin{itemize}
-  \item \texttt{Linear Regression}:
+  \item \textit{Linear Regression}:
         Simple, well understood in terms of underlying theory and highly interpretable.
-  \item \texttt{Ridge Regression}:
+  \item \textit{Ridge Regression}:
         Still very interpretable with a closed form analytical solution, adds one hyperparameter to the equation.
-  \item \texttt{Random Forest}:
+  \item \textit{Random Forest}:
         Very flexible model with many hyperparameters determining e.g. the number of regression trees and the tree depth.
         Can be applied to many contexts and often works 'out of the box'.
-  \item \texttt{Histogram-Based Gradient Boosting}:
-        Modern and fast tree-based gradient boosting algorithm.
+  \item \textit{Histogram-Based Gradient Boosting}:
+        Modern and fast tree-based Gradient Boosting algorithm.
         Comes with a large number of tunable hyperparameters.
         Some of them are similar to the Random Forest parameters, others are more specific to the \emph{Boosting} instead of the \emph{Bagging} approach such as the learning rate.
         Similar to the very popular \texttt{XGBoost}\footnote{\url{https://xgboost.readthedocs.io/en/stable/}} \citep{chen2016} and \texttt{LightGBM}\footnote{\url{https://lightgbm.readthedocs.io/en/latest/}} \citep{ke2017} implementations that regularly outperform Deep Neural Networks in Kaggle competitions on tabular data.
 \end{itemize}
 %%%
 
-All models were fitted with \emph{Cross Validation}.
+All models were fitted with \emph{cross validation}.
 Except for the Linear Regression this included (extensive) hyperparameter tuning.
-Since the parameter space for both of the tree-based models is very high-dimensional, we used a \emph{Randomized Search} algorithm \citep{bergstra2012} rather than the traditional \emph{Grid Search} approach.
+Since the parameter space for both of the tree-based models is very high-dimensional, we used a \emph{randomized search} algorithm \citep{bergstra2012} rather than the traditional \emph{grid search} approach.
 This allows for greater variation along more 'important' dimensions while simultaneously keeping the computation time feasible.
 
 
@@ -159,15 +160,15 @@ A brief overview of additional (hyper-)parameters, that were of minor importance
 The network's design is restricted by two factors:
 %%%
 \begin{enumerate}
-  \item The number of input features in the \emph{first} layer has to equal the number of variables in the feature set.
-  \item The number of output features in the \emph{last} layer is fixed to $1$ since the network directly predicts the price as a scalar quantity.
+  \item The number of input features in the first layer has to equal the number of variables in the feature set.
+  \item The number of output features in the last layer is fixed to $1$ since the network directly predicts the price as a scalar quantity.
 \end{enumerate}
 %%%
-All intermediate layers and thus both, the \emph{width} and the \emph{depth} of the network, are free to choose.
-Inspired by empirical findings in the literature we tried several different configurations and finally settled with a fairly simple \emph{block structure}.
+All intermediate layers and thus both, the width and the depth of the network, are free to choose.
+Inspired by empirical findings in the literature we tried several different configurations and finally settled with a fairly simple block structure.
 
 Starting from roughly $60$ input features, the network width is first blown up to $256$ features before steadily decreasing it again to a single output neuron in the final layer.
-More precisely, the architecture consists of $6$ \textbf{blocks} with $64$, $128$, $256$, $128$, $64$ and $8$ output features in addition to the linear input and output layers.
+More precisely, the architecture consists of $6$ blocks with $64$, $128$, $256$, $128$, $64$ and $8$ output features in addition to the linear input and output layers.
 
 %%%
 \begin{figure}[t]
@@ -180,17 +181,18 @@ More precisely, the architecture consists of $6$ \textbf{blocks} with $64$, $128
 
 The structure of each so-called \texttt{Linear Block} is displayed in \Cref{fig:linear-block}.
 We now explain the reasoning behind including or excluding elements in this configuration.
+% COMMENT was ist mit linear Block? Residual Block?
 
 \textbf{Linear Layer} \\
 Each \texttt{Linear Block} is based on a four-element cycle that is repeated twice.
 Each cycle starts with a fully-connected layer containing the majority of trainable weights in the network.
 The first linear layer determines the output dimension of this block, in our case mostly doubling or halving the number of input features.
-Since both linear layers are immediately followed by a \texttt{Batchnorm} Layer, the additional \emph{bias} term is redundant and thus omitted.
+Since both linear layers are immediately followed by a \texttt{Batchnorm} layer, the additional \emph{bias} term is redundant and thus omitted.
 
 \textbf{Batchnorm} \\
-\texttt{Batchnorm} Layers \citep{ioffe2015} often lead to a more well-behaved training process.
-By means of first standardizing the activations within each minibatch and rescaling them afterwards, the network \emph{learns} a convenient magnitude of the activations throughout training.
-This tends to be particularly effective for \emph{saturating} activation functions such as \texttt{sigmoid} or \texttt{tanh}. However, positive effects for training have also been observed for the \texttt{ReLU} activation function, which is used in our design.
+\texttt{Batchnorm} layers \citep{ioffe2015} often lead to a more well-behaved training process.
+By means of first standardizing the activations within each minibatch and rescaling them afterwards, the network learns a convenient magnitude of the activations throughout training.
+This tends to be particularly effective for saturating activation functions such as \texttt{sigmoid} or \texttt{tanh}. However, positive effects for training have also been observed for the \texttt{ReLU} activation function, which is used in our design.
 Of all individual components of the \texttt{Linear Block} structure, batch normalization was the least important and provided only marginal benefits.
 
 \textbf{ReLU} \\
@@ -199,7 +201,7 @@ While briefly experimenting with the related \texttt{Leaky ReLU} and \texttt{Exp
 
 \textbf{Dropout} \label{dropout} \\ 
 % COMMENT Header on same page as text!
-The \texttt{Dropout} Layer \citep{srivastava2014} at the end of each cycle turned out to be the most impactful factor for the network's \emph{generalization} ability.
+The \texttt{Dropout} layer \citep{srivastava2014} at the end of each cycle turned out to be the most impactful factor for the network's generalization ability.
 In fact, due to the different behaviour of dropout during training and inference, we could directly control the relative performance on training and validation set by varying the dropout probability $p$.
 
 More specifically, the network overfitted drastically by setting $p$ to zero.
@@ -209,15 +211,15 @@ Thus, there was no need to artificially expand the network size beyond the curre
 \Cref{fig:dropout} in the Appendix displays the shift in performance metrics on training and validation set when steadily increasing the dropout probability $p$.
 While not beneficial for overall performance, dropout delivers a leverage to make the model perform much better on out-of-sample data compared to the dataset that it was actually trained on.
 
-This behaviour can be explained by the \emph{ensemble} interpretation of dropout \citep{goodfellow2016}:
+This behaviour can be explained by the ensemble interpretation of dropout \citep{goodfellow2016}:
 In each epoch, a different subset of neurons is excluded to contribute to training and thus a distinct subset model, nested in the full model, is responsible for the prediction output.
-If the dropout probability is extremely high, these subset models are simply too different from each other and do \emph{not agree} on a common range of sensible prediction values.
+If the dropout probability is extremely high, these subset models are simply too different from each other and do not agree on a common range of sensible prediction values.
 
 In contrast, during inference, any randomness should be avoided and the network uses all of its neurons.
-Although there is no influence on the model \emph{weights} in this stage, the model pools all subset models together and \emph{averages out} the diverging effects of each component, ultimately resulting in better performance metrics.
+Although there is no influence on the model weights in this stage, the model pools all subset models together and averages out the diverging effects of each component, ultimately resulting in better performance metrics.
 
 \textbf{Residual Connections} \\
-One special feature of the \texttt{Linear Block} architecture in \Cref{fig:linear-block} is the \emph{Residual Connection} which adds the block input to the output of the second linear layer within each block.
+One special feature of the \texttt{Linear Block} architecture in \Cref{fig:linear-block} is the \emph{residual connection} which adds the block input to the output of the second linear layer within each block.
 This component was originally implemented with a fairly deep network in mind since \emph{Residual Blocks} introduced by the famous \texttt{ResNet} architecture \citep{he2015} are a very popular tool for stable gradient flow by preventing the issue of vanishing gradients.
 
 As mentioned above, the actual depth of the final model turned out to be limited.
@@ -227,7 +229,7 @@ Although the residual component did not have a major impact on performance, it w
 There are two aspects worth noting about the residual connection in \Cref{fig:linear-block}:
 %%%
 \begin{enumerate}
-  \item The addition of the input with the output of the second linear layer is performed \emph{before} the final \texttt{Batchnorm} and \texttt{ReLU} layers of this block.
+  \item The addition of the input with the output of the second linear layer is performed before the final \texttt{Batchnorm} and \texttt{ReLU} layers of this block.
         This guarantees a nonnegative input in the expected range for the next \texttt{Linear Block} since the raw outputs of a fully connected layer are (in theory) unbounded.
 
   \item One constraint of the residual architecture is that all components that contribute to the addition step must share the same dimensions.

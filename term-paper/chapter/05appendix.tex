@@ -2,16 +2,16 @@
 \appendix
 \section{Appendix}
 
-The source code that produced all results, figures and tables can be accessed through our GitLab Repository\footnote{\url{https://gitlab.gwdg.de/joel.beck/airbnb-oslo}}.
+The source code that produced all results, figures and tables can be accessed through our GitLab repository\footnote{\url{https://gitlab.gwdg.de/joel.beck/airbnb-oslo}}.
 Please follow the instructions in the \texttt{README} file in order to use our code for your own purposes.
 
 \subsection{Image Processing and Modeling} \label{appendix:images}
 
 \subsubsection{Webscraping}
 
-In the first step, the raw image links provided by the data set had to be converted to a convenient image format that the neural network is able to work with.
+In the first step, the raw image links provided by the data set had to be converted to a convenient image format that the Neural Network is able to work with.
 
-Therefore, we first used the \texttt{requests}\footnote{\url{https://docs.python-requests.org/en/latest/}} library to get the HTML Source Code of each listing's website.
+Therefore, we first used the \texttt{requests}\footnote{\url{https://docs.python-requests.org/en/latest/}} library to get the HTML source code of each listing's website.
 Next, the \texttt{beautifulsoup}\footnote{\url{https://beautiful-soup-4.readthedocs.io/en/latest/}} library served as HTML parser to find and extract all embedded weblinks that lead to images located on the front page of the listing's website.
 With this strategy we could extract the first $5$ images for each apartment (if $5$ or more were available) that were accessible through the front page source code.
 
@@ -21,11 +21,11 @@ Finally, we used the \texttt{requests} module again in combination with the \tex
 
 Before feeding these two dimensional images into the model, we performed some further preprocessing steps.
 
-One very common technique when dealing with images is \emph{Data Augmentation}.
+One very common technique when dealing with images is \emph{data augmentation}.
 In a classification task, data augmentation is used to expand the training set and simultaneously improve generalization. However, this approach is not immediately transferable to a regression context since we have to guarantee that the label (i.e. the price) remains unchanged after the image transformation.
 Thus, we decided against standard transformations such as rotating the images or manipulating the color composition.
 
-We did use image \emph{cropping}, however, which, in our opinion, is one of the few applicable augmentations in regression contexts.
+We did use image cropping, however, which, in our opinion, is one of the few applicable augmentations in regression contexts.
 After resizing all images to $256 \times 256$ pixels we randomly cropped a square area of $224 \times 224$ out of each image in the training set and cropped an equally sized area out of the image center in the validation set to avoid any randomness during inference.
 
 As a final step, all images were normalized for each color channel separately.
@@ -52,8 +52,8 @@ First, we manually selected features based on three criteria:
 %%%
 \begin{enumerate}
   \item The variable in consideration must have some connection to the apartment price based on human intuition and background knowledge.
-        For instance, we included variables containing information about the apartment's \emph{size} such as the number of \emph{accomodates}, the number of \emph{bathrooms} and the number of \emph{bedrooms}.
-  \item There has to exist some correlation with the price in a bivariate visualization, e.g. a \emph{barplot} in case of categorical predictors or a \emph{scatterplot} in case of numeric features.
+        For instance, we included variables containing information about the apartment's \emph{size} such as the number of \emph{accommodates}, the number of \emph{bathrooms} and the number of \emph{bedrooms}.
+  \item There has to exist some correlation with the price in a bivariate visualization, e.g. a       barplot in case of categorical predictors or a scatterplot in case of numeric features.
   \item Since our dataset was comparably small with roughly $3000$ observations, we had to pay special attention to missing values.
         Therefore, each variable whose missing values could not be imputed in a meaningful and uncontroversial manner was either selected or dropped based on the trade-off between potential data reduction and additional predictive value.
 \end{enumerate}
@@ -62,17 +62,17 @@ First, we manually selected features based on three criteria:
 Up to this point, the feature selection process was solely based on bivariate relationships and self-chosen (arguably arbitrary) selection criteria.
 There was a high chance of excluding important predictors that primarily shine in combination with other variables rather than on their own.
 
-Therefore, in a second step, we fitted an auxiliary Linear Regression model with \emph{all} available features (except variables like the \emph{picture url} that were not convertible to any useful format) and analyzed the absolute magnitude of the coefficients.
+Therefore, in a second step, we fitted an auxiliary Linear Regression model with all available features (except variables like the \emph{picture url} that were not convertible to any useful format) and analyzed the absolute magnitude of the coefficients.
 Since all variables are standardized, these magnitudes are within the same range as well as unit-independent and can thus be compared.
 
 Of course, even this approach is imperfect, as several highly correlated characteristics that have a strong influence on price could lead to rather small estimated individual coefficients due to their joint predictive/explanatory power.
-To circumvent this potential issue, we additionally used the \emph{algorithmic} feature selectors provided by the \texttt{scikit-learn} library, which are (ideally) able to separate the effects of highly correlated features and, consequently, select only a small subset of them.
+To circumvent this potential issue, we additionally used the algorithmic feature selectors provided by the \texttt{scikit-learn} library, which are (ideally) able to separate the effects of highly correlated features and, consequently, select only a small subset of them.
 
 Thereby we focused on two algorithms:
 %%%
 \begin{itemize}
   \item \emph{Principal Component Analysis}:
-        Reduces dimensionality with the additional benefit of creating \emph{uncorrelated} linear combinations of existing features.
+        Reduces dimensionality with the additional benefit of creating uncorrelated linear combinations of existing features.
   \item \emph{Recursive Feature Elimination}:
         Selects a subset of original features by leveraging an external estimator (in our case a \emph{Support Vector Regressor}).
         We chose the \texttt{RFE} algorithm for the main analysis, since the selected features can be immediately interpreted and the performance on the selected feature set was slightly better compared to \texttt{PCA}.
@@ -87,14 +87,14 @@ The influence of the feature selector on the predictive and particularly the gen
 One key aspect of exploratory data analysis is investigating the distribution of the response variable.
 In our case, the price distribution is highly right-skewed with a few very expensive listings pulling the mean and median of the price distribution further away from each other.
 
-Some statistical models, such as \emph{Linear Regression}, tend to perform better when the outcome distribution is symmetric and approximately normal, whereas some very flexible algorithms like \emph{Neural Networks} do not make any distributional assumptions and are capable of modeling any kind of distribution accurately.
+Some statistical models, such as Linear Regression, tend to perform better when the outcome distribution is symmetric and approximately normal, whereas some very flexible algorithms like Neural Networks do not make any distributional assumptions and are capable of modeling any kind of distribution accurately.
 Figure \ref{fig:price-distribution} illustrates that an approximate normal distribution can be achieved with a simple logarithmic distribution.
 
-Whereas \emph{all} of the classical models benefited from the log-transformation resulting in lower error metrics, this was not the case for the Neural Network we used.
-In fact, training turned out to be more challenging, since the \emph{magnitude} of the losses, that were computed by comparing true and predicted price on the logarithmic scale, was drastically reduced.
-As a consequence the Network's gradients and the weight updates were smaller within each minibatch.
+Whereas all of the classical models benefited from the log-transformation resulting in lower error metrics, this was not the case for the Neural Network we used.
+In fact, training turned out to be more challenging, since the magnitude of the losses, that were computed by comparing true and predicted price on the logarithmic scale, was drastically reduced.
+As a consequence the network's gradients and the weight updates were smaller within each minibatch.
 This issue could be mitigated to some extent with a larger learning rate.
-Yet, in contrast to the untransformed version, the model still suffered from \emph{vanishing gradients} and \emph{loss plateaus}.
+Yet, in contrast to the untransformed version, the model still suffered from vanishing gradients and loss plateaus.
 
 %%%
 \begin{figure}[ht]
@@ -117,11 +117,11 @@ Moreover, while pure gradient descent slightly benefitted from an additional pen
 
 \textbf{Loss Function} \\
 For the regression task of predicting the continuous price variable, we chose the standard continuously differentiable \emph{Mean Squared Error} loss function.
-This comes with the additional nice property that, under the assumption of a conditional normal distribution of the price with constant variance, i.e. $y_i \mid \mathbf{x}_i \sim \mathcal{N} \left(\mu_i, \sigma^2 \right)$, the model which \emph{minimizes} the MSE-Loss simultaneously \emph{maximizes} the Gaussian Likelihood and, thus, provides a \emph{probabilistic} interpretation.
+This comes with the additional nice property that, under the assumption of a conditional normal distribution of the price with constant variance, i.e. $y_i \mid \mathbf{x}_i \sim \mathcal{N} \left(\mu_i, \sigma^2 \right)$, the model which minimizes the MSE loss simultaneously maximizes the Gaussian likelihood and, thus, provides a probabilistic interpretation.
 
 \textbf{Learning Rate} \\
 Throughout training, we kept the learning rate fixed at $0.01$.
-Using a larger learning rate at early stages of training showed promising effects such that we experimented with different learning rate \emph{schedulers}, either decreasing the learning rate in fixed intervals linearly or exponentially or decreasing the learning rate whenever the validation loss seemed to stagnate for some given window.
+Using a larger learning rate at early stages of training showed promising effects such that we experimented with different learning rate schedulers, either decreasing the learning rate in fixed intervals linearly or exponentially or decreasing the learning rate whenever the validation loss seemed to stagnate for some given window.
 
 However, the benefits of faster loss decay at the beginning of training were outweighed by too small learning rates at later stages in the training loop.
 As a consequence, all schedulers resulted in stagnating loss much faster than training with a constant learning rate from start to end.
