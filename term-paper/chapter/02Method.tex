@@ -1,7 +1,7 @@
 \section{Data and Methods}
 
-The dataset used is divided into five sub-datasets, which contain a variety of information about the offered accommodations in Oslo. Thus, the data contains details about the listings, such as the number of beds, the type of bathroom, or in which neighborhood the apartment is located. But also information about the host or details about the availability of the accommodation is provided. 
-In addition, it includes information about the uploaded pictures and the ratings given online for each accommodation. In the following, all these data are considered for the preparation of the study as well as for the analysis itself. 
+The dataset used is divided into five sub-datasets, which contain a variety of information about the offered accommodations in Oslo. Thus, the data contains details about the listings, such as the number of beds, the type of bathroom, or in which neighborhood the apartment is located. But also information about the host or details about the availability of the accommodation is provided.
+In addition, it includes information about the uploaded pictures and the ratings given online for each accommodation. In the following, all these data are considered for the preparation of the study as well as for the analysis itself.
 
 \subsection{Data Preprocessing}
 
@@ -40,13 +40,13 @@ If the pretrained network is very deep, the learned feature representations righ
 
 There are multiple options to handle this issue:
 \begin{itemize}
-  \item Out of the vast collection of freely available pretrained models, choose one that is comparably shallow.
-        With roughly $11$ million parameters \texttt{ResNet18} is much more 'lightweight' than the more commonly used \texttt{ResNet50} or \texttt{ResNet101}.
-  \item Do not freeze the weights of the pretrained model completely but rather fine tune them during training, i.e. modify all weights by backpropagating through the entire network.
-        We did not investigate this option further due to its high computational cost.
-  \item Cut the pretrained model at an earlier intermediate layer with the hope that, at this point, very generic and widely applicable feature representations are learned.
-        In theory, these features might generalize better to our custom data.
-        In practice, however, this option did not improve our results.
+      \item Out of the vast collection of freely available pretrained models, choose one that is comparably shallow.
+            With roughly $11$ million parameters \texttt{ResNet18} is much more 'lightweight' than the more commonly used \texttt{ResNet50} or \texttt{ResNet101}.
+      \item Do not freeze the weights of the pretrained model completely but rather fine tune them during training, i.e. modify all weights by backpropagating through the entire network.
+            We did not investigate this option further due to its high computational cost.
+      \item Cut the pretrained model at an earlier intermediate layer with the hope that, at this point, very generic and widely applicable feature representations are learned.
+            In theory, these features might generalize better to our custom data.
+            In practice, however, this option did not improve our results.
 \end{itemize}
 
 It turned out that a single custom layer, mapping from $512$ neurons directly to a single neuron which represents the scalar price prediction, was not expressive enough.
@@ -84,15 +84,15 @@ Similarly, in the Norwegian plot there are mainly positive expressions like \tex
 
 % insert Wordclouds english and norwegian side-by-side
 \begin{figure}[t]
-  \centering
-  \begin{minipage}{6.7cm}
-    \includegraphics[width=\columnwidth]{wordcloud_eng.png}
-  \end{minipage}
-  \begin{minipage}{6.7cm}
-    \includegraphics[width=\columnwidth]{wordcloud_nor.png}
-  \end{minipage}
-  \caption{Wordclouds in English and Norwegian}
-  \label{fig:wordclouds}
+      \centering
+      \begin{minipage}{6.7cm}
+            \includegraphics[width=\columnwidth]{wordcloud_eng.png}
+      \end{minipage}
+      \begin{minipage}{6.7cm}
+            \includegraphics[width=\columnwidth]{wordcloud_nor.png}
+      \end{minipage}
+      \caption{Wordclouds in English and Norwegian}
+      \label{fig:wordclouds}
 \end{figure}
 
 The results of the language detection are stored per listing along with the number of reviews per listing, the median length of a review, the number of different languages as well as a list of languages in which the reviews for that apartment were written.
@@ -119,30 +119,27 @@ Whereas the selected classical Machine Learning models described in \Cref{classi
 
 \subsubsection{Classical Models} \label{classical-models}
 
-When attacking the prediction task directly with a Neural Network, there are two questions that we are not able to answer:
-%%%
-\begin{enumerate}
-  \item How do we know if a performance value is good?
-  \item Is fitting a Neural Network appropriate in the first place?
-        Maybe we can get away with a much simpler, more interpretable and, thus, preferable model?
-\end{enumerate}
-%%%
+Attacking the prediction task solely with a Neural Network turns out to be short-sided.
+In contrast to classification problems where \emph{accuracy} serves as a stand-alone interpretable metric, regression problems benefit from reference models to evaluate if a loss value indicates a well-performing model.
+Further, we want to determine if fitting a Neural Network is appropriate in the first place.
+Maybe we can get away with a simpler, more interpretable and, thus, preferable model?
+
 To address these questions, we selected four classical Machine Learning models of increasing complexity from the \texttt{scikit-learn}\footnote{\url{https://scikit-learn.org/stable/}} library \citep{pedregosa2011} to serve as benchmark models for our custom Neural Net.
 These include:
 %%%
 \begin{itemize}
-  \item \textit{Linear Regression}:
-        Simple, well understood in terms of underlying theory and highly interpretable.
-  \item \textit{Ridge Regression}:
-        Still very interpretable with a closed form analytical solution, adds one hyperparameter to the equation.
-  \item \textit{Random Forest}:
-        Very flexible model with many hyperparameters determining e.g. the number of regression trees and the tree depth.
-        Can be applied to many contexts and often works 'out of the box'.
-  \item \textit{Histogram-Based Gradient Boosting}:
-        Modern and fast tree-based Gradient Boosting algorithm.
-        Comes with a large number of tunable hyperparameters.
-        Some of them are similar to the Random Forest parameters, others are more specific to the \emph{Boosting} instead of the \emph{Bagging} approach such as the learning rate.
-        Similar to the very popular \texttt{XGBoost}\footnote{\url{https://xgboost.readthedocs.io/en/stable/}} \citep{chen2016} and \texttt{LightGBM}\footnote{\url{https://lightgbm.readthedocs.io/en/latest/}} \citep{ke2017} implementations that regularly outperform Deep Neural Networks in Kaggle competitions on tabular data.
+      \item \textit{Linear Regression}:
+            Simple, well understood in terms of underlying theory and highly interpretable.
+      \item \textit{Ridge Regression}:
+            Still very interpretable with a closed form analytical solution, adds one hyperparameter to the equation.
+      \item \textit{Random Forest}:
+            Very flexible model with many hyperparameters determining e.g. the number of regression trees and the tree depth.
+            Can be applied to many contexts and often works 'out of the box'.
+      \item \textit{Histogram-Based Gradient Boosting}:
+            Modern and fast tree-based Gradient Boosting algorithm.
+            Comes with a large number of tunable hyperparameters.
+            Some of them are similar to the Random Forest parameters, others are more specific to the \emph{Boosting} instead of the \emph{Bagging} approach such as the learning rate.
+            Similar to the very popular \texttt{XGBoost}\footnote{\url{https://xgboost.readthedocs.io/en/stable/}} \citep{chen2016} and \texttt{LightGBM}\footnote{\url{https://lightgbm.readthedocs.io/en/latest/}} \citep{ke2017} implementations that regularly outperform Deep Neural Networks in Kaggle competitions on tabular data.
 \end{itemize}
 %%%
 
@@ -161,8 +158,8 @@ A brief overview of additional (hyper-)parameters, that were of minor importance
 The network's design is restricted by two factors:
 %%%
 \begin{enumerate}
-  \item The number of input features in the first layer has to equal the number of variables in the feature set.
-  \item The number of output features in the last layer is fixed to $1$ since the network directly predicts the price as a scalar quantity.
+      \item The number of input features in the first layer has to equal the number of variables in the feature set.
+      \item The number of output features in the last layer is fixed to $1$ since the network directly predicts the price as a scalar quantity.
 \end{enumerate}
 %%%
 All intermediate layers and thus both, the width and the depth of the network, are free to choose.
@@ -173,10 +170,10 @@ More precisely, the architecture consists of $6$ blocks with $64$, $128$, $256$,
 
 %%%
 \begin{figure}[t]
-  \centering
-  \includegraphics[width=0.7\textwidth]{mlp_architecture.png}
-  \caption{Architecture of each Block in the Fully Connected Neural Network}
-  \label{fig:linear-block}
+      \centering
+      \includegraphics[width=0.7\textwidth]{mlp_architecture.png}
+      \caption{Architecture of each Block in the Fully Connected Neural Network}
+      \label{fig:linear-block}
 \end{figure}
 %%%
 
@@ -199,7 +196,7 @@ Of all individual components of the \texttt{Linear Block} structure, batch norma
 Out of the numerous options for including nonlinearities into the network and thus expanding the function space that the network is able to learn, we settled for the default choice of the \emph{rectified linear unit} activation.
 While briefly experimenting with the related \texttt{Leaky ReLU} and \texttt{Exponential ReLU}, the differences were insignificant and could be easily attributed to other factors such as random weight initialization.
 
-\textbf{Dropout} \label{dropout} \\ 
+\textbf{Dropout} \label{dropout} \\
 The \texttt{Dropout} layer \citep{srivastava2014} at the end of each cycle turned out to be the most impactful factor for the network's generalization ability.
 In fact, due to the different behaviour of dropout during training and inference, we could directly control the relative performance on training and validation set by varying the dropout probability $p$.
 
@@ -228,13 +225,13 @@ Although the residual component did not have a major impact on performance, it w
 There are two aspects worth noting about the residual connection in \Cref{fig:linear-block}:
 %%%
 \begin{enumerate}
-  \item The addition of the input with the output of the second linear layer is performed before the final \texttt{Batchnorm} and \texttt{ReLU} layers of this block.
-        This guarantees a nonnegative input in the expected range for the next \texttt{Linear Block} since the raw outputs of a fully connected layer are (in theory) unbounded.
+      \item The addition of the input with the output of the second linear layer is performed before the final \texttt{Batchnorm} and \texttt{ReLU} layers of this block.
+            This guarantees a nonnegative input in the expected range for the next \texttt{Linear Block} since the raw outputs of a fully connected layer are (in theory) unbounded.
 
-  \item One constraint of the residual architecture is that all components that contribute to the addition step must share the same dimensions.
-        In case of a fully connected layer dealing with two-dimensional tensors, this amounts to an equal number of features in the second dimension.
-        As illustrated by the annotations in \Cref{fig:linear-block}, this restriction requires an extra step if the number of input features is different from the number of output features in this particular block.
-        In our case, the dimensions adjustment is performed by an additional linear layer exclusively for the block input $x$.
+      \item One constraint of the residual architecture is that all components that contribute to the addition step must share the same dimensions.
+            In case of a fully connected layer dealing with two-dimensional tensors, this amounts to an equal number of features in the second dimension.
+            As illustrated by the annotations in \Cref{fig:linear-block}, this restriction requires an extra step if the number of input features is different from the number of output features in this particular block.
+            In our case, the dimensions adjustment is performed by an additional linear layer exclusively for the block input $x$.
 \end{enumerate}
 %%%
 

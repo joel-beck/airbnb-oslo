@@ -53,7 +53,7 @@ When comparing the models within each subplot, all classical Machine Learning mo
 This finding emphasizes two aspects:
 %%%
 \begin{enumerate}
-  \item The prediction task does not require overly complex models and linear models perform just fine.
+  \item Referring back to the question raised in \Cref{classical-models} the price prediction task does not require complex, highly nonlinear models like Neural Networks and interpretable linear models perform just fine.
   \item We can expect predictions within a distance of roughly $400$ NOK (40 Euros) on average to the true price.
         Further, a $R^2$ value of around $0.4$ is the best we can hope for.
         These statements hold for fitting on the entire training set, \Cref{outliers} reveals how the performance radically improves when excluding some observations.
@@ -129,7 +129,6 @@ The results are shown in \Cref{fig:coefficient-plot}.
 \end{figure}
 
 It is worth noting that the two most important features based on various different feature selectors within the \texttt{scikit-learn} library were always the number of \emph{bedrooms} and the (number of) \emph{accommodates} in this order, both measuring the apartment's capacity.
-
 The coefficient plot, however, is dominated by categorical features:
 In agreement with human intuition, the \emph{room type}, the \emph{property type} and the \emph{neighbourhood} strongly influence the predicted price.
 Unsurprisingly, the property types \emph{entire home} and \emph{entire villa} are connected with high prices, whereas the room type \emph{shared room} correlates with cheaper apartments.
@@ -140,6 +139,9 @@ Interestingly, apartments in the \emph{Sentrum} (central area) have a large posi
 This finding indicates the presence of \emph{confounders}:
 The city center might plausibly be connected to fewer rooms and smaller apartment sizes overall pulling the median price down.
 These correlations are accounted for in the regression model but not in the naive bivariate analysis.
+
+Note that all conclusions from \Cref{fig:coefficient-plot} are purely based on point estimates.
+We do not take the standard errors of the coefficients into account nor make any distributional assumptions that would allow for statements about statistical significance.
 
 
 \subsubsection{Sensitivity to Outliers} \label{outliers}
