@@ -21,5 +21,3 @@ Bounding the magnitude of each perturbation by a constant might not be directly 
 As an alternative to the traditional approach borrowed from image classification, which is often based on the \emph{Fast Gradient Sign Method} \citep{goodfellow2015}, a well-behaved Linear Regression model could again be used as a benchmark model.
 Then, any popular gradient ascent algorithm can be used to find feature combinations that maximize the distance between the Linear Regression prediction and the Neural Net prediction.
 Since this approach does not naturally bound the input changes, the resulting loss function has to be heavily regularized to prevent pathological solutions.
-
-

@@ -59,7 +59,10 @@ This folder is structured into a `chapter` subfolder, which collects all content
 
 *Remarks*: <br/>
 The top-level notebooks `Data_Set_Introduction.ipynb`, `Model_Introduction.ipynb` and `MLP.ipynb` were provided by our course instructors as guidelines that can be build upon.
+<<<<<<< HEAD
+=======
 
 
 
 
+>>>>>>> e4ff8102c2ccaa75bdbf4f5d1064633f422a9f0c
