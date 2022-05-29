@@ -1,7 +1,7 @@
 # Airbnb Oslo
 
-![Tests](https://github.com/joel-beck/airbnb_oslo/actions/workflows/tests.yaml/badge.svg)
-![Pre-Commit](https://github.com/joel-beck/airbnb_oslo/actions/workflows/pre-commit.yaml/badge.svg)
+![Tests](https://github.com/joel-beck/airbnb-oslo/actions/workflows/tests.yaml/badge.svg)
+![Pre-Commit](https://github.com/joel-beck/airbnb-oslo/actions/workflows/pre-commit.yaml/badge.svg)
 
 The goal of this project is to create price-prediction models for Airbnb accomodations located in Oslo, Norway.
 
