@@ -9,7 +9,7 @@ from airbnb_oslo.helpers.pytorch_helpers import show_images
 def open_image(response):
     try:
         img = Image.open(BytesIO(response.content))
-    except:
+    except Exception:
         img = pd.NA
     return img
 

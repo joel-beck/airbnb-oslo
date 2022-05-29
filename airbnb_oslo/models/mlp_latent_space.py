@@ -55,7 +55,8 @@ class VAE(nn.Module):
         std = torch.exp(0.5 * logvar)
         # random sample from standard normal distribution
         eps = torch.randn_like(std)
-        # random sample from normal distribution with mean mu and variance var = std^2 = exp(logvar)
+        # random sample from normal distribution with mean mu and variance var = std^2 =
+        # exp(logvar)
         z = mu + std * eps
         return z
 
@@ -161,7 +162,8 @@ def run_training(
             if epoch % int(num_epochs / 5) == 0:
                 print(f"Epoch: {epoch} / {num_epochs}\n{'-' * 50}")
                 print(
-                    f"Epoch Train Loss: {train_loss:.3f} | Epoch Validation Loss: {test_loss:.3f}\n"
+                    f"Epoch Train Loss: {train_loss:.3f} | "
+                    f"Epoch Validation Loss: {test_loss:.3f}\n"
                 )
 
     time_elapsed = np.round(perf_counter() - start_time, 0).astype(int)

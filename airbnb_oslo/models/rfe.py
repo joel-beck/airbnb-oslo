@@ -9,7 +9,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVR
 from torch.optim import Adam
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader, TensorDataset
 
 from airbnb_oslo.helpers.pytorch_helpers import MLP, print_param_shapes, run_regression
@@ -91,8 +90,6 @@ def main():
     use_skip_connections = True
 
     lr = 0.01
-    scheduler_rate = 0.5
-    scheduler_patience = int(num_epochs / 10)
     log_y = False
 
     num_features_list = [None, 50, 25, 10, 5, 2, 1]
@@ -119,9 +116,6 @@ def main():
 
         loss_function = nn.MSELoss()
         optimizer = Adam(params=model.parameters(), lr=lr)
-        scheduler = ReduceLROnPlateau(
-            optimizer, mode="min", factor=scheduler_rate, patience=scheduler_patience
-        )
 
         result_container = ResultContainer(
             model_names=["NeuralNetwork"], feature_selector=["RFE"]

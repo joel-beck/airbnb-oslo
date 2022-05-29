@@ -15,7 +15,7 @@ def detect_language(review):
 
     try:
         language = detect(review)
-    except:
+    except Exception:
         language = pd.NA
     return language
 
@@ -28,7 +28,8 @@ def main():
     language = reviews["comments"].progress_apply(detect_language)
     language.to_pickle("../../data/clean/review_languages.pkl")
 
-    # SUBSECTION: Drop reviews with unrecognized languages (e.g. only one character long) and add Summary Statistics
+    # SUBSECTION: Drop reviews with unrecognized languages (e.g. only one character
+    # long) and add Summary Statistics
     language = pd.read_pickle("../../data/clean/review_languages.pkl")
 
     reviews_features = pd.DataFrame(

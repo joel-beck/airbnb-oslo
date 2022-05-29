@@ -20,8 +20,9 @@ from airbnb_oslo.helpers.sklearn_helpers import (
 simplefilter(action="ignore", category=FutureWarning)
 pd.set_option("display.precision", 3)
 
-# Baseline Model - Mean Price
-# calculated here for all observations, not evaluated on separate test set
+
+# Baseline Model - Mean Price calculated here for all observations, not evaluated on
+# separate test set
 def initialize_with_baseline(y_train_val: pd.Series, log_y: bool) -> ResultContainer:
     """
     Creates a new ResultContainer Object and adds Metrics of a Mean-Prediction Baseline

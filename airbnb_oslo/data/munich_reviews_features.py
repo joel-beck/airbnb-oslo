@@ -15,7 +15,7 @@ def detect_language(review):
     """
     try:
         language = detect(review)
-    except:
+    except Exception:
         language = pd.NA
     return language
 
@@ -45,7 +45,7 @@ def main():
 
         try:
             result = sentiment_analyizer(comment)[0]
-        except:
+        except Exception:
             label = "None"
             score = "None"
         else:
@@ -69,8 +69,8 @@ def main():
     sentiment_df.to_pickle(path="../../data/munich/munich_reviews_sentiment.pkl")
     sentiment_df = pd.read_pickle("../../data/munich/munich_reviews_sentiment.pkl")
 
-    # SUBSECTION: Drop reviews with unrecognized languages (e.g. only one character long)
-    # and add Summary Statistics
+    # SUBSECTION: Drop reviews with unrecognized languages (e.g. only one character
+    # long) and add Summary Statistics
     language = pd.read_pickle("../../data/munich/munich_review_languages.pkl")
 
     reviews_features = pd.DataFrame(

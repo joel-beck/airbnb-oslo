@@ -58,4 +58,3 @@ These convenience functions are then imported and leveraged in the remaining fil
 
 1. Finally, the `term-paper` folder contains all files that were used to create the final term paper as well as the presentation.
 This folder is structured into a `chapter` subfolder, which collects all contents for the term paper that are later imported into the main `paper.tex` file, as well as self-explaining `images` and `tables` subfolders.
-

@@ -68,7 +68,8 @@ def main():
     munich_listings_reviews = munich_listings_subset.join(reviews_subset).dropna()
     munich_listings_reviews.to_pickle("../../data/munich/munich_listings_subset.pkl")
 
-    # SUBSECTION: Split in Dataset for Model Training and separate Dataset for Evaluation
+    # SUBSECTION: Split in Dataset for Model Training and separate Dataset for
+    # Evaluation
     X = munich_listings_reviews.drop(columns="price")
     y = munich_listings_reviews["price"]
 

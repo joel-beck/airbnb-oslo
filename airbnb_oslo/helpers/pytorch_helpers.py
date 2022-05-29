@@ -77,7 +77,9 @@ def print_param_shapes(model: Any, col_widths: tuple[int, int] = (25, 8)):
 
     for name, param in model.named_parameters():
         print(
-            f"Name: {name:<{col_widths[0]}} | # Params: {param.numel():<{col_widths[1]}} | Shape: {list(param.shape)}"
+            f"Name: {name:<{col_widths[0]}} | "
+            f"# Params: {param.numel():<{col_widths[1]}} "
+            f"| Shape: {list(param.shape)}"
         )
     print("\nTotal number of parameters:", sum(p.numel() for p in model.parameters()))
 
@@ -311,7 +313,8 @@ def init_weights(layer: nn.Module, mean: float = 0, std: float = 1):
     """
 
     if isinstance(layer, nn.Linear):
-        # avoid negative predicted prices at beginning of training to enable log transformation
+        # avoid negative predicted prices at beginning of training to enable log
+        # transformation
         torch.nn.init.normal_(layer.weight, mean=mean, std=std)
 
 
@@ -329,7 +332,8 @@ def train_regression(
     Training Set.
     """
 
-    # calculate mean squared error, mean_absolute error and r2 with values of all batches to perform comparable computations as with classical models
+    # calculate mean squared error, mean_absolute error and r2 with values of all
+    # batches to perform comparable computations as with classical models
     y_true_list = []
     y_pred_list = []
 
@@ -419,9 +423,12 @@ def print_epoch(
     if scheduler is not None:
         print(f"Learning Rate: {scheduler.state_dict()['_last_lr'][0]:.1e}")
     print(
-        f"Mean MSE Training: {epoch_train_mse:.3f} | Mean MSE Validation: {epoch_val_mse:.3f}\n"
-        f"Mean MAE Training: {epoch_train_mae:.3f} | Mean MAE Validation: {epoch_val_mae:.3f}\n"
-        f"Mean R2 Training: {epoch_train_r2:.3f} | Mean R2 Validation: {epoch_val_r2:.3f}\n"
+        f"Mean MSE Training: {epoch_train_mse:.3f} | "
+        f"Mean MSE Validation: {epoch_val_mse:.3f}\n"
+        f"Mean MAE Training: {epoch_train_mae:.3f} | "
+        f"Mean MAE Validation: {epoch_val_mae:.3f}\n"
+        f"Mean R2 Training: {epoch_train_r2:.3f} | "
+        f"Mean R2 Validation: {epoch_val_r2:.3f}\n"
     )
 
 
@@ -540,7 +547,8 @@ def run_regression(
     time_elapsed = np.round(time.perf_counter() - start_time, 0).astype(int)
     print(f"Finished training after {time_elapsed} seconds.")
 
-    # check twice for save_best to include both cases for result_container is None and result_container is not None
+    # check twice for save_best to include both cases for result_container is None and
+    # result_container is not None
     if save_best:
         print_best(
             best_train_mae, best_train_mae_epoch, best_val_mae, best_val_mae_epoch
@@ -563,14 +571,15 @@ def run_regression(
         result_container.hyperparam_values[0].append(
             optimizer.param_groups[0]["weight_decay"]
         )
-    except:
+    except Exception:
         pass
 
-    # parameters of scheduler can be appended to DataFrame with the scheduler.state_dict()
-    # dictionary
+    # parameters of scheduler can be appended to DataFrame with the
+    # scheduler.state_dict() dictionary
 
     if save_best:
-        # if save_best=True save results from epoch with best validation mae (starts at epoch=1)
+        # if save_best=True save results from epoch with best validation mae (starts at
+        # epoch=1)
         result_container.append(
             metrics.train_maes[best_val_mae_epoch - 1],
             metrics.val_maes[best_val_mae_epoch - 1],
@@ -624,7 +633,8 @@ def show_images(
         fig.savefig(save_path, bbox_inches="tight")
 
 
-# NOTE: The Classification Functions below are currently not used, but kept for optionally using some of their components in the corresponding Regression Functions
+# NOTE: The Classification Functions below are currently not used, but kept for
+# optionally using some of their components in the corresponding Regression Functions
 def accuracy(correct: int, total: int) -> float:
     return np.round(correct / total, decimals=3)
 
@@ -633,8 +643,12 @@ def train_classification(dataloader, optimizer, model, loss_fn, device):
 
     # option 1: save epoch losses in list and return mean of this list
     # -> creates unnecessary list structure for each epoch
-    # -> samples might not have equal weights if len(dataset) % batch_size != 0, can be sensitive to outliers when samples are shuffled (worst case: last batch contains a single sample, which is an outlier with high loss )
-    # option 2: save total epoch loss and length of dataset 8needed for accuracy as well) and return mean sample loss (or mean batch loss when multiplied with batch_size)
+    # -> samples might not have equal weights if len(dataset) % batch_size != 0, can be
+    # sensitive to outliers when samples are shuffled (worst case: last batch contains a
+    # single sample, which is an outlier with high loss )
+    # option 2: save total epoch loss and length of dataset 8needed for accuracy as
+    # well) and return mean sample loss (or mean batch loss when multiplied with
+    # batch_size)
 
     epoch_loss, epoch_correct, epoch_total = 0.0, 0.0, 0.0
 
@@ -655,7 +669,8 @@ def train_classification(dataloader, optimizer, model, loss_fn, device):
         epoch_total += batch_size
 
         loss = loss_fn(y_pred, y)
-        # Cross Entropy Loss calculates mean loss per sample in batch with default: reduction = "mean"
+        # Cross Entropy Loss calculates mean loss per sample in batch with default:
+        # reduction = "mean"
         epoch_loss += loss * batch_size
 
         loss.backward()
@@ -687,7 +702,8 @@ def validate_classification(dataloader, model, loss_fn, device):
             epoch_total += batch_size
 
             loss = loss_fn(y_pred, y)
-            # Cross Entropy Loss calculates mean loss per sample in batch with default: reduction = "mean"
+            # Cross Entropy Loss calculates mean loss per sample in batch with default:
+            # reduction = "mean"
             epoch_loss += loss * batch_size
 
     return (
@@ -770,8 +786,10 @@ def run_classification(
                 if scheduler is not None:
                     print(f"Learning Rate: {scheduler.state_dict()['_last_lr'][0]:.1e}")
                 print(
-                    f"Mean Loss Training: {epoch_train_loss:.5f} | Mean Loss Validation: {epoch_val_loss:.5f}\n"
-                    f"Training Accuracy: {100 * epoch_train_acc:.1f}% | Validation Accuracy: {100 * epoch_val_acc:.1f}%\n"
+                    f"Mean Loss Training: {epoch_train_loss:.5f} | "
+                    f"Mean Loss Validation: {epoch_val_loss:.5f}\n"
+                    f"Training Accuracy: {100 * epoch_train_acc:.1f}% | "
+                    f"Validation Accuracy: {100 * epoch_val_acc:.1f}%\n"
                 )
 
     time_elapsed = np.round(time.perf_counter() - start_time, 0).astype(int)
@@ -780,7 +798,8 @@ def run_classification(
     if save_best:
         print(
             f"\nBest Mean Loss Validation: {best_loss:.3f} (Epoch {best_loss_epoch})\n"
-            f"Best Validation Accuracy: {100 * best_accuracy:.1f}% (Epoch {best_acc_epoch})"
+            f"Best Validation Accuracy: {100 * best_accuracy:.1f}% "
+            f"(Epoch {best_acc_epoch})"
         )
 
     return train_losses, val_losses, train_accs, val_accs

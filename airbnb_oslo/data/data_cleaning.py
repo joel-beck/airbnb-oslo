@@ -76,9 +76,9 @@ def main():
         .convert_dtypes()
     )
 
-    # SUBSECTION: Create 'Other' Category for Categorical Variables
-    # all categories of property type with less than min_obs_property_type observation are
-    # grouped together to 'Other' category
+    # SUBSECTION: Create 'Other' Category for Categorical Variables all categories of
+    # property type with less than min_obs_property_type observation are grouped
+    # together to 'Other' category
     min_obs_property_type = 10
     rare_categories = (
         listings_df["property_type"]

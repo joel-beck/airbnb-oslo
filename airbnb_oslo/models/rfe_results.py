@@ -96,7 +96,8 @@ def main():
     plot_data = complete_rfe_results.astype({"num_features": "category"})
 
     # sharex="col", sharey="row" is amazing :)
-    # fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12), sharex="col", sharey=True)
+    # fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12), sharex="col",
+    # sharey=True)
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12), sharey=True)
     ax1, ax2, ax3, ax4 = axes.flat
 
@@ -148,7 +149,8 @@ def main():
 
     sup = fig.suptitle(
         "Model Performances for different Feature Sets\n"
-        "Neural Network fitted with prices on original scale, all other models fitted with prices on logarithmic scale"
+        "Neural Network fitted with prices on original scale, "
+        "all other models fitted with prices on logarithmic scale"
     )
 
     fig.subplots_adjust(top=0.9)
@@ -190,14 +192,6 @@ def main():
     fig.savefig(fig_coefficient_path, bbox_inches="tight")
 
     # SECTION: Evaluate Performance on Test Set for Best Model of each Class
-    # NOTE: Best Models chosen by lowest MAE
-    best_models = (
-        complete_rfe_results.groupby(complete_rfe_results.index)
-        .apply(lambda x: x.nsmallest(1, "mae_val"))
-        .sort_values("mae_val")
-    )
-
-    # NOTE: Set Hyperparameters for each Model Class manually
     # SUBSECTION: Best Linear Regression Model
     column_transformer = get_column_transformer()
     rfe = RFE(SVR(kernel="linear"), n_features_to_select=50, step=0.5)

@@ -378,7 +378,8 @@ def fit_models(
             train_mse = -np.mean(scores["train_neg_mean_squared_error"])
             val_mse = -np.mean(scores["test_neg_mean_squared_error"])
 
-            # specify as strings to be compatible with default behaviour for None values of ResultContainer.append()
+            # specify as strings to be compatible with default behaviour for None values
+            # of ResultContainer.append()
             hyperparam_key = "None"
             hyperparam_value = "None"
 
@@ -409,7 +410,8 @@ def fit_models(
 
             best_index = cv.cv_results_["params"].index(cv.best_params_)
 
-            # for some reason, only negative mean squared/absolute error are available metrics
+            # for some reason, only negative mean squared/absolute error are available
+            # metrics
             train_mae = -cv.cv_results_["mean_train_neg_mean_absolute_error"][
                 best_index
             ]

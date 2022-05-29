@@ -28,7 +28,7 @@ def get_url_list(apartment_url: str) -> list[str]:
     for picture in pictures:
         try:
             url = get_url(picture)
-        except:
+        except Exception:
             url = pd.NA
         url_list.append(url)
     return url_list
@@ -37,7 +37,7 @@ def get_url_list(apartment_url: str) -> list[str]:
 def get_response(url: str) -> Image:
     try:
         response = requests.get(url)
-    except:
+    except Exception:
         response = pd.NA
     return response
 
@@ -57,8 +57,8 @@ def main():
         # takes about 45 minutes on my cpu
         url_lists = picture_pages.progress_apply(get_url_list)
 
-        # transform list in each row to long format, such that each row only contains one
-        # picture url and the correct index-value mapping is maintained
+        # transform list in each row to long format, such that each row only contains
+        # one picture url and the correct index-value mapping is maintained
         front_page_urls = url_lists.explode()
         front_page_urls.to_pickle("../../data/clean/front_page_urls.pkl")
 

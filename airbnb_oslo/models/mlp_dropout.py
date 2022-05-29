@@ -185,7 +185,11 @@ def main():
     )
     fig.subplots_adjust(top=0.92)
 
-    # NOTE: For displaying elements outside of the figure window (i.e. suptitle and legend) in Latex Document, assign them to a variable and add them to the 'bbox_extra_artists' argument in 'fig.savefig()'. Further, use the 'bbox_inches' argument in 'fig.savefig()' instead of the 'fig.tight_layout()' command. The figure might be displayed differently in Notebook than in Latex pdf Document.
+    # NOTE: For displaying elements outside of the figure window (i.e. suptitle and
+    # legend) in Latex Document, assign them to a variable and add them to the
+    # 'bbox_extra_artists' argument in 'fig.savefig()'. Further, use the 'bbox_inches'
+    # argument in 'fig.savefig()' instead of the 'fig.tight_layout()' command. The
+    # figure might be displayed differently in Notebook than in Latex pdf Document.
     fig.savefig(
         "../../term-paper/images/dropout_performance.png",
         bbox_extra_artists=(lgd, sup),

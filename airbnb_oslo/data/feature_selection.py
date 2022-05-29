@@ -11,7 +11,8 @@ def main():
     reviews_features = pd.read_pickle("../../data/clean/reviews_features.pkl")
     front_page_urls = pd.read_pickle("../../data/clean/front_page_urls.pkl")
 
-    # SUBSECTION: Add Predicted Host Gender, Number of listed Amenities and Number of Front Page URLs
+    # SUBSECTION: Add Predicted Host Gender, Number of listed Amenities and Number of
+    # Front Page URLs
     d = gender.Detector()
 
     listings_df = listings_df.assign(
@@ -44,11 +45,12 @@ def main():
         ).mean(),
     )
 
-    # SUBSECTION: Create Extended Dataset with ALL Variables
-    # These columns cannot be transformed directly into categorical or numeric variables
+    # SUBSECTION: Create Extended Dataset with ALL Variables These columns cannot be
+    # transformed directly into categorical or numeric variables
     cols_to_exclude = [
         "amenities",
-        "bathrooms_text",  # identical information in number_bathrooms + shared_bathrooms
+        # identical information in number_bathrooms + shared_bathrooms
+        "bathrooms_text",
         "calendar_last_scraped",
         "description",
         "host_id",
@@ -93,7 +95,8 @@ def main():
     # NOTE: Reasons for EXCLUDING specific variables
     # host_acceptance_rate: 743 missing values
 
-    # host_has_profile_pic: almost no variation (3293 true and 31 false values) and still no marginal correlation with price in barplot
+    # host_has_profile_pic: almost no variation (3293 true and 31 false values) and
+    # still no marginal correlation with price in barplot
     # sns.barplot(data=listings_df, x = "host_has_profile_pic", y = "price")
     # listings_df.groupby("host_has_profile_pic").agg(
     #     count=("price", "count"), mean_price=("price", "mean")
@@ -101,7 +104,8 @@ def main():
 
     # host_response_rate: 934 missing values
 
-    # SUBSECTION: Choose Subset with most important columns and drop invalid/missing values
+    # SUBSECTION: Choose Subset with most important columns and drop invalid/missing
+    # values
 
     listings_cols = [
         "accommodates",  # added because of overall feature selection
@@ -146,7 +150,8 @@ def main():
 
     listings_reviews.to_pickle("../../data/clean/listings_subset.pkl")
 
-    # SUBSECTION: Split in Dataset for Model Training and separate Dataset for Evaluation
+    # SUBSECTION: Split in Dataset for Model Training and separate Dataset for
+    # Evaluation
     X = listings_reviews.drop(columns="price")
     y = listings_reviews["price"]
 
