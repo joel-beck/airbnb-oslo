@@ -232,66 +232,6 @@ There are two possible explanations for this lack of separability in feature spa
   \item The collected data is simply not rich or expressive enough to capture all factors that contribute to very high prices.
   \item Some apartments are listed at a price that does not represent their true value.
 \end{enumerate}
-<<<<<<< HEAD
-=======
-
-The former reason illustrates why the outliers in the center of \Cref{fig:latent-representation} could still be worth their money:
-There might exist unmeasured variables like historic or cultural significance of the building or a welcoming local community that are difficult to quantify numerically.
-
-If the latter reason is predominant, it can be argued that the entire task of predicting Airbnb prices is questionable in the first place:
-In order to draw connections from features to outputs, the process implicitly assumes observations whose listed price can be justified and explained by characteristics of the joint feature distribution.
-If there is no connection between features and response in the first place, there is obviously no way for the model to recover this connection.
-
-\textbf{Outlier removal - a convenient solution?}
-
-One question that needs to be addressed is why we are not simply removing the outliers completely prior to model fitting if they indicate such a large negative impact on the predictive performance.
-As alluded to above, we have to distinguish between two groups of outliers:
-
-\begin{enumerate}
-  \item The first group contains expensive, but fairly priced apartments.
-        Those listings should be kept in the data since it is very plausible that a new data set that our trained model is applied to contains such observations as well.
-        To deliver useful results during inference, the model should have learned to handle these cases appropriately during training.
-  \item The second group consists of overpriced listings that we would indeed like to remove from the data.
-        However, it is actually very difficult to identify which observations exactly belong to this group.
-        Potential candidates could be price outliers that indicate a very low demand since guests naturally try to maximize their cost-benefit ratio.
-        Yet, one can imagine that few people want to pay that much money for any apartment regardless of its true value, even if the price is actually justified.
-\end{enumerate}
-
-The differentiation between these two groups is nontrivial and remained a difficult problem throughout our analysis.
-
-
-\subsection{Price Predictions on Munich Dataset}
-
-To test the generalization ability of our implemented models, we applied them to the Airbnb data for Munich, which is also published by the \emph{Inside Airbnb} project.
-This data set includes roughly twice as many accommodations as the previous data set for Oslo.
-
-\begin{table}[t]
-  \centering
-  \begin{tabular}{@{}ccc@{}}
-    \toprule
-    Quantile Threshold & MAE   & R2   \\ \midrule
-    0.0                & 42.49 & 0.31 \\
-    1.0                & 35.32 & 0.44 \\
-    2.5                & 30.26 & 0.42 \\
-    5.0                & 25.2  & 0.45 \\
-    10.0               & 22.94 & 0.4  \\ \bottomrule
-  \end{tabular}
-  \caption{Mean Absolute Error and $R^2$ value of the Neural Network on the validation set after removing the highest quantiles of the price distribution from the Munich data set}
-  \label{tab:munich-outliers}
-\end{table}
-
-As expected, the flexible models such as Gradient Boosting and the Neural Network benefit most from the larger number of observations.
-The overall performance, however, is not significantly better compared to the original Oslo data:
-The Neural Net improved marginally from a MAE of $44.3$ Euros for Oslo to $42.5$ Euros for Munich on the validation set.
-One exception was the Gradient Boosting model that now shows by far the best test set performance with a MAE of $32.8$ Euros and a $R^2$ of $0.453$.
-To further improve the Neural Network performance, a wider or deeper model architecture could be considered that is specifically designed for the larger data set.
-
-Similar to Oslo, the most important predictors of the Munich data set were \emph{property type}, \emph{neighborhood}, and \emph{accommodates}.
-Furthermore, the new data set also suffers from outliers whose influence is quantified in \Cref{tab:munich-outliers}.
-Excluding consecutive percentiles of the price distribution prior to fitting the model again leads to a significant improvements in MAE and $R^2$.
-In contrast to Oslo, however, we can not detect a huge jump from using the entire data to cutting off the top $1$\% of highest prices.
-
->>>>>>> e4ff8102c2ccaa75bdbf4f5d1064633f422a9f0c
 
 The former reason illustrates why the outliers in the center of \Cref{fig:latent-representation} could still be worth their money:
 There might exist unmeasured variables like historic or cultural significance of the building or a welcoming local community that are difficult to quantify numerically.

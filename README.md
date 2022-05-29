@@ -3,58 +3,65 @@
 ![Tests](https://github.com/joel-beck/airbnb-oslo/actions/workflows/tests.yaml/badge.svg)
 ![Pre-Commit](https://github.com/joel-beck/airbnb-oslo/actions/workflows/pre-commit.yaml/badge.svg)
 
-The goal of this project is to create price-prediction models for Airbnb accomodations located in Oslo, Norway.
+The goal of this project is to create price-prediction models for Airbnb accommodations located in Oslo, Norway.
 
 The underlying data is provided by the *Inside Airbnb Project* and [freely available on the web](http://insideairbnb.com/get-the-data.html).
 This repository was created in context of the *Statistical and Deep Learning* seminar offered by the Chair of Statistics at the University of Göttingen during Winter Term 2021/22.
 Thus, the project focuses on the application of modern Machine Learning and Deep Learning methods that we implemented via the popular Python libraries [scikit-learn](https://scikit-learn.org/stable/) and [pytorch](https://pytorch.org/).
 
-If you want to jump straight to the results of our project, please refer to the `paper.pdf` and the `presentation.pdf` files in the `term-paper` folder.
-The former entails a detailed description of our methods and findings in text form whereas the latter provides a compact summary on slides.
+The results of this project including visualizations and interpretations of our findings are presented in written form in the `term-paper/paper.pdf` file with corresponding slides in the `term-paper/presentation.pdf` file.
+
 
 ## Installation
 
-The easiest way to use our code is to first clone this repository and then create a new virtual environment with the command
+In order to use the `airbnb_oslo` package you can clone the repository from GitHub and install all required dependencies with
 
 ```
-conda env create -f environment.yml
+pip install .
 ```
 
-*Remarks*:
+If you want to contribute to development please run the command
 
-- The two notebooks `cnn_colab.ipynb` and `cnn_pretrained_colab.ipynb` in the `models` folder require GPU computations and are thus run on [Google Colab](https://colab.research.google.com/notebooks/intro.ipynb?hl=de).
-To save the results from these notebooks, we connected Google Colab with our individual Google Drive.
+```
+pip install -e .[dev]
+```
+
+to install the `airbnb_oslo` package in *editable mode* with all development dependencies.
+
+Finally, in order to recreate the data sets in the `data` folder, you can install the full set of dependencies with
+
+```
+pip install -e .[dev, data]
+```
+
+**Remarks**:
+
+- The two notebooks `cnn_colab.ipynb` and `cnn_pretrained_colab.ipynb` in the `notebooks/colab` folder require GPU computations and are thus run on [Google Colab](https://colab.research.google.com/notebooks/intro.ipynb?hl=de).
+To store the results from these notebooks, we connected Google Colab with our individual Google Drive.
 Hence, when reproducing our findings, file paths need to be adjusted according to your configuration.
 
-- The two notebooks mentioned above as well as the `models/cnn_visualization.py` file depend on `data-clean/front_page_responses.pkl` which is only tracked locally due to the large file size.
-Thus, you need to first run the script `data-clean/scrape_pictures.py` to generate the data on your local machine.
+- The two notebooks mentioned above as well as the script `airbnb_oslo/models/cnn_visualization.py` file depend on the contents of `data/clean/front_page_responses.pkl` which is not tracked by Git due to its large file size.
+Thus, you need to first run the script `airbnb_oslo/data/scrape_pictures.py` to generate the data locally.
 
 ## Project Structure
 
-The project contains 5 relevant folders:
+The project contains 4 relevant folders:
 
-1. The `data-raw` folder consists of all data files, that were directly downloaded from the Airbnb website and not modified by us in any way.
+1. The `airbnb_oslo` package contains the core package functionality with all executable Python scripts.
 
-1. The `data-clean` folder collects all scripts and stored data files that are connected to data *preprocessing*.
-This includes *data cleaning* of the raw Airbnb data, *feature engineering* via e.g. Natural Language Processing and Webscraping and finally *feature selection*.
+    - The files in the `data` subfolder generate processed data files hat are stored in the top-level `data` folder.
+    - The `helpers` subfolder provides building block functions and classes for constructing the model architecture, fitting the models and extracting the results. These core components are used in multiple scripts inside the `models` subfolder.
+    - Files in the `models` subfolder use the preprocessed data to construct `scikit-learn` and `pytorch` models.
+    All results and visualizations of the term paper are produced here.
 
-1. After applying our models to the data for Oslo, one component of the course was to analyze the generalization performance to a new data set.
-For this task the Airbnb data for Munich was chosen.
-The `data-munich` folder gathers all raw and processed data files that are only relevant for this new prediction task and are completely independent from our original analysis for Oslo.
+1. The `data` folder consists of raw and processed data files as well as `pickle` files that store model outputs and model weights.
 
-1. The `models` folder unites all scripts and notebooks relevant for modeling.
-The `sklearn_helpers.py` and `pytorch_helpers.py` files are the core components of the repository and contain all functions and classes for constructing the model architecture, fitting the models and extracting the results.
-These convenience functions are then imported and leveraged in the remaining files of the folder.
+    After applying our models to the data for Oslo, one component of the course was to analyze the generalization performance to a new data set.
+    For this task the Airbnb data for Munich was chosen.
+    Hence the `data/munich` subfolder gathers equivalent raw and processed data files for Munich that are only relevant for this new prediction task and thus completely independent from our original analysis for Oslo.
 
-    **Note to our course instructors**:
-    The following files were used to create the results of our term paper:
+1. The `notebooks` folder contains all Jupyter Notebooks that show some of our models in action.
+These were majorly used during the development stage for exploratory purposes and to present intermediary findings to guide subsequent development steps.
 
-    - `rfe.py` for analyzing the performance on training and validation set of all classical Machine Learning Models and our Neural Network with a varying number of input features.
-    - `rfe_results.py` for creating the figures corresponding to these results and evaluating all models on a separate test set.
-    - `cnn_visualizations.py` for generating example images with original and predicted prices from the pretrained `ResNet`.
-    - `mlp_dropout.py` for quantifying the impact of the Dropout probability on the performance of our Network.
-    - `outliers.py` for quantifying the impact of outliers on the performance of our Network.
-    - `mlp_latent_space.py` for embedding the input features into a two-dimensional latent space as the output of the Encoder part of a Variational Autoencoder.
-
-1. Finally, the `term-paper` folder contains all files that were used to create the final term paper as well as the presentation.
-This folder is structured into a `chapter` subfolder, which collects all contents for the term paper that are later imported into the main `paper.tex` file, as well as self-explaining `images` and `tables` subfolders.
+1. Finally, the `term-paper` folder contains all files that are immediately connected to the final term paper as well as the presentation.
+This folder is structured into a `chapters` subfolder, which collects all contents for the term paper that are later imported into the main `paper.tex` file, as well as self-explaining `images` and `tables` subfolders.
