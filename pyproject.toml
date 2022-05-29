@@ -7,11 +7,11 @@ profile = "black"
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
-addopts = "--cov=eval_sklearn"
+addopts = "--cov=airbnb_oslo"
 testpaths = ["tests"]
 
 [tool.mypy]
-mypy_path = "eval_sklearn"
+mypy_path = "airbnb_oslo"
 check_untyped_defs = true
 ignore_missing_imports = true
 no_implicit_optional = true

@@ -1,3 +1,6 @@
+TODO: Update installation guide to new package structure
+TODO: Add Badges from CI
+
 # Airbnb Oslo
 
 The goal of this project is to create price-prediction models for Airbnb accomodations located in Oslo, Norway.
@@ -56,13 +59,3 @@ These convenience functions are then imported and leveraged in the remaining fil
 1. Finally, the `term-paper` folder contains all files that were used to create the final term paper as well as the presentation.
 This folder is structured into a `chapter` subfolder, which collects all contents for the term paper that are later imported into the main `paper.tex` file, as well as self-explaining `images` and `tables` subfolders.
 
-
-*Remarks*: <br/>
-The top-level notebooks `Data_Set_Introduction.ipynb`, `Model_Introduction.ipynb` and `MLP.ipynb` were provided by our course instructors as guidelines that can be build upon.
-<<<<<<< HEAD
-=======
-
-
-
-
->>>>>>> e4ff8102c2ccaa75bdbf4f5d1064633f422a9f0c
