@@ -52,7 +52,6 @@ def initialize_with_baseline(y_train_val: pd.Series, log_y: bool) -> ResultConta
     return result_container
 
 
-<<<<<<< HEAD:airbnb_oslo/models/classical_models.py
 def main():
     # BOOKMARK: Hyperparameters
     random_state = 42
@@ -86,35 +85,8 @@ def main():
 
     pd.concat(full_features_results).to_pickle(
         "../../data/results/full_features_results.pkl"
-=======
-#%%
-# SUBSECTION: Fit Models
-full_features_results = []
-for log_y in [True, False]:
-    result_container = initialize_with_baseline(y_train_val, log_y=log_y)
-    models = get_models(
-        Pipeline([("column_transformer", column_transformer)]),
-        random_state=random_state,
-        log_y=log_y,
-    )
-    result = fit_models(
-        X_train_val,
-        y_train_val,
-        models,
-        result_container,
-        n_folds,
-        n_iter,
-        random_state,
-        log_y=log_y,
->>>>>>> e4ff8102c2ccaa75bdbf4f5d1064633f422a9f0c:models/classical_models.py
     )
 
-<<<<<<< HEAD:airbnb_oslo/models/classical_models.py
-=======
-pd.concat(full_features_results).to_pickle(
-    "../results-pickle/full_features_results.pkl"
-)
->>>>>>> e4ff8102c2ccaa75bdbf4f5d1064633f422a9f0c:models/classical_models.py
 
 if __name__ == "__main__":
     main()
